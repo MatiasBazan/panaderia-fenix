@@ -1,0 +1,334 @@
+/* Identidad Fénix para los mails. Mismos tokens que la app, en valores
+   literales porque el cliente de correo no entiende variables CSS. */
+
+/* Base */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family:
+        'Work Sans',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #f7f1e3;
+    color: #6a5f52;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.5;
+    text-align: start;
+}
+
+a {
+    color: #9a3324;
+}
+
+a img {
+    border: none;
+}
+
+/* Tipografía */
+
+h1 {
+    color: #241e18;
+    font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-top: 0;
+    text-align: start;
+}
+
+h2 {
+    color: #241e18;
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: 0;
+    text-align: start;
+}
+
+h3 {
+    color: #241e18;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    color: #6a5f52;
+    font-size: 16px;
+    line-height: 1.6em;
+    margin-top: 0;
+    text-align: left;
+}
+
+p.sub {
+    font-size: 13px;
+}
+
+img {
+    max-width: 100%;
+}
+
+code {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 14px;
+    color: #241e18;
+}
+
+/* Layout */
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #f7f1e3;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Encabezado */
+
+.header {
+    padding: 28px 0 20px;
+    text-align: center;
+}
+
+.header a {
+    color: #241e18;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    font-weight: 400;
+    text-decoration: none;
+}
+
+/* Logo */
+
+.logo {
+    height: 64px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    max-height: 64px;
+    width: 64px;
+}
+
+/* Cuerpo */
+
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #f7f1e3;
+    border-bottom: 1px solid #f7f1e3;
+    border-top: 1px solid #f7f1e3;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Borde hairline en lugar de sombra, como en la app. */
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #fffcf5;
+    border: 1px solid #e5d9c3;
+    border-radius: 14px;
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+.inner-body a {
+    word-break: break-all;
+}
+
+/* Subcopia */
+
+.subcopy {
+    border-top: 1px solid #e5d9c3;
+    margin-top: 25px;
+    padding-top: 25px;
+}
+
+.subcopy p {
+    color: #9b8f7e;
+    font-size: 14px;
+}
+
+/* Pie */
+
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 570px;
+}
+
+.footer p {
+    color: #9b8f7e;
+    font-size: 12px;
+    text-align: center;
+}
+
+.footer a {
+    color: #9b8f7e;
+    text-decoration: underline;
+}
+
+/* Tablas: los montos y cantidades van en mono. */
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 26px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #e5d9c3;
+    color: #6a5f52;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    margin: 0;
+    padding-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.table td {
+    border-bottom: 1px solid #e5d9c3;
+    color: #241e18;
+    font-size: 15px;
+    line-height: 20px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.table td:not(:first-child),
+.table th:not(:first-child) {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    text-align: right;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 32px;
+}
+
+/* Botones */
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 28px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    float: unset;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 8px;
+    display: inline-block;
+    font-weight: 600;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+/* Dorado con texto carbón: el primario del sistema. */
+.button-blue,
+.button-primary {
+    background-color: #c79a3e;
+    border-bottom: 10px solid #c79a3e;
+    border-left: 20px solid #c79a3e;
+    border-right: 20px solid #c79a3e;
+    border-top: 10px solid #c79a3e;
+    color: #1e1813;
+}
+
+.button-green,
+.button-success {
+    background-color: #3f7a4f;
+    border-bottom: 10px solid #3f7a4f;
+    border-left: 20px solid #3f7a4f;
+    border-right: 20px solid #3f7a4f;
+    border-top: 10px solid #3f7a4f;
+    color: #fffcf5;
+}
+
+.button-red,
+.button-error {
+    background-color: #9a3324;
+    border-bottom: 10px solid #9a3324;
+    border-left: 20px solid #9a3324;
+    border-right: 20px solid #9a3324;
+    border-top: 10px solid #9a3324;
+    color: #fffcf5;
+}
+
+/* Paneles */
+
+.panel {
+    border-left: #c79a3e solid 4px;
+    margin: 21px 0;
+}
+
+.panel-content {
+    background-color: #f7f1e3;
+    color: #6a5f52;
+    padding: 16px;
+}
+
+.panel-content p {
+    color: #6a5f52;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Utilidades */
+
+.break-all {
+    word-break: break-all;
+}

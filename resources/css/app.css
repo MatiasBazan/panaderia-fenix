@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+@import '@fontsource/dm-serif-display/400.css';
+@import '@fontsource/work-sans/400.css';
+@import '@fontsource/work-sans/500.css';
+@import '@fontsource/work-sans/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@theme {
+    /* Marca */
+    --color-dorado: #c79a3e;
+    --color-dorado-hover: #a67c29;
+    --color-bordo: #9a3324;
+    --color-bordo-hover: #7a2619;
+    --color-carbon: #1e1813;
+
+    /* Superficies */
+    --color-crema: #f7f1e3;
+    --color-papel: #fffcf5;
+    --color-borde: #e5d9c3;
+
+    /* Texto */
+    --color-texto: #241e18;
+    --color-texto-medio: #6a5f52;
+    --color-texto-suave: #9b8f7e;
+
+    /* Semánticos */
+    --color-exito: #3f7a4f;
+    --color-alerta: #c7801c;
+    --color-error: #b23425;
+    --color-info: #37697f;
+
+    /* Tipografía */
+    --font-display: 'DM Serif Display', serif;
+    --font-sans: 'Work Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Radios */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 14px;
+
+    /* Sombras cálidas */
+    --shadow-sm: 0 1px 2px rgba(58, 44, 26, 0.06);
+    --shadow-md: 0 4px 12px rgba(58, 44, 26, 0.08);
+    --shadow-lg: 0 12px 32px rgba(58, 44, 26, 0.12);
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-crema font-sans text-texto antialiased;
+    }
+
+    /* Foco visible y consistente en todo control interactivo. */
+    :focus-visible {
+        outline: 2px solid var(--color-dorado-hover);
+        outline-offset: 2px;
+    }
+}
