@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\QuoteRequestEstado;
+use App\Enums\TipoPedido;
 use Database\Factories\QuoteRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,8 +17,8 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property string $nombre
- * @property string $email
  * @property string $telefono
+ * @property TipoPedido $tipo
  * @property string|null $localidad
  * @property string|null $mensaje
  * @property Carbon|null $fecha_evento
@@ -28,7 +29,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, QuoteRequestItem> $items
  * @property-read Quote|null $quote
  */
-#[Fillable(['nombre', 'email', 'telefono', 'localidad', 'mensaje', 'fecha_evento', 'estado', 'ip'])]
+#[Fillable(['nombre', 'telefono', 'tipo', 'localidad', 'mensaje', 'fecha_evento', 'estado', 'ip'])]
 class QuoteRequest extends Model
 {
     /** @use HasFactory<QuoteRequestFactory> */
@@ -41,6 +42,7 @@ class QuoteRequest extends Model
     {
         return [
             'fecha_evento' => 'date',
+            'tipo' => TipoPedido::class,
             'estado' => QuoteRequestEstado::class,
         ];
     }

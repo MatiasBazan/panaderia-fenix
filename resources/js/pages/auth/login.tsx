@@ -12,7 +12,7 @@ export default function Login({ status, canResetPassword }: Props) {
     return (
         <AuthLayout
             title="Ingresar"
-            description="Acceso para comercios y administración de la panadería."
+            description="Acceso a la administración de la panadería."
         >
             <Head title="Ingresar" />
 
@@ -41,7 +41,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             required
                             autoFocus
                             autoComplete="email"
-                            placeholder="nombre@comercio.com.ar"
+                            placeholder="nombre@panaderiafenix.com.ar"
                             error={errors.email}
                         />
 
@@ -80,17 +80,6 @@ export default function Login({ status, canResetPassword }: Props) {
                     </>
                 )}
             </Form>
-
-            <p className="mt-6 border-t border-borde pt-4 text-sm text-texto-medio">
-                ¿Todavía no sos cliente mayorista?{' '}
-                <Link
-                    href="/comercios/solicitar"
-                    className="text-bordo underline underline-offset-4 hover:text-bordo-hover"
-                >
-                    Pedí el alta
-                </Link>
-                .
-            </p>
         </AuthLayout>
     );
 }

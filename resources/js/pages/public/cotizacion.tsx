@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
 import useCotizacion from '@/hooks/use-cotizacion';
+import { cn } from '@/lib/utils';
 import PublicLayout from '@/layouts/public-layout';
 
 type Props = {
@@ -20,16 +21,31 @@ type Props = {
     zonas: string[];
 };
 
+type TipoPedido = 'minorista' | 'mayorista';
+
 type FormData = {
     nombre: string;
-    email: string;
     telefono: string;
+    tipo: TipoPedido;
     localidad: string;
     fecha_evento: string;
     mensaje: string;
     sitio_web: string;
     items: { product_id: number; cantidad: number; nota: string }[];
 };
+
+const TIPOS: { value: TipoPedido; label: string; hint: string }[] = [
+    {
+        value: 'minorista',
+        label: 'Minorista / casual',
+        hint: 'Para tu casa, un evento o una compra puntual.',
+    },
+    {
+        value: 'mayorista',
+        label: 'Mayorista',
+        hint: 'Para revender o abastecer tu comercio.',
+    },
+];
 
 export default function Cotizacion({ productos, zonas }: Props) {
     const { items, actualizar, quitar, vaciar } = useCotizacion();
@@ -49,8 +65,8 @@ export default function Cotizacion({ productos, zonas }: Props) {
 
     const form = useForm<FormData>({
         nombre: '',
-        email: '',
         telefono: '',
+        tipo: 'minorista',
         localidad: '',
         fecha_evento: '',
         mensaje: '',
@@ -229,6 +245,56 @@ export default function Cotizacion({ productos, zonas }: Props) {
                     )}
                 </section>
 
+                {/* Tipo de pedido: define a qué contacto se le abre el WhatsApp. */}
+                <section className="mt-10 border-t border-borde pt-8">
+                    <h2 className="font-display text-2xl text-texto">
+                        Tipo de pedido
+                    </h2>
+                    <p className="mt-1 text-texto-medio">
+                        Así te derivamos con la persona correcta.
+                    </p>
+
+                    <div
+                        role="radiogroup"
+                        aria-label="Tipo de pedido"
+                        className="mt-4 grid gap-3 sm:grid-cols-2"
+                    >
+                        {TIPOS.map((tipo) => {
+                            const activo = form.data.tipo === tipo.value;
+
+                            return (
+                                <button
+                                    key={tipo.value}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={activo}
+                                    onClick={() =>
+                                        form.setData('tipo', tipo.value)
+                                    }
+                                    className={cn(
+                                        'rounded-lg border p-4 text-left transition',
+                                        activo
+                                            ? 'border-bordo bg-bordo/5 ring-1 ring-bordo'
+                                            : 'border-borde hover:border-texto-suave',
+                                    )}
+                                >
+                                    <span className="block font-medium text-texto">
+                                        {tipo.label}
+                                    </span>
+                                    <span className="mt-1 block text-sm text-texto-medio">
+                                        {tipo.hint}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {form.errors.tipo && (
+                        <p className="mt-2 text-sm text-error">
+                            {form.errors.tipo}
+                        </p>
+                    )}
+                </section>
+
                 {/* Datos de contacto */}
                 <section className="mt-10 border-t border-borde pt-8">
                     <h2 className="font-display text-2xl text-texto">
@@ -245,17 +311,6 @@ export default function Cotizacion({ productos, zonas }: Props) {
                             }
                             error={form.errors.nombre}
                             autoComplete="name"
-                        />
-                        <Input
-                            label="Correo electrónico"
-                            type="email"
-                            required
-                            value={form.data.email}
-                            onChange={(e) =>
-                                form.setData('email', e.target.value)
-                            }
-                            error={form.errors.email}
-                            autoComplete="email"
                         />
                         <Input
                             label="Teléfono"

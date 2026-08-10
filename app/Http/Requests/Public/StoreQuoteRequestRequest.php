@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Public;
 
+use App\Enums\TipoPedido;
 use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,8 +24,8 @@ class StoreQuoteRequestRequest extends FormRequest
             'sitio_web' => ['prohibited'],
 
             'nombre' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email:rfc', 'max:180'],
             'telefono' => ['required', 'string', 'max:40'],
+            'tipo' => ['required', Rule::enum(TipoPedido::class)],
             'localidad' => ['nullable', 'string', 'max:120'],
             'mensaje' => ['nullable', 'string', 'max:2000'],
             'fecha_evento' => ['nullable', 'date', 'after_or_equal:today'],
@@ -47,8 +48,8 @@ class StoreQuoteRequestRequest extends FormRequest
     {
         return [
             'nombre' => 'nombre',
-            'email' => 'correo electrónico',
             'telefono' => 'teléfono',
+            'tipo' => 'tipo de pedido',
             'localidad' => 'localidad',
             'mensaje' => 'mensaje',
             'fecha_evento' => 'fecha del evento',

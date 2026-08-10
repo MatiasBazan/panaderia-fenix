@@ -59,8 +59,8 @@ it('deja fuera del catálogo a los productos inactivos', function () {
     $this->get('/productos')->assertInertia(
         fn (Assert $page) => $page
             ->component('public/catalogo')
-            ->has('productos', 1)
-            ->where('productos.0.id', $activo->id),
+            ->has('productos.data', 1)
+            ->where('productos.data.0.id', $activo->id),
     );
 });
 
@@ -79,8 +79,8 @@ it('filtra el catálogo por categoría', function () {
 
     $this->get('/productos?categoria=panes')->assertInertia(
         fn (Assert $page) => $page
-            ->has('productos', 1)
-            ->where('productos.0.id', $pan->id)
+            ->has('productos.data', 1)
+            ->where('productos.data.0.id', $pan->id)
             ->where('filtros.categoria', 'panes'),
     );
 });
@@ -91,8 +91,8 @@ it('filtra el catálogo por búsqueda', function () {
 
     $this->get('/productos?q=campo')->assertInertia(
         fn (Assert $page) => $page
-            ->has('productos', 1)
-            ->where('productos.0.id', $buscado->id),
+            ->has('productos.data', 1)
+            ->where('productos.data.0.id', $buscado->id),
     );
 });
 

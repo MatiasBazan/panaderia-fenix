@@ -117,7 +117,6 @@
                 <div class="bloque">
                     <span class="rotulo">Cliente</span>
                     <strong class="valor">{{ $solicitud->nombre }}</strong>
-                    <span class="valor">{{ $solicitud->email }}</span>
                     <span class="valor">{{ $solicitud->telefono }}</span>
                     @if ($solicitud->localidad)
                         <span class="valor">{{ $solicitud->localidad }}</span>

@@ -15,55 +15,26 @@ it('no deja a un comercio entrar al panel de administración', function () {
     $this->actingAs($user)->get('/admin')->assertForbidden();
 });
 
-it('no deja al admin entrar al portal de comercios', function () {
-    $admin = User::factory()->admin()->create();
+it('manda a cambiar la clave temporal antes de dejar entrar al admin', function () {
+    $admin = User::factory()->admin()->debeCambiarPassword()->create();
 
-    $this->actingAs($admin)->get('/portal')->assertForbidden();
+    $this->actingAs($admin)->get('/admin')->assertRedirect('/cambiar-clave');
 });
 
-it('deja entrar al portal a un comercio activo', function () {
-    $user = User::factory()->comercio(Business::factory()->create())->create();
+it('libera el acceso después de cambiar la clave temporal', function () {
+    $admin = User::factory()->admin()->debeCambiarPassword()->create();
 
-    $this->actingAs($user)->get('/portal')->assertOk();
-});
-
-it('bloquea el portal a un comercio suspendido', function () {
-    $business = Business::factory()->suspendido()->create();
-    $user = User::factory()->comercio($business)->create();
-
-    $this->actingAs($user)->get('/portal')->assertForbidden();
-});
-
-it('bloquea el portal a un comercio pendiente de aprobación', function () {
-    $business = Business::factory()->pendiente()->create();
-    $user = User::factory()->comercio($business)->create();
-
-    $this->actingAs($user)->get('/portal')->assertForbidden();
-});
-
-it('manda a cambiar la clave temporal antes de dejar navegar el portal', function () {
-    $business = Business::factory()->create();
-    $user = User::factory()->comercio($business)->debeCambiarPassword()->create();
-
-    $this->actingAs($user)->get('/portal')->assertRedirect('/cambiar-clave');
-});
-
-it('libera el portal después de cambiar la clave temporal', function () {
-    $business = Business::factory()->create();
-    $user = User::factory()->comercio($business)->debeCambiarPassword()->create();
-
-    $this->actingAs($user)->put('/cambiar-clave', [
+    $this->actingAs($admin)->put('/cambiar-clave', [
         'current_password' => 'password',
         'password' => 'clave-nueva-larga-2026',
         'password_confirmation' => 'clave-nueva-larga-2026',
-    ])->assertRedirect('/portal');
+    ])->assertRedirect('/admin');
 
-    expect($user->fresh()->must_change_password)->toBeFalse();
+    expect($admin->fresh()->must_change_password)->toBeFalse();
 
-    $this->actingAs($user->fresh())->get('/portal')->assertOk();
+    $this->actingAs($admin->fresh())->get('/admin')->assertOk();
 });
 
-it('exige sesión iniciada en portal y admin', function () {
-    $this->get('/portal')->assertRedirect('/login');
+it('exige sesión iniciada en el admin', function () {
     $this->get('/admin')->assertRedirect('/login');
 });

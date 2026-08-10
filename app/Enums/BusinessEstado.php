@@ -19,7 +19,7 @@ enum BusinessEstado: string
         };
     }
 
-    /** Sólo un comercio activo puede operar en el portal. */
+    /** Sólo un comercio activo puede operar (cuenta corriente en el admin). */
     public function puedeOperar(): bool
     {
         return $this === self::Activo;

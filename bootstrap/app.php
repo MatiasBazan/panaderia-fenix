@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureBusinessIsActive;
 use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -24,7 +23,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
-            'business.active' => EnsureBusinessIsActive::class,
             'password.changed' => EnsurePasswordChanged::class,
         ]);
     })

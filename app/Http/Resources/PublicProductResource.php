@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Product;
+use App\Services\ProductImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -32,6 +33,9 @@ class PublicProductResource extends JsonResource
             'unidad' => $this->unidad->value,
             'unidad_label' => $this->unidad->label(),
             'imagen' => $this->imagen === null ? null : asset('storage/'.$this->imagen),
+            'imagen_thumb' => $this->imagen === null
+                ? null
+                : asset('storage/'.ProductImageService::thumbDe($this->imagen)),
             'destacado' => $this->destacado,
             'categoria' => $this->whenLoaded('category', fn (): array => [
                 'nombre' => $this->category->nombre,

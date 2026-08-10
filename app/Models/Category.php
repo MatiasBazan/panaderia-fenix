@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CatalogCache;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,6 +27,13 @@ class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        // El nombre/orden/estado de una categoría se refleja en la barra cacheada del catálogo.
+        static::saved(fn () => CatalogCache::invalidar());
+        static::deleted(fn () => CatalogCache::invalidar());
+    }
 
     /**
      * @return array<string, string>

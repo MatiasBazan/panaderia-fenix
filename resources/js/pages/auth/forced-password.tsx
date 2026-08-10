@@ -19,7 +19,7 @@ export default function ForcedPassword({ passwordRules }: Props) {
                 />
                 <span>
                     Entraste con la clave que te mandamos por mail. Elegí una
-                    propia para seguir al portal.
+                    propia para continuar.
                 </span>
             </p>
 

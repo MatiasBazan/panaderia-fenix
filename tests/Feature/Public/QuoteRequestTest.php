@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\QuoteRequestEstado;
+use App\Enums\TipoPedido;
 use App\Mail\QuoteRequestReceived;
 use App\Models\Product;
 use App\Models\QuoteRequest;
@@ -15,8 +16,8 @@ function datosValidos(array $overrides = []): array
 {
     return array_merge([
         'nombre' => 'Lucía Ferreyra',
-        'email' => 'lucia@example.com',
         'telefono' => '351-555-0000',
+        'tipo' => 'minorista',
         'localidad' => 'Córdoba',
         'mensaje' => 'Es para el cumpleaños de mi hija.',
         'fecha_evento' => now()->addWeek()->toDateString(),
@@ -38,6 +39,7 @@ it('registra la solicitud con sus ítems', function () {
 
     expect($solicitud->nombre)->toBe('Lucía Ferreyra')
         ->and($solicitud->estado)->toBe(QuoteRequestEstado::Nueva)
+        ->and($solicitud->tipo)->toBe(TipoPedido::Minorista)
         ->and($solicitud->ip)->not->toBeNull()
         ->and($solicitud->items)->toHaveCount(2)
         ->and($solicitud->items->firstWhere('product_id', $pan->id)->nota)->toBe('Bien cocido');
@@ -122,5 +124,45 @@ it('marca la pantalla de gracias como enviada después de un envío', function (
 
     $this->get('/cotizacion/gracias')->assertInertia(
         fn (Assert $page) => $page->where('enviada', true),
+    );
+});
+
+it('arma el enlace wa.me hacia Nati para un pedido minorista', function () {
+    $product = Product::factory()->create(['nombre' => 'Pan casero']);
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [['product_id' => $product->id, 'cantidad' => 3, 'nota' => 'Bien cocido']],
+    ]));
+
+    $this->get('/cotizacion/gracias')->assertInertia(
+        fn (Assert $page) => $page
+            ->where('enviada', true)
+            ->where('contacto', 'Nati')
+            ->where('whatsappUrl', function (string $url): bool {
+                $texto = rawurldecode($url);
+
+                return str_contains($url, 'https://wa.me/'.config('fenix.contactos_pedidos.minorista.whatsapp'))
+                    && str_contains($texto, 'Hola Nati!')
+                    && str_contains($texto, '3 × Pan casero (Bien cocido)')
+                    && str_contains($texto, 'Nombre: Lucía Ferreyra');
+            }),
+    );
+});
+
+it('deriva el pedido mayorista al WhatsApp de Juan', function () {
+    $product = Product::factory()->create();
+
+    $this->post('/cotizacion', datosValidos([
+        'tipo' => 'mayorista',
+        'items' => [['product_id' => $product->id, 'cantidad' => 1]],
+    ]));
+
+    $this->get('/cotizacion/gracias')->assertInertia(
+        fn (Assert $page) => $page
+            ->where('contacto', 'Juan')
+            ->where('whatsappUrl', function (string $url): bool {
+                return str_contains($url, 'https://wa.me/'.config('fenix.contactos_pedidos.mayorista.whatsapp'))
+                    && str_contains(rawurldecode($url), 'Hola Juan!');
+            }),
     );
 });

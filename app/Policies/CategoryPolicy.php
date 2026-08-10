@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\User;
 
 /**
- * El catálogo lo maneja sólo la panadería. El portal lo lee, nunca lo edita.
+ * El catálogo lo maneja sólo la panadería desde el admin.
  */
 class CategoryPolicy
 {

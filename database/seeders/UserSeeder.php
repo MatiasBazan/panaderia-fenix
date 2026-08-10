@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
 {
     /**
      * Cuentas de arranque: la administración de la panadería y comercios de
-     * ejemplo en los tres estados que cambian el comportamiento del portal.
+     * ejemplo en los tres estados de la cuenta corriente en el admin.
      */
     public function run(): void
     {

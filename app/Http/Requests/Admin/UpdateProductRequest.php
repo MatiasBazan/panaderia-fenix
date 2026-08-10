@@ -38,7 +38,7 @@ class UpdateProductRequest extends FormRequest
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'unidad' => ['required', Rule::enum(ProductUnidad::class)],
             'precio_base' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
-            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             // Sacar la foto actual sin subir una nueva.
             'eliminar_imagen' => ['required', 'boolean'],
             'activo' => ['required', 'boolean'],
@@ -93,7 +93,7 @@ class UpdateProductRequest extends FormRequest
             'slug.unique' => 'Ya hay un producto con ese identificador.',
             'category_id.exists' => 'La categoría elegida no existe.',
             'precio_base.decimal' => 'El precio admite como mucho dos decimales.',
-            'imagen.max' => 'La foto no puede pesar más de 2 MB.',
+            'imagen.max' => 'La foto no puede pesar más de 10 MB.',
         ];
     }
 }

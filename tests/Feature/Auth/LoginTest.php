@@ -17,17 +17,17 @@ it('manda al admin a /admin después de ingresar', function () {
     $this->assertAuthenticatedAs($admin);
 });
 
-it('manda al comercio a /portal después de ingresar', function () {
+it('manda al comercio a la landing después de ingresar', function () {
     $business = Business::factory()->create();
     $user = User::factory()->comercio($business)->create();
 
     $this->post('/login', ['email' => $user->email, 'password' => 'password'])
-        ->assertRedirect('/portal');
+        ->assertRedirect('/');
 
     $this->assertAuthenticatedAs($user);
 });
 
-it('manda a cambiar la clave temporal antes que al portal', function () {
+it('manda a cambiar la clave temporal antes que a su destino', function () {
     $business = Business::factory()->create();
     $user = User::factory()->comercio($business)->debeCambiarPassword()->create();
 

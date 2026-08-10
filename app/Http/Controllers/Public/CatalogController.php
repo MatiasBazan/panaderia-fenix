@@ -7,6 +7,7 @@ use App\Http\Resources\PublicCategoryResource;
 use App\Http\Resources\PublicProductResource;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\CatalogCache;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,19 +35,28 @@ class CatalogController extends Controller
                     ->orWhere('descripcion', 'like', "%{$busqueda}%"),
             ))
             ->ordenados()
-            ->get();
+            ->paginate(24)
+            ->withQueryString()
+            ->through(fn (Product $product): array => PublicProductResource::make($product)->resolve());
 
-        $categorias = Category::query()
-            ->activas()
-            ->withCount(['products' => fn ($query) => $query->where('activo', true)])
-            ->ordenadas()
-            ->get()
-            ->filter(fn (Category $category): bool => $category->products_count > 0)
-            ->values();
+        // La barra de categorías (con sus conteos) casi no cambia: se cachea y
+        // se invalida sola cuando se toca un producto o una categoría.
+        $categorias = CatalogCache::remember(
+            'categorias',
+            fn (): array => PublicCategoryResource::collection(
+                Category::query()
+                    ->activas()
+                    ->withCount(['products' => fn ($query) => $query->where('activo', true)])
+                    ->ordenadas()
+                    ->get()
+                    ->filter(fn (Category $category): bool => $category->products_count > 0)
+                    ->values(),
+            )->resolve(),
+        );
 
         return Inertia::render('public/catalogo', [
-            'productos' => PublicProductResource::collection($productos),
-            'categorias' => PublicCategoryResource::collection($categorias),
+            'productos' => $productos,
+            'categorias' => $categorias,
             'filtros' => [
                 'categoria' => $categoria === '' ? null : $categoria,
                 'q' => $busqueda === '' ? null : $busqueda,

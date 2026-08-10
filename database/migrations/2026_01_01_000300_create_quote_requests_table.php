@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\QuoteRequestEstado;
+use App\Enums\TipoPedido;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +13,9 @@ return new class extends Migration
         Schema::create('quote_requests', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('email');
             $table->string('telefono', 40);
+            $table->enum('tipo', array_column(TipoPedido::cases(), 'value'))
+                ->default(TipoPedido::Minorista->value);
             $table->string('localidad')->nullable();
             $table->text('mensaje')->nullable();
             $table->date('fecha_evento')->nullable();

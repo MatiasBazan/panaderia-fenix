@@ -15,8 +15,8 @@ final class QuoteRequestData
      */
     public function __construct(
         public readonly string $nombre,
-        public readonly string $email,
         public readonly string $telefono,
+        public readonly string $tipo,
         public readonly ?string $localidad,
         public readonly ?string $mensaje,
         public readonly ?string $fechaEvento,
@@ -44,8 +44,8 @@ final class QuoteRequestData
 
         return new self(
             nombre: (string) $request->input('nombre'),
-            email: (string) $request->input('email'),
             telefono: (string) $request->input('telefono'),
+            tipo: (string) $request->input('tipo'),
             localidad: self::opcional($request->input('localidad')),
             mensaje: self::opcional($request->input('mensaje')),
             fechaEvento: self::opcional($request->input('fecha_evento')),

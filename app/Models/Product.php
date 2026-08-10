@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductUnidad;
+use App\Support\CatalogCache;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,6 +38,13 @@ class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
     use HasFactory, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        // Cualquier alta/baja/edición de un producto vuelve obsoleto el catálogo cacheado.
+        static::saved(fn () => CatalogCache::invalidar());
+        static::deleted(fn () => CatalogCache::invalidar());
+    }
 
     /**
      * @return array<string, string>

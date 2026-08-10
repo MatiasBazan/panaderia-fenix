@@ -74,7 +74,8 @@ return [
     */
 
     // El destino real depende del rol; lo resuelve App\Http\Responses\LoginResponse.
-    'home' => '/portal',
+    // Este valor sólo lo usa el guest middleware (visitar /login ya logueado).
+    'home' => '/',
 
     /*
     |--------------------------------------------------------------------------

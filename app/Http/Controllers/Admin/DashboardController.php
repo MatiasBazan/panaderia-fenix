@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\BusinessEstado;
 use App\Enums\QuoteEstado;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
@@ -22,19 +23,33 @@ class DashboardController extends Controller
     {
         Gate::authorize('viewAny', QuoteRequest::class);
 
+        // Las tres métricas de cotizaciones salen de un solo barrido de la tabla
+        // con agregados condicionales, en vez de tres COUNT sueltos.
+        $cotizaciones = Quote::query()
+            ->selectRaw('count(case when estado = ? then 1 end) as borrador', [QuoteEstado::Borrador->value])
+            ->selectRaw('count(case when estado = ? then 1 end) as enviadas', [QuoteEstado::Enviada->value])
+            ->selectRaw(
+                'count(case when estado = ? and vence_el between ? and ? then 1 end) as por_vencer',
+                [QuoteEstado::Enviada->value, now()->toDateString(), now()->addDays(7)->toDateString()],
+            )
+            ->first();
+
+        // Ídem para los dos estados de comercio que interesan al tablero.
+        $comercios = Business::query()
+            ->selectRaw('count(case when estado = ? then 1 end) as activos', [BusinessEstado::Activo->value])
+            ->selectRaw('count(case when estado = ? then 1 end) as pendientes', [BusinessEstado::Pendiente->value])
+            ->first();
+
         return Inertia::render('admin/dashboard', [
             'metricas' => [
                 'solicitudes_pendientes' => QuoteRequest::query()->pendientes()->count(),
-                'cotizaciones_borrador' => Quote::query()->where('estado', QuoteEstado::Borrador)->count(),
-                'cotizaciones_enviadas' => Quote::query()->enviadas()->count(),
-                'cotizaciones_por_vencer' => Quote::query()
-                    ->enviadas()
-                    ->whereBetween('vence_el', [now()->toDateString(), now()->addDays(7)->toDateString()])
-                    ->count(),
+                'cotizaciones_borrador' => (int) $cotizaciones->borrador,
+                'cotizaciones_enviadas' => (int) $cotizaciones->enviadas,
+                'cotizaciones_por_vencer' => (int) $cotizaciones->por_vencer,
                 'productos_activos' => Product::query()->activos()->count(),
                 'categorias_activas' => Category::query()->activas()->count(),
-                'comercios_activos' => Business::query()->activos()->count(),
-                'comercios_pendientes' => Business::query()->pendientes()->count(),
+                'comercios_activos' => (int) $comercios->activos,
+                'comercios_pendientes' => (int) $comercios->pendientes,
             ],
             'ultimas_solicitudes' => QuoteRequest::query()
                 ->withCount('items')

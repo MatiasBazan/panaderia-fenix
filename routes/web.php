@@ -39,27 +39,14 @@ if (app()->environment('local')) {
 |--------------------------------------------------------------------------
 | Cambio obligatorio de clave
 |--------------------------------------------------------------------------
-| Fuera de los grupos de rol: un comercio con clave temporal tiene que pasar
-| por acá antes de poder entrar al portal.
+| Fuera de los grupos de rol: un usuario con clave temporal tiene que pasar
+| por acá antes de poder entrar a su panel.
 */
 
 Route::middleware('auth')->group(function () {
     Route::get('cambiar-clave', [ForcedPasswordController::class, 'edit'])->name('password.forzado.edit');
     Route::put('cambiar-clave', [ForcedPasswordController::class, 'update'])->name('password.forzado.update');
 });
-
-/*
-|--------------------------------------------------------------------------
-| Portal de comercios
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth', 'role:comercio', 'password.changed', 'business.active'])
-    ->prefix('portal')
-    ->name('portal.')
-    ->group(function () {
-        Route::inertia('/', 'portal/dashboard')->name('dashboard');
-    });
 
 /*
 |--------------------------------------------------------------------------

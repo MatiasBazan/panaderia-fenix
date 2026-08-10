@@ -6,13 +6,14 @@ use App\Enums\ProductUnidad;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
+use App\Http\Resources\AdminProductResource;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\ProductImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,8 +23,7 @@ use Inertia\Response;
  */
 class ProductController extends Controller
 {
-    /** Carpeta de las fotos dentro del disco `public`. */
-    private const IMAGENES_DIR = 'productos';
+    public function __construct(private readonly ProductImageService $imagenes) {}
 
     public function index(Request $request): Response
     {
@@ -48,7 +48,7 @@ class ProductController extends Controller
             ->ordenados()
             ->paginate(20)
             ->withQueryString()
-            ->through(fn (Product $product): array => $this->toArray($product));
+            ->through(fn (Product $product): array => AdminProductResource::make($product)->resolve());
 
         return Inertia::render('admin/productos/index', [
             'productos' => $productos,
@@ -74,7 +74,11 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request): RedirectResponse
     {
         $datos = $request->safe()->except('imagen');
-        $datos['imagen'] = $this->guardarImagen($request->file('imagen'));
+
+        $imagen = $request->file('imagen');
+        $datos['imagen'] = $imagen instanceof UploadedFile
+            ? $this->imagenes->guardar($imagen)
+            : null;
 
         $product = Product::create($datos);
 
@@ -88,7 +92,7 @@ class ProductController extends Controller
         Gate::authorize('update', $product);
 
         return Inertia::render('admin/productos/edit', [
-            'producto' => $this->toArray($product->load('category:id,nombre,slug')),
+            'producto' => AdminProductResource::make($product->load('category:id,nombre,slug'))->resolve(),
             'categorias' => $this->opcionesCategorias(),
             'unidades' => $this->opcionesUnidades(),
         ]);
@@ -101,16 +105,16 @@ class ProductController extends Controller
         $nueva = $request->file('imagen');
 
         if ($nueva instanceof UploadedFile) {
-            $datos['imagen'] = $this->guardarImagen($nueva);
+            $datos['imagen'] = $this->imagenes->guardar($nueva);
         } elseif ($request->boolean('eliminar_imagen')) {
             $datos['imagen'] = null;
         }
 
         $product->update($datos);
 
-        // Recién se borra el archivo viejo cuando la fila ya quedó guardada.
+        // Recién se borra el archivo viejo (y su thumb) cuando la fila ya quedó guardada.
         if ($anterior !== null && array_key_exists('imagen', $datos) && $datos['imagen'] !== $anterior) {
-            Storage::disk('public')->delete($anterior);
+            $this->imagenes->eliminar($anterior);
         }
 
         return redirect()
@@ -129,42 +133,6 @@ class ProductController extends Controller
         return redirect()
             ->route('admin.productos.index')
             ->with('exito', "Producto «{$product->nombre}» dado de baja.");
-    }
-
-    private function guardarImagen(?UploadedFile $imagen): ?string
-    {
-        if (! $imagen instanceof UploadedFile) {
-            return null;
-        }
-
-        return $imagen->store(self::IMAGENES_DIR, 'public') ?: null;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function toArray(Product $product): array
-    {
-        return [
-            'id' => $product->id,
-            'category_id' => $product->category_id,
-            'sku' => $product->sku,
-            'nombre' => $product->nombre,
-            'slug' => $product->slug,
-            'descripcion' => $product->descripcion,
-            'unidad' => $product->unidad->value,
-            'unidad_label' => $product->unidad->label(),
-            'precio_base' => (string) $product->precio_base,
-            'imagen' => $product->imagen === null ? null : asset('storage/'.$product->imagen),
-            'activo' => $product->activo,
-            'destacado' => $product->destacado,
-            'orden' => $product->orden,
-            'categoria' => $product->relationLoaded('category') ? [
-                'id' => $product->category->id,
-                'nombre' => $product->category->nombre,
-                'slug' => $product->category->slug,
-            ] : null,
-        ];
     }
 
     /**

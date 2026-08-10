@@ -14,14 +14,16 @@ import PublicLayout from '@/layouts/public-layout';
 
 type Horario = { dias: string; horario: string };
 
+type Contacto = { nombre: string; telefono: string; whatsapp: string };
+
 type Panaderia = {
     nombre?: string;
     direccion?: string;
-    telefono?: string;
-    whatsapp?: string;
+    contactos?: Contacto[];
     email?: string;
     horarios?: Horario[];
     mapa?: { lat: number; lng: number };
+    mapa_url?: string;
     redes?: Record<string, string>;
 };
 
@@ -76,23 +78,12 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                             <Link href="/productos">
                                 <Button size="lg">Pedir cotización</Button>
                             </Link>
-                            <Link href="/login">
+                            <Link href="/#ubicacion">
                                 <Button size="lg" variant="secondary">
-                                    Acceso comercios
+                                    Dónde estamos
                                 </Button>
                             </Link>
                         </div>
-
-                        <p className="mt-4 text-sm text-texto-suave">
-                            ¿Sos comercio y todavía no tenés cuenta?{' '}
-                            <Link
-                                href="/comercios/solicitar"
-                                className="underline underline-offset-4 hover:text-bordo"
-                            >
-                                Pedí el alta mayorista
-                            </Link>
-                            .
-                        </p>
                     </div>
 
                     <PhotoPlaceholder
@@ -175,10 +166,9 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                             </p>
                             <p>
                                 Trabajamos con almacenes, kioscos, bares y
-                                confiterías de Córdoba y alrededores. Si tenés
-                                un comercio, pedí el alta y accedé a precios
-                                mayoristas, cuenta corriente y entregas
-                                programadas.
+                                confiterías de Córdoba y alrededores. Armá tu
+                                lista, pedí la cotización y coordinamos precios,
+                                cantidades y entregas por WhatsApp.
                             </p>
                         </div>
 
@@ -215,23 +205,44 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                                 />
                                 <span>
                                     {panaderia.direccion ??
-                                        'Córdoba, Argentina'}
+                                        'Leones, Córdoba'}
+                                    {panaderia.mapa_url && (
+                                        <>
+                                            {' · '}
+                                            <a
+                                                href={panaderia.mapa_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="underline underline-offset-4 hover:text-bordo"
+                                            >
+                                                Cómo llegar
+                                            </a>
+                                        </>
+                                    )}
                                 </span>
                             </p>
-                            {panaderia.telefono && (
-                                <p className="mt-3 flex items-start gap-2.5 text-texto">
+                            {panaderia.contactos?.map((contacto) => (
+                                <p
+                                    key={contacto.whatsapp}
+                                    className="mt-3 flex items-start gap-2.5 text-texto"
+                                >
                                     <Phone
                                         className="mt-0.5 size-4 shrink-0 text-dorado"
                                         aria-hidden="true"
                                     />
                                     <a
-                                        href={`tel:${panaderia.telefono.replace(/[^\d+]/g, '')}`}
-                                        className="font-mono underline underline-offset-4 hover:text-bordo"
+                                        href={`https://wa.me/${contacto.whatsapp}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="underline underline-offset-4 hover:text-bordo"
                                     >
-                                        {panaderia.telefono}
+                                        <span className="font-mono">
+                                            {contacto.telefono}
+                                        </span>{' '}
+                                        ({contacto.nombre})
                                     </a>
                                 </p>
-                            )}
+                            ))}
                             {panaderia.redes?.instagram && (
                                 <p className="mt-3 flex items-start gap-2.5 text-texto">
                                     <Instagram
@@ -280,12 +291,47 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                     </div>
 
                     {mapa ? (
-                        <iframe
-                            title="Mapa de la panadería"
-                            loading="lazy"
-                            className="h-80 w-full rounded-lg border border-borde lg:h-full"
-                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${mapa.lng - 0.006}%2C${mapa.lat - 0.004}%2C${mapa.lng + 0.006}%2C${mapa.lat + 0.004}&layer=mapnik&marker=${mapa.lat}%2C${mapa.lng}`}
-                        />
+                        <div className="group relative min-h-80 overflow-hidden rounded-xl border border-borde shadow-sm ring-1 ring-black/5 lg:h-full">
+                            <iframe
+                                title="Mapa de la panadería"
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                className="h-full min-h-80 w-full [filter:sepia(0.35)_saturate(1.15)_hue-rotate(-12deg)_brightness(1.03)]"
+                                src={`https://www.google.com/maps?q=${mapa.lat},${mapa.lng}&z=16&hl=es&output=embed`}
+                            />
+                            {/* Tarjeta flotante con la dirección y el acceso a indicaciones. */}
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                                <div className="pointer-events-auto flex flex-wrap items-center justify-between gap-3 rounded-lg border border-borde bg-papel/95 px-4 py-3 shadow-lg backdrop-blur-sm">
+                                    <div className="flex items-start gap-2.5">
+                                        <MapPin
+                                            className="mt-0.5 size-4 shrink-0 text-dorado"
+                                            aria-hidden="true"
+                                        />
+                                        <div>
+                                            <p className="font-display text-lg leading-tight text-texto">
+                                                {panaderia.nombre ??
+                                                    'Panadería Fénix'}
+                                            </p>
+                                            <p className="text-sm text-texto-medio">
+                                                {panaderia.direccion ??
+                                                    'Leones, Córdoba'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {panaderia.mapa_url && (
+                                        <a
+                                            href={panaderia.mapa_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            <Button size="sm" icon={<MapPin className="size-4" />}>
+                                                Cómo llegar
+                                            </Button>
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     ) : (
                         <PhotoPlaceholder
                             label="mapa de la panadería"

@@ -20,7 +20,8 @@ enum UserRole: string
     {
         return match ($this) {
             self::Admin => '/admin',
-            self::Comercio => '/portal',
+            // El portal de comercios se retiró: sólo queda la landing pública y el admin.
+            self::Comercio => '/',
         };
     }
 }

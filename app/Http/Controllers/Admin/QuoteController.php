@@ -7,7 +7,6 @@ use App\Enums\QuoteEstado;
 use App\Enums\QuoteRequestEstado;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateQuoteRequest;
-use App\Mail\QuoteSent;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Support\Decimal;
@@ -19,7 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Cotizaciones: se generan desde una solicitud, se editan mientras son
@@ -91,7 +89,7 @@ class QuoteController extends Controller
         return back()->with('exito', "Cotización {$quote->numero} actualizada.");
     }
 
-    /** Envía la cotización al cliente y la cierra: a partir de acá ya no se edita. */
+    /** Marca la cotización como enviada y la cierra: a partir de acá ya no se edita. */
     public function send(Quote $quote): RedirectResponse
     {
         Gate::authorize('send', $quote);
@@ -107,13 +105,7 @@ class QuoteController extends Controller
             $quote->quoteRequest->update(['estado' => QuoteRequestEstado::Cotizada]);
         });
 
-        // Va por cola, igual que el aviso de solicitud nueva.
-        Mail::to($quote->quoteRequest->email)->queue(new QuoteSent($quote));
-
-        return back()->with(
-            'exito',
-            "Cotización {$quote->numero} enviada a {$quote->quoteRequest->email}.",
-        );
+        return back()->with('exito', "Cotización {$quote->numero} marcada como enviada.");
     }
 
     public function pdf(Quote $quote, Settings $settings): HttpResponse

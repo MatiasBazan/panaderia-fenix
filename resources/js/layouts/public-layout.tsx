@@ -68,12 +68,6 @@ export default function PublicLayout({
                                 {item.label}
                             </Link>
                         ))}
-                        <Link
-                            href="/login"
-                            className="text-sm font-medium text-texto underline underline-offset-4 transition-colors hover:text-bordo"
-                        >
-                            Acceso comercios
-                        </Link>
                     </nav>
 
                     <button
@@ -97,10 +91,7 @@ export default function PublicLayout({
                         aria-label="Principal"
                     >
                         <ul className="grid gap-1">
-                            {[
-                                ...navegacion,
-                                { href: '/login', label: 'Acceso comercios' },
-                            ].map((item) => (
+                            {navegacion.map((item) => (
                                 <li key={item.href}>
                                     <Link
                                         href={item.href}
@@ -129,18 +120,18 @@ export default function PublicLayout({
                     </div>
 
                     <div className="grid gap-2 text-sm">
-                        <p className="font-semibold text-texto">Comercios</p>
+                        <p className="font-semibold text-texto">Panadería</p>
                         <Link
-                            href="/comercios/solicitar"
+                            href="/productos"
                             className="text-texto-medio underline underline-offset-4 hover:text-bordo"
                         >
-                            Pedir alta mayorista
+                            Ver el catálogo
                         </Link>
                         <Link
                             href="/login"
                             className="text-texto-medio underline underline-offset-4 hover:text-bordo"
                         >
-                            Ingresar al portal
+                            Administración
                         </Link>
                     </div>
                 </div>

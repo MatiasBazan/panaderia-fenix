@@ -23,7 +23,6 @@ class QuoteRequestReceived extends Mailable implements ShouldQueue
     {
         return new Envelope(
             subject: "Nueva solicitud de cotización de {$this->quoteRequest->nombre}",
-            replyTo: [$this->quoteRequest->email],
         );
     }
 

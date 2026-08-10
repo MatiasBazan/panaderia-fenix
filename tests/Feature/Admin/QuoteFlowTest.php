@@ -2,7 +2,6 @@
 
 use App\Enums\QuoteEstado;
 use App\Enums\QuoteRequestEstado;
-use App\Mail\QuoteSent;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
@@ -108,7 +107,6 @@ it('rechaza un descuento mayor al subtotal', function () {
 });
 
 it('envía la cotización y la cierra para edición', function () {
-    Mail::fake();
     $solicitud = solicitudConItems();
     $this->actingAs($this->admin)->post("/admin/cotizaciones/{$solicitud->id}/generar");
     $quote = Quote::query()->firstOrFail();
@@ -122,8 +120,6 @@ it('envía la cotización y la cierra para edición', function () {
     expect($quote->estado)->toBe(QuoteEstado::Enviada)
         ->and($quote->enviada_el)->not->toBeNull()
         ->and($solicitud->fresh()->estado)->toBe(QuoteRequestEstado::Cotizada);
-
-    Mail::assertQueued(QuoteSent::class, fn (QuoteSent $mail): bool => $mail->hasTo($solicitud->email));
 
     // Ya enviada: el borrador no se toca más.
     $this->actingAs($this->admin)

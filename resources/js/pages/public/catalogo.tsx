@@ -1,11 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Button, EmptyState, ProductCard, useToast } from '@/components/ui';
+import {
+    Button,
+    EmptyState,
+    Pagination,
+    ProductCard,
+    useToast,
+} from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
 import useCotizacion from '@/hooks/use-cotizacion';
 import PublicLayout from '@/layouts/public-layout';
 import { cn } from '@/lib/utils';
+import type { Paginated } from '@/types';
 
 type Categoria = {
     nombre: string;
@@ -14,10 +21,13 @@ type Categoria = {
 };
 
 type Props = {
-    productos: PublicProduct[];
+    productos: Paginated<PublicProduct>;
     categorias: Categoria[];
     filtros: { categoria: string | null; q: string | null };
 };
+
+/** Solo se recargan la grilla y los filtros; la barra de categorías queda cacheada. */
+const SOLO_GRILLA = { only: ['productos', 'filtros'] };
 
 export default function Catalogo({ productos, categorias, filtros }: Props) {
     const { agregar } = useCotizacion();
@@ -39,7 +49,12 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                     categoria: filtros.categoria ?? undefined,
                     q: busqueda || undefined,
                 },
-                { preserveState: true, preserveScroll: true, replace: true },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                    ...SOLO_GRILLA,
+                },
             );
         }, 350);
 
@@ -97,6 +112,7 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                         <Link
                             href="/productos"
                             preserveScroll
+                            only={SOLO_GRILLA.only}
                             className={cn(
                                 'rounded-md border px-3 py-1.5 text-sm transition-colors',
                                 filtros.categoria === null
@@ -111,6 +127,7 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                                 key={categoria.slug}
                                 href={`/productos?categoria=${categoria.slug}`}
                                 preserveScroll
+                                only={SOLO_GRILLA.only}
                                 className={cn(
                                     'rounded-md border px-3 py-1.5 text-sm transition-colors',
                                     filtros.categoria === categoria.slug
@@ -128,7 +145,7 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                 </div>
 
                 {/* Grilla */}
-                {productos.length === 0 ? (
+                {productos.data.length === 0 ? (
                     <EmptyState
                         className="mt-10"
                         title="No encontramos nada con ese filtro"
@@ -157,14 +174,18 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                         }
                     />
                 ) : (
-                    <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        {productos.map((producto) => (
-                            <ProductCard
-                                key={producto.id}
-                                product={producto}
-                                onAdd={onAdd}
-                            />
-                        ))}
+                    <div className="mt-8 grid gap-6">
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            {productos.data.map((producto) => (
+                                <ProductCard
+                                    key={producto.id}
+                                    product={producto}
+                                    onAdd={onAdd}
+                                />
+                            ))}
+                        </div>
+
+                        <Pagination meta={productos} />
                     </div>
                 )}
             </div>

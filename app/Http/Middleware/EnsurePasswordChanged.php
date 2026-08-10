@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Un comercio dado de alta con clave temporal no puede navegar el portal
+ * Un usuario dado de alta con clave temporal no puede navegar su panel
  * hasta cambiarla.
  */
 class EnsurePasswordChanged

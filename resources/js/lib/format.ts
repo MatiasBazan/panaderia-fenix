@@ -36,7 +36,7 @@ export function shortDate(fecha: string | null | undefined): string {
     }).format(new Date(fecha));
 }
 
-/** Fecha larga `lunes 4 de agosto`, para el portal. */
+/** Fecha larga `lunes 4 de agosto`, para el admin. */
 export function longDate(fecha: string | null | undefined): string {
     if (!fecha) {
         return '—';

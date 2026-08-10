@@ -16,6 +16,7 @@ export type PublicProduct = {
     descripcion: string | null;
     unidad: UnidadValue;
     imagen: string | null;
+    imagen_thumb?: string | null;
     sku?: string;
     unidad_label?: string;
     destacado?: boolean;
@@ -46,9 +47,11 @@ export default function ProductCard({ product, onAdd, className }: Props) {
             <Link href={`/productos/${product.slug}`} className="block">
                 {product.imagen ? (
                     <img
-                        src={product.imagen}
+                        src={product.imagen_thumb ?? product.imagen}
                         alt={product.nombre}
                         className="aspect-4/3 w-full object-cover"
+                        width={400}
+                        height={300}
                         loading="lazy"
                     />
                 ) : (

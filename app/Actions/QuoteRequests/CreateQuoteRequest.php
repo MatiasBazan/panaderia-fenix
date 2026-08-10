@@ -16,8 +16,8 @@ class CreateQuoteRequest
         $quoteRequest = DB::transaction(function () use ($datos): QuoteRequest {
             $quoteRequest = QuoteRequest::create([
                 'nombre' => $datos->nombre,
-                'email' => $datos->email,
                 'telefono' => $datos->telefono,
+                'tipo' => $datos->tipo,
                 'localidad' => $datos->localidad,
                 'mensaje' => $datos->mensaje,
                 'fecha_evento' => $datos->fechaEvento,

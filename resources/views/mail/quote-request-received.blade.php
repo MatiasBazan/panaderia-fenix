@@ -6,7 +6,7 @@
 
 <x-mail::panel>
 **Contacto**
-{{ $solicitud->email }} · {{ $solicitud->telefono }}
+{{ $solicitud->telefono }}
 @if ($solicitud->localidad)
 {{ $solicitud->localidad }}
 @endif
@@ -36,8 +36,4 @@ Ver la solicitud
 
 Recibida el {{ $solicitud->created_at->timezone(config('app.timezone'))->format('d/m/Y \a \l\a\s H:i') }}
 desde {{ $solicitud->ip ?? 'origen desconocido' }}.
-
-<x-mail::subcopy>
-Podés responder este mail directamente: sale a {{ $solicitud->email }}.
-</x-mail::subcopy>
 </x-mail::message>
