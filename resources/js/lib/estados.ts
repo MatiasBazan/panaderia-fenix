@@ -69,6 +69,17 @@ export const unidadBadges = {
     bandeja: 'BANDEJA',
 } as const;
 
+/**
+ * Cómo se nombra la unidad dentro de una frase («2 docenas», «1,5 kg»). El
+ * badge grita en versalita; esto se lee corrido, así que va en minúscula.
+ */
+export const unidadNombres = {
+    unidad: { singular: 'unidad', plural: 'unidades' },
+    kg: { singular: 'kg', plural: 'kg' },
+    docena: { singular: 'docena', plural: 'docenas' },
+    bandeja: { singular: 'bandeja', plural: 'bandejas' },
+} as const;
+
 export type BusinessEstadoValue = keyof typeof businessEstados;
 export type OrderEstadoValue = keyof typeof orderEstados;
 export type QuoteRequestEstadoValue = keyof typeof quoteRequestEstados;

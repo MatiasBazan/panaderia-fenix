@@ -52,6 +52,68 @@ it('no expone precios en la pantalla de cotización', function () {
     assertSinPrecios($response->getContent(), '86420.97');
 });
 
+it('no expone precios en el carrito', function () {
+    $product = Product::factory()->conPrecio('75319.84')->create();
+
+    $response = $this->get("/carrito?items={$product->id}");
+
+    $response->assertOk();
+    assertSinPrecios($response->getContent(), '75319.84');
+});
+
+it('el carrito sólo devuelve los productos vigentes que le pasan', function () {
+    $activo = Product::factory()->create();
+    $inactivo = Product::factory()->inactivo()->create();
+    // Existe pero no lo pidieron: no tiene que aparecer.
+    Product::factory()->create();
+
+    $this->get("/carrito?items={$activo->id},{$inactivo->id}")->assertInertia(
+        fn (Assert $page) => $page
+            ->component('public/carrito')
+            ->has('productos', 1)
+            ->where('productos.0.id', $activo->id)
+            ->where('consultados', [$activo->id, $inactivo->id]),
+    );
+});
+
+it('el carrito aguanta una lista vacía o con basura', function () {
+    $this->get('/carrito')->assertInertia(
+        fn (Assert $page) => $page->component('public/carrito')->has('productos', 0),
+    );
+
+    $this->get('/carrito?items=,,abc,0,-3')->assertInertia(
+        fn (Assert $page) => $page->has('productos', 0),
+    );
+});
+
+/**
+ * Sin ids no hay nada consultado, y el front distingue eso de «los dieron de
+ * baja»: entrar a `/carrito` a mano no puede acusar de baja a un pedido entero.
+ */
+it('no informa productos consultados cuando no le pasaron ninguno', function () {
+    Product::factory()->count(3)->create();
+
+    $this->get('/carrito')->assertInertia(
+        fn (Assert $page) => $page->where('consultados', []),
+    );
+
+    $this->get('/cotizacion')->assertInertia(
+        fn (Assert $page) => $page->component('public/cotizacion')->where('consultados', []),
+    );
+});
+
+it('el paso 2 informa qué ids consultó', function () {
+    $activo = Product::factory()->create();
+    $inactivo = Product::factory()->inactivo()->create();
+
+    $this->get("/cotizacion?items={$activo->id},{$inactivo->id}")->assertInertia(
+        fn (Assert $page) => $page
+            ->has('productos', 1)
+            ->where('productos.0.id', $activo->id)
+            ->where('consultados', [$activo->id, $inactivo->id]),
+    );
+});
+
 it('deja fuera del catálogo a los productos inactivos', function () {
     $activo = Product::factory()->create();
     Product::factory()->inactivo()->create();

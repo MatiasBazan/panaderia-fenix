@@ -114,7 +114,9 @@ export default function AdminLayout({
                             {title}
                         </h1>
                         {description && (
-                            <p className="mt-1 text-texto-medio">{description}</p>
+                            <p className="mt-1 text-texto-medio">
+                                {description}
+                            </p>
                         )}
                     </div>
                     {actions && (

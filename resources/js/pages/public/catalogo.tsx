@@ -1,15 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-    Button,
-    EmptyState,
-    Pagination,
-    ProductCard,
-    useToast,
-} from '@/components/ui';
+import { Button, EmptyState, Pagination, ProductCard } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
-import useCotizacion from '@/hooks/use-cotizacion';
 import PublicLayout from '@/layouts/public-layout';
 import { cn } from '@/lib/utils';
 import type { Paginated } from '@/types';
@@ -30,8 +23,6 @@ type Props = {
 const SOLO_GRILLA = { only: ['productos', 'filtros'] };
 
 export default function Catalogo({ productos, categorias, filtros }: Props) {
-    const { agregar } = useCotizacion();
-    const { push } = useToast();
     const [busqueda, setBusqueda] = useState(filtros.q ?? '');
 
     // Busca sola mientras se escribe, sin perder el foco del input.
@@ -61,19 +52,6 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
         return () => window.clearTimeout(timer);
     }, [busqueda, filtros.q, filtros.categoria]);
 
-    const onAdd = (product: PublicProduct, cantidad: number) => {
-        agregar(
-            {
-                id: product.id,
-                slug: product.slug,
-                nombre: product.nombre,
-                unidad: product.unidad,
-            },
-            cantidad,
-        );
-        push('exito', `Agregaste ${product.nombre} a tu cotización.`);
-    };
-
     const hayFiltros = Boolean(filtros.categoria || filtros.q);
 
     return (
@@ -85,8 +63,8 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                     Nuestros productos
                 </h1>
                 <p className="mt-2 max-w-2xl text-texto-medio">
-                    Armá tu lista y pedinos la cotización. Los precios se los
-                    pasamos por mail, según cantidad y frecuencia.
+                    Armá tu pedido y pedinos los precios. Te los pasamos por
+                    mail, según cantidad y frecuencia.
                 </p>
 
                 {/* Filtros */}
@@ -180,7 +158,6 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                                 <ProductCard
                                     key={producto.id}
                                     product={producto}
-                                    onAdd={onAdd}
                                 />
                             ))}
                         </div>

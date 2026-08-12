@@ -305,7 +305,13 @@ export default function CotizacionShow({
     );
 }
 
-function Dato({ label, children }: { label: string; children: React.ReactNode }) {
+function Dato({
+    label,
+    children,
+}: {
+    label: string;
+    children: React.ReactNode;
+}) {
     return (
         <div className="flex items-baseline justify-between gap-3">
             <dt className="text-texto-medio">{label}</dt>
@@ -387,6 +393,27 @@ function CotizacionPanel({
         });
     };
 
+    /**
+     * Responder por WhatsApp es enviar la cotización: se abre el chat con el
+     * mensaje escrito y el borrador queda cerrado. La ventana se abre primero y
+     * en el mismo clic, si no el navegador lo toma por popup.
+     */
+    const responder = () => {
+        if (!whatsappCliente) {
+            return;
+        }
+
+        window.open(whatsappCliente, '_blank', 'noopener');
+
+        if (cotizacion.editable) {
+            router.post(
+                `/admin/cotizaciones/${cotizacion.id}/enviar`,
+                {},
+                { preserveScroll: true },
+            );
+        }
+    };
+
     return (
         <section className="rounded-lg border border-borde bg-papel p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -410,23 +437,37 @@ function CotizacionPanel({
             </div>
 
             {whatsappCliente && (
-                <a
-                    href={whatsappCliente}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 flex items-center justify-between gap-3 rounded-md border border-exito/40 bg-exito/5 px-3 py-2 transition-colors hover:bg-exito/10"
-                >
-                    <span className="flex items-center gap-2 text-sm font-medium text-texto">
-                        <MessageCircle
-                            className="size-4 shrink-0 text-exito"
-                            aria-hidden="true"
-                        />
-                        Responder al cliente por WhatsApp
-                    </span>
-                    <span className="font-mono text-xs text-texto-medio">
-                        {telefono}
-                    </span>
-                </a>
+                <>
+                    <button
+                        type="button"
+                        onClick={responder}
+                        disabled={form.isDirty}
+                        title={
+                            form.isDirty
+                                ? 'Guardá los cambios: el mensaje se arma con lo que está guardado.'
+                                : undefined
+                        }
+                        className="mt-3 flex w-full items-center justify-between gap-3 rounded-md border border-exito/40 bg-exito/5 px-3 py-2 text-left transition-colors hover:bg-exito/10 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-exito/5"
+                    >
+                        <span className="flex items-center gap-2 text-sm font-medium text-texto">
+                            <MessageCircle
+                                className="size-4 shrink-0 text-exito"
+                                aria-hidden="true"
+                            />
+                            Responder al cliente por WhatsApp
+                        </span>
+                        <span className="font-mono text-xs text-texto-medio">
+                            {telefono}
+                        </span>
+                    </button>
+
+                    {cotizacion.editable && (
+                        <p className="mt-1.5 text-xs text-texto-suave">
+                            Al responder, la cotización queda marcada como
+                            enviada y deja de editarse.
+                        </p>
+                    )}
+                </>
             )}
 
             {cotizacion.creada_por && (
@@ -450,7 +491,11 @@ function CotizacionPanel({
                                     value={item.descripcion}
                                     error={errores[`items.${i}.descripcion`]}
                                     onChange={(e) =>
-                                        setItem(i, 'descripcion', e.target.value)
+                                        setItem(
+                                            i,
+                                            'descripcion',
+                                            e.target.value,
+                                        )
                                     }
                                 />
                                 <Input
@@ -586,9 +631,7 @@ function CotizacionPanel({
                                 <TR key={it.id}>
                                     <TD>{it.descripcion}</TD>
                                     <TD numeric>{quantity(it.cantidad)}</TD>
-                                    <TD numeric>
-                                        {money(it.precio_unitario)}
-                                    </TD>
+                                    <TD numeric>{money(it.precio_unitario)}</TD>
                                     <TD numeric>{money(it.subtotal)}</TD>
                                 </TR>
                             ))}
@@ -631,21 +674,21 @@ function Totales({
         <dl className="grid gap-1 rounded-md border border-borde bg-crema/50 px-4 py-3 text-sm">
             <div className="flex justify-between">
                 <dt className="text-texto-medio">Subtotal</dt>
-                <dd className="font-mono tabular-nums text-texto">
+                <dd className="font-mono text-texto tabular-nums">
                     {money(subtotal)}
                 </dd>
             </div>
             {descuento > 0 && (
                 <div className="flex justify-between">
                     <dt className="text-texto-medio">Descuento</dt>
-                    <dd className="font-mono tabular-nums text-bordo">
+                    <dd className="font-mono text-bordo tabular-nums">
                         − {money(descuento)}
                     </dd>
                 </div>
             )}
             <div className="flex justify-between border-t border-borde pt-1">
                 <dt className="font-medium text-texto">Total</dt>
-                <dd className="font-mono text-base font-medium tabular-nums text-texto">
+                <dd className="font-mono text-base font-medium text-texto tabular-nums">
                     {money(total)}
                 </dd>
             </div>

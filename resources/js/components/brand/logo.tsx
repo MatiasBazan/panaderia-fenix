@@ -14,7 +14,11 @@ type Props = {
  * El emblema trae su propio "Fenix" en cursiva, pero es ilegible por debajo de
  * unos 120 px de alto, así que el nombre completo se acompaña en DM Serif.
  */
-export default function Logo({ className, size = 32, withWordmark = true }: Props) {
+export default function Logo({
+    className,
+    size = 32,
+    withWordmark = true,
+}: Props) {
     const width = Math.round((size * 4) / 3);
 
     return (

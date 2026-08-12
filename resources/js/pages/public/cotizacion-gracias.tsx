@@ -28,7 +28,7 @@ export default function CotizacionGracias({
     }, [enviada, whatsappUrl]);
 
     return (
-        <PublicLayout hideQuoteBar>
+        <PublicLayout sinPedido>
             <Head title="Solicitud enviada" />
 
             <div className="mx-auto max-w-2xl px-4 py-16 text-center">
@@ -64,7 +64,7 @@ export default function CotizacionGracias({
                             ¡Gracias por tu pedido!
                         </h1>
                         <p className="mt-4 text-lg text-texto-medio">
-                            En las próximas horas vas a recibir la cotización.
+                            En las próximas horas te pasamos los precios.
                         </p>
                     </>
                 )}

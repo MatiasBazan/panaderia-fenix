@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Quotes\BuildQuoteWhatsAppLink;
 use App\Enums\QuoteRequestEstado;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateQuoteRequestEstadoRequest;
@@ -20,6 +21,8 @@ use Inertia\Response;
  */
 class QuoteRequestController extends Controller
 {
+    public function __construct(private readonly BuildQuoteWhatsAppLink $whatsapp) {}
+
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', QuoteRequest::class);
@@ -29,7 +32,9 @@ class QuoteRequestController extends Controller
 
         $solicitudes = QuoteRequest::query()
             ->withCount('items')
-            ->with('quote:id,quote_request_id,numero,estado,total')
+            // Los ítems de la cotización van también: el mensaje de WhatsApp que
+            // se ofrece en cada fila los lista uno por uno.
+            ->with(['quote:id,quote_request_id,numero,estado,subtotal,descuento,total,vence_el', 'quote.items'])
             ->when($estado === 'pendientes', fn ($query) => $query->pendientes())
             ->when(
                 $estado !== '' && $estado !== 'pendientes',
@@ -59,7 +64,14 @@ class QuoteRequestController extends Controller
                     'numero' => $solicitud->quote->numero,
                     'estado' => $solicitud->quote->estado->value,
                     'total' => (string) $solicitud->quote->total,
+                    // Si todavía es borrador, responder por WhatsApp la da por enviada.
+                    'editable' => $solicitud->quote->estado->esEditable(),
                 ],
+                // Responder por WhatsApp desde la propia bandeja, sin abrir el
+                // detalle: es lo que se hace con casi todas las solicitudes.
+                'whatsapp_cliente' => $solicitud->quote === null
+                    ? null
+                    : $this->whatsapp->handle($solicitud, $solicitud->quote),
             ]);
 
         return Inertia::render('admin/cotizaciones/index', [
@@ -116,7 +128,7 @@ class QuoteRequestController extends Controller
             // o el teléfono no se pudo normalizar.
             'whatsapp_cliente' => $quoteRequest->quote === null
                 ? null
-                : $this->whatsappCliente($quoteRequest, $quoteRequest->quote),
+                : $this->whatsapp->handle($quoteRequest, $quoteRequest->quote),
             'estados' => $this->opcionesEstados(),
             'puede_generar' => Gate::allows('generateQuote', $quoteRequest),
         ]);
@@ -127,80 +139,6 @@ class QuoteRequestController extends Controller
         $quoteRequest->update(['estado' => $request->validated('estado')]);
 
         return back()->with('exito', 'Estado de la solicitud actualizado.');
-    }
-
-    /**
-     * Enlace wa.me hacia el cliente con el detalle de la cotización ya cargado.
-     * Devuelve null si el teléfono que dejó no se puede llevar a un número válido.
-     */
-    private function whatsappCliente(QuoteRequest $solicitud, Quote $quote): ?string
-    {
-        $numero = $this->normalizarTelefono($solicitud->telefono);
-
-        if ($numero === null) {
-            return null;
-        }
-
-        $lineas = ["Hola {$solicitud->nombre}! Te paso la cotización de Panadería Fénix ({$quote->numero}):", ''];
-
-        foreach ($quote->items as $item) {
-            $cantidad = rtrim(rtrim((string) $item->cantidad, '0'), '.');
-            $lineas[] = "• {$cantidad} × {$item->descripcion} — $".$this->plata($item->subtotal);
-        }
-
-        $lineas[] = '';
-
-        if ((float) $quote->descuento > 0) {
-            $lineas[] = 'Descuento: -$'.$this->plata($quote->descuento);
-        }
-
-        $lineas[] = 'Total: $'.$this->plata($quote->total);
-        $lineas[] = 'Válida hasta el '.$quote->vence_el->format('d/m/Y').'.';
-
-        return 'https://wa.me/'.$numero.'?text='.rawurlencode(implode("\n", $lineas));
-    }
-
-    /** Monto en formato argentino: 12.345,67. */
-    private function plata(string $monto): string
-    {
-        return number_format((float) $monto, 2, ',', '.');
-    }
-
-    /**
-     * Lleva un teléfono argentino escrito a mano al formato que espera wa.me
-     * (54 + 9 + área + número, sólo dígitos). Es best-effort: si el cliente dejó
-     * algo muy raro puede fallar, por eso el front muestra el número al lado.
-     */
-    private function normalizarTelefono(string $telefono): ?string
-    {
-        $digitos = preg_replace('/\D+/', '', $telefono) ?? '';
-
-        if ($digitos === '') {
-            return null;
-        }
-
-        // Ya trae código de país.
-        if (str_starts_with($digitos, '54')) {
-            $resto = ltrim(substr($digitos, 2), '0');
-        } else {
-            $resto = ltrim($digitos, '0');
-        }
-
-        // El 15 delante del número local es interno de Argentina; wa.me usa el 9.
-        if (str_starts_with($resto, '15')) {
-            $resto = substr($resto, 2);
-        }
-
-        if ($resto === '') {
-            return null;
-        }
-
-        // Asegurar el 9 de celular una sola vez.
-        if (! str_starts_with($resto, '9')) {
-            $resto = '9'.$resto;
-        }
-
-        return '54'.$resto;
     }
 
     /**

@@ -6,10 +6,8 @@ import {
     EmptyState,
     PhotoPlaceholder,
     ProductCard,
-    useToast,
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
-import useCotizacion from '@/hooks/use-cotizacion';
 import PublicLayout from '@/layouts/public-layout';
 
 type Horario = { dias: string; horario: string };
@@ -34,22 +32,6 @@ type Props = {
 };
 
 export default function Landing({ destacados, panaderia, zonas }: Props) {
-    const { agregar } = useCotizacion();
-    const { push } = useToast();
-
-    const onAdd = (product: PublicProduct, cantidad: number) => {
-        agregar(
-            {
-                id: product.id,
-                slug: product.slug,
-                nombre: product.nombre,
-                unidad: product.unidad,
-            },
-            cantidad,
-        );
-        push('exito', `Agregaste ${product.nombre} a tu cotización.`);
-    };
-
     const mapa = panaderia.mapa;
 
     return (
@@ -71,12 +53,12 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                         <p className="mt-5 max-w-lg text-lg text-texto-medio">
                             Masa madre de fermentación lenta, facturas de
                             manteca y pastelería hecha el mismo día. Armá tu
-                            lista y te pasamos el presupuesto.
+                            pedido y te pasamos los precios.
                         </p>
 
                         <div className="mt-8 flex flex-wrap items-center gap-3">
                             <Link href="/productos">
-                                <Button size="lg">Pedir cotización</Button>
+                                <Button size="lg">Armar mi pedido</Button>
                             </Link>
                             <Link href="/#ubicacion">
                                 <Button size="lg" variant="secondary">
@@ -102,9 +84,8 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                             Lo que más nos piden
                         </h2>
                         <p className="mt-2 max-w-lg text-texto-medio">
-                            Elegí cantidad y sumalo a tu cotización. Te
-                            respondemos con precios dentro de las 24 horas
-                            hábiles.
+                            Elegí cantidad y sumalo a tu pedido. Te respondemos
+                            con precios dentro de las 24 horas hábiles.
                         </p>
                     </div>
                     <Link
@@ -131,11 +112,7 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                 ) : (
                     <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {destacados.map((producto) => (
-                            <ProductCard
-                                key={producto.id}
-                                product={producto}
-                                onAdd={onAdd}
-                            />
+                            <ProductCard key={producto.id} product={producto} />
                         ))}
                     </div>
                 )}
@@ -167,7 +144,7 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                             <p>
                                 Trabajamos con almacenes, kioscos, bares y
                                 confiterías de Córdoba y alrededores. Armá tu
-                                lista, pedí la cotización y coordinamos precios,
+                                pedido, pedinos los precios y coordinamos
                                 cantidades y entregas por WhatsApp.
                             </p>
                         </div>
@@ -204,8 +181,7 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                                     aria-hidden="true"
                                 />
                                 <span>
-                                    {panaderia.direccion ??
-                                        'Leones, Córdoba'}
+                                    {panaderia.direccion ?? 'Leones, Córdoba'}
                                     {panaderia.mapa_url && (
                                         <>
                                             {' · '}
@@ -324,7 +300,12 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                                             target="_blank"
                                             rel="noreferrer"
                                         >
-                                            <Button size="sm" icon={<MapPin className="size-4" />}>
+                                            <Button
+                                                size="sm"
+                                                icon={
+                                                    <MapPin className="size-4" />
+                                                }
+                                            >
                                                 Cómo llegar
                                             </Button>
                                         </a>

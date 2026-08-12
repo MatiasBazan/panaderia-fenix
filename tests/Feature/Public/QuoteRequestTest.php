@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Quotes\GenerateQuote;
+use App\Enums\QuoteEstado;
 use App\Enums\QuoteRequestEstado;
 use App\Enums\TipoPedido;
 use App\Mail\QuoteRequestReceived;
@@ -43,6 +45,53 @@ it('registra la solicitud con sus ítems', function () {
         ->and($solicitud->ip)->not->toBeNull()
         ->and($solicitud->items)->toHaveCount(2)
         ->and($solicitud->items->firstWhere('product_id', $pan->id)->nota)->toBe('Bien cocido');
+});
+
+it('cotiza sola la solicitud apenas entra', function () {
+    $pan = Product::factory()->conPrecio('1000.00')->create();
+    $facturas = Product::factory()->conPrecio('250.50')->create();
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [
+            ['product_id' => $pan->id, 'cantidad' => 3],
+            ['product_id' => $facturas->id, 'cantidad' => 2],
+        ],
+    ]));
+
+    $cotizacion = QuoteRequest::sole()->quote;
+
+    expect($cotizacion)->not->toBeNull()
+        ->and($cotizacion->estado)->toBe(QuoteEstado::Borrador)
+        ->and($cotizacion->items)->toHaveCount(2)
+        ->and((float) $cotizacion->subtotal)->toBe(3501.00)
+        ->and((float) $cotizacion->total)->toBe(3501.00)
+        // Nadie la miró todavía: la cotiza el sistema, no un humano.
+        ->and($cotizacion->created_by)->toBeNull();
+});
+
+it('deja la solicitud como nueva aunque ya esté cotizada', function () {
+    $product = Product::factory()->create();
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [['product_id' => $product->id, 'cantidad' => 1]],
+    ]));
+
+    expect(QuoteRequest::sole()->estado)->toBe(QuoteRequestEstado::Nueva);
+});
+
+it('registra la solicitud aunque falle la cotización automática', function () {
+    $product = Product::factory()->create();
+
+    // El generador revienta: la solicitud del cliente no se puede perder por eso.
+    $this->mock(GenerateQuote::class)
+        ->shouldReceive('handle')
+        ->andThrow(new RuntimeException('sin precio'));
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [['product_id' => $product->id, 'cantidad' => 1]],
+    ]))->assertRedirect('/cotizacion/gracias');
+
+    expect(QuoteRequest::sole()->quote)->toBeNull();
 });
 
 it('avisa a la panadería por mail', function () {

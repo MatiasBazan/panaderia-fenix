@@ -122,7 +122,9 @@ export default function ProductoForm({
                         value: String(c.id),
                         label: c.nombre,
                     }))}
-                    onChange={(e) => form.setData('category_id', e.target.value)}
+                    onChange={(e) =>
+                        form.setData('category_id', e.target.value)
+                    }
                 />
                 <Select
                     label="Unidad de venta"
@@ -148,7 +150,9 @@ export default function ProductoForm({
                     min={0}
                     value={form.data.precio_base}
                     error={form.errors.precio_base}
-                    onChange={(e) => form.setData('precio_base', e.target.value)}
+                    onChange={(e) =>
+                        form.setData('precio_base', e.target.value)
+                    }
                 />
                 <Input
                     label="Orden"

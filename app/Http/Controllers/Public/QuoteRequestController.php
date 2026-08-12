@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Actions\Cart\ResolveCartProducts;
 use App\Actions\QuoteRequests\CreateQuoteRequest;
 use App\Actions\QuoteRequests\QuoteRequestData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\StoreQuoteRequestRequest;
 use App\Http\Resources\PublicProductResource;
-use App\Models\Product;
 use App\Models\QuoteRequest;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
@@ -22,23 +22,17 @@ use Inertia\Response;
 class QuoteRequestController extends Controller
 {
     /**
-     * Pantalla de revisión. Recibe los ids que el visitante lleva armados y
-     * devuelve los productos vigentes, para poder avisar si alguno se dio de baja.
+     * Paso 2: los datos de contacto. La lista ya se revisó en `/carrito`; acá
+     * los productos vuelven a resolverse sólo para no enviar uno dado de baja.
      */
-    public function create(Request $request, Settings $settings): Response
+    public function create(Request $request, Settings $settings, ResolveCartProducts $resolver): Response
     {
-        $ids = collect(explode(',', $request->string('items')->toString()))
-            ->map(fn (string $id): int => (int) trim($id))
-            ->filter()
-            ->unique()
-            ->values();
-
-        $productos = $ids->isEmpty()
-            ? collect()
-            : Product::query()->activos()->with('category')->whereIn('id', $ids)->ordenados()->get();
+        ['consultados' => $consultados, 'productos' => $productos] = $resolver
+            ->handle($request->string('items')->toString());
 
         return Inertia::render('public/cotizacion', [
             'productos' => PublicProductResource::collection($productos),
+            'consultados' => $consultados,
             'zonas' => $settings->zonasEntrega(),
         ]);
     }
@@ -116,8 +110,7 @@ class QuoteRequestController extends Controller
 
         foreach ($solicitud->items as $item) {
             $cantidad = rtrim(rtrim((string) $item->cantidad, '0'), '.');
-            $nombre = $item->product?->nombre ?? 'Producto';
-            $linea = "• {$cantidad} × {$nombre}";
+            $linea = "• {$cantidad} × {$item->product->nombre}";
 
             if ($item->nota !== null && $item->nota !== '') {
                 $linea .= " ({$item->nota})";

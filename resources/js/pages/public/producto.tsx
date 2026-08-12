@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ChevronLeft, Plus } from 'lucide-react';
+import { Check, ChevronLeft, Plus } from 'lucide-react';
 import { useState } from 'react';
 import {
     Button,
@@ -7,11 +7,12 @@ import {
     ProductCard,
     QuantityInput,
     UnitBadge,
-    useToast,
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
-import useCotizacion from '@/hooks/use-cotizacion';
+import useAgregarProducto from '@/hooks/use-agregar-producto';
+import usePedido, { usePanelPedido } from '@/hooks/use-pedido';
 import PublicLayout from '@/layouts/public-layout';
+import { cantidadConUnidad } from '@/lib/pedido';
 
 type Props = {
     producto: PublicProduct;
@@ -19,21 +20,17 @@ type Props = {
 };
 
 export default function Producto({ producto, relacionados }: Props) {
-    const { agregar } = useCotizacion();
-    const { push } = useToast();
-    const [cantidad, setCantidad] = useState(1);
+    const agregarProducto = useAgregarProducto();
+    const { cantidadDe } = usePedido();
+    const { abrir } = usePanelPedido();
 
-    const sumar = (item: PublicProduct, cant: number) => {
-        agregar(
-            {
-                id: item.id,
-                slug: item.slug,
-                nombre: item.nombre,
-                unidad: item.unidad,
-            },
-            cant,
-        );
-        push('exito', `Agregaste ${item.nombre} a tu cotización.`);
+    const minimo = producto.unidad === 'kg' ? 0.5 : 1;
+    const [cantidad, setCantidad] = useState(minimo);
+    const enPedido = cantidadDe(producto.id);
+
+    const sumar = () => {
+        agregarProducto(producto, cantidad);
+        setCantidad(minimo);
     };
 
     return (
@@ -89,9 +86,9 @@ export default function Producto({ producto, relacionados }: Props) {
                         )}
 
                         <p className="mt-4 text-sm text-texto-medio">
-                            Se vende {producto.unidad_label ?? 'por unidad'}.
-                            Los precios se informan en la cotización, según
-                            cantidad y frecuencia de compra.
+                            Se vende {producto.unidad_label ?? 'por unidad'}. No
+                            publicamos precios: te los pasamos al responder el
+                            pedido, según cantidad y frecuencia de compra.
                         </p>
 
                         <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-borde pt-6">
@@ -99,7 +96,7 @@ export default function Producto({ producto, relacionados }: Props) {
                                 value={cantidad}
                                 onChange={setCantidad}
                                 unidad={producto.unidad}
-                                min={producto.unidad === 'kg' ? 0.5 : 1}
+                                min={minimo}
                                 label={`Cantidad de ${producto.nombre}`}
                             />
                             <Button
@@ -110,11 +107,39 @@ export default function Producto({ producto, relacionados }: Props) {
                                         aria-hidden="true"
                                     />
                                 }
-                                onClick={() => sumar(producto, cantidad)}
+                                onClick={sumar}
                             >
-                                Agregar a la cotización
+                                {enPedido > 0
+                                    ? 'Sumar al pedido'
+                                    : 'Agregar al pedido'}
                             </Button>
                         </div>
+
+                        {enPedido > 0 && (
+                            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
+                                <Check
+                                    className="size-4 shrink-0 text-exito"
+                                    aria-hidden="true"
+                                />
+                                <span>
+                                    Ya llevás{' '}
+                                    <span className="font-medium text-texto">
+                                        {cantidadConUnidad(
+                                            enPedido,
+                                            producto.unidad,
+                                        )}
+                                    </span>{' '}
+                                    en tu pedido.
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={abrir}
+                                    className="underline underline-offset-4 hover:text-bordo"
+                                >
+                                    Ver pedido
+                                </button>
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -125,11 +150,7 @@ export default function Producto({ producto, relacionados }: Props) {
                         </h2>
                         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                             {relacionados.map((item) => (
-                                <ProductCard
-                                    key={item.id}
-                                    product={item}
-                                    onAdd={sumar}
-                                />
+                                <ProductCard key={item.id} product={item} />
                             ))}
                         </div>
                     </section>

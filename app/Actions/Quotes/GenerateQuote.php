@@ -29,9 +29,14 @@ class GenerateQuote
         private readonly PriceCalculator $prices,
     ) {}
 
-    public function handle(QuoteRequest $quoteRequest, ?User $creator = null): Quote
+    /**
+     * @param  bool  $marcarEnProceso  Falso cuando la genera el sistema al entrar
+     *                                 la solicitud: nadie la miró todavía, así que
+     *                                 tiene que seguir figurando como nueva.
+     */
+    public function handle(QuoteRequest $quoteRequest, ?User $creator = null, bool $marcarEnProceso = true): Quote
     {
-        return DB::transaction(function () use ($quoteRequest, $creator): Quote {
+        return DB::transaction(function () use ($quoteRequest, $creator, $marcarEnProceso): Quote {
             // `withTrashed`: un producto dado de baja sigue teniendo nombre y precio,
             // y la solicitud original lo pidió igual.
             $quoteRequest->load(['items.product' => fn ($query) => $query->withTrashed()]);
@@ -72,7 +77,7 @@ class GenerateQuote
             $quote->items()->createMany($items);
 
             // La solicitud pasa a "en proceso": recién queda "cotizada" cuando se envía.
-            if ($quoteRequest->estado === QuoteRequestEstado::Nueva) {
+            if ($marcarEnProceso && $quoteRequest->estado === QuoteRequestEstado::Nueva) {
                 $quoteRequest->update(['estado' => QuoteRequestEstado::EnProceso]);
             }
 

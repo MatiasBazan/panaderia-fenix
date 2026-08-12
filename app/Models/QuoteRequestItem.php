@@ -41,9 +41,15 @@ class QuoteRequestItem extends Model
         return $this->belongsTo(QuoteRequest::class);
     }
 
-    /** @return BelongsTo<Product, $this> */
+    /**
+     * Incluye los productos dados de baja: la línea guarda lo que el cliente
+     * pidió, y darlo de baja después no puede dejarla sin nombre. Nunca es null
+     * — la FK es `restrictOnDelete`, así que la fila del producto sigue estando.
+     *
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withTrashed();
     }
 }

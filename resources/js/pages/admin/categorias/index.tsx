@@ -244,7 +244,9 @@ export default function CategoriasIndex({ categorias }: Props) {
                     <Checkbox
                         label="Visible en el catálogo"
                         checked={form.data.activo}
-                        onChange={(e) => form.setData('activo', e.target.checked)}
+                        onChange={(e) =>
+                            form.setData('activo', e.target.checked)
+                        }
                     />
                 </form>
             </Modal>

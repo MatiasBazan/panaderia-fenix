@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\QuoteController;
 use App\Http\Controllers\Admin\QuoteRequestController as AdminQuoteRequestController;
 use App\Http\Controllers\Auth\ForcedPasswordController;
+use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Public\CatalogController;
 use App\Http\Controllers\Public\LandingController;
 use App\Http\Controllers\Public\QuoteRequestController;
@@ -24,6 +25,8 @@ Route::get('/', LandingController::class)->name('home');
 Route::get('productos', [CatalogController::class, 'index'])->name('productos.index');
 Route::get('productos/{product}', [CatalogController::class, 'show'])->name('productos.show');
 
+// El pedido se arma en dos pasos: primero se revisa la lista, después los datos.
+Route::get('carrito', CartController::class)->name('carrito');
 Route::get('cotizacion', [QuoteRequestController::class, 'create'])->name('cotizacion.create');
 Route::post('cotizacion', [QuoteRequestController::class, 'store'])
     ->middleware('throttle:5,1')

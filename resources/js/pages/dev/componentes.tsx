@@ -341,16 +341,7 @@ export default function Componentes() {
                 >
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {productosDemo.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                product={product}
-                                onAdd={(p, c) =>
-                                    push(
-                                        'exito',
-                                        `Agregaste ${c} × ${p.nombre} a tu cotización.`,
-                                    )
-                                }
-                            />
+                            <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
                 </Section>

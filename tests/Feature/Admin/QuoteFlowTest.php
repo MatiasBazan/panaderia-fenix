@@ -177,6 +177,60 @@ it('muestra la bandeja y el detalle de una solicitud', function () {
         );
 });
 
+it('ofrece responder por WhatsApp desde la bandeja, con el total ya calculado', function () {
+    $solicitud = solicitudConItems();
+    $solicitud->update(['nombre' => 'Lucía Ferreyra', 'telefono' => '351-555-0000']);
+
+    $this->actingAs($this->admin)->post("/admin/cotizaciones/{$solicitud->id}/generar");
+
+    $this->actingAs($this->admin)
+        ->get('/admin/cotizaciones')
+        ->assertInertia(fn ($page) => $page
+            ->where('solicitudes.data.0.cotizacion.total', '3500.00')
+            // Es borrador: responder por WhatsApp la va a dar por enviada.
+            ->where('solicitudes.data.0.cotizacion.editable', true)
+            ->where(
+                'solicitudes.data.0.whatsapp_cliente',
+                fn (string $url): bool => str_starts_with($url, 'https://wa.me/5493515550000?text=')
+                    && str_contains(rawurldecode($url), 'Total: $3.500,00'),
+            ),
+        );
+});
+
+it('marca la cotización como enviada al responder desde la bandeja', function () {
+    $solicitud = solicitudConItems();
+
+    $this->actingAs($this->admin)->post("/admin/cotizaciones/{$solicitud->id}/generar");
+    $quote = Quote::query()->firstOrFail();
+
+    // Es el mismo endpoint que dispara el botón de responder por WhatsApp.
+    $this->actingAs($this->admin)
+        ->post("/admin/cotizaciones/{$quote->id}/enviar")
+        ->assertSessionHas('exito');
+
+    expect($quote->fresh()->estado)->toBe(QuoteEstado::Enviada)
+        ->and($solicitud->fresh()->estado)->toBe(QuoteRequestEstado::Cotizada);
+
+    // Ya enviada: la bandeja deja de ofrecer marcarla, aunque el chat siga abierto.
+    $this->actingAs($this->admin)
+        ->get('/admin/cotizaciones')
+        ->assertInertia(fn ($page) => $page
+            ->where('solicitudes.data.0.cotizacion.editable', false)
+            ->where('solicitudes.data.0.whatsapp_cliente', fn (string $url): bool => $url !== ''),
+        );
+});
+
+it('no ofrece WhatsApp en la bandeja si la solicitud todavía no tiene cotización', function () {
+    solicitudConItems();
+
+    $this->actingAs($this->admin)
+        ->get('/admin/cotizaciones')
+        ->assertInertia(fn ($page) => $page
+            ->where('solicitudes.data.0.cotizacion', null)
+            ->where('solicitudes.data.0.whatsapp_cliente', null),
+        );
+});
+
 it('cambia el estado de una solicitud a mano pero no a cotizada', function () {
     $solicitud = QuoteRequest::factory()->create();
 

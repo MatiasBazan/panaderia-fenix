@@ -1,7 +1,8 @@
-import { Link } from '@inertiajs/react';
-import { FileText } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { FileText, MessageCircle } from 'lucide-react';
 import {
     Badge,
+    Button,
     Pagination,
     SearchInput,
     Select,
@@ -17,7 +18,7 @@ import { EmptyState } from '@/components/ui/states';
 import { useTableFilters } from '@/hooks/use-table-filters';
 import AdminLayout from '@/layouts/admin-layout';
 import type { QuoteEstadoValue, QuoteRequestEstadoValue } from '@/lib/estados';
-import { shortDate } from '@/lib/format';
+import { money, shortDate } from '@/lib/format';
 import type { Paginated } from '@/types';
 
 type Solicitud = {
@@ -37,7 +38,10 @@ type Solicitud = {
         numero: string;
         estado: QuoteEstadoValue;
         total: string;
+        editable: boolean;
     } | null;
+    /** Enlace wa.me hacia el cliente con la cotización precargada, o null. */
+    whatsapp_cliente: string | null;
 };
 
 type Filtros = { estado: string | null; q: string | null };
@@ -57,6 +61,27 @@ export default function CotizacionesIndex({
         '/admin/cotizaciones',
         filtros,
     );
+
+    /**
+     * Abrir WhatsApp con la cotización escrita es responderle al cliente, así que
+     * la cotización queda enviada. La ventana se abre primero y en el mismo clic:
+     * si esperara a la respuesta del servidor, el navegador lo tomaría por popup.
+     */
+    const responder = (solicitud: Solicitud) => {
+        if (!solicitud.whatsapp_cliente) {
+            return;
+        }
+
+        window.open(solicitud.whatsapp_cliente, '_blank', 'noopener');
+
+        if (solicitud.cotizacion?.editable) {
+            router.post(
+                `/admin/cotizaciones/${solicitud.cotizacion.id}/enviar`,
+                {},
+                { preserveScroll: true },
+            );
+        }
+    };
 
     return (
         <AdminLayout
@@ -100,7 +125,9 @@ export default function CotizacionesIndex({
                                 <TH numeric>Ítems</TH>
                                 <TH>Estado</TH>
                                 <TH>Cotización</TH>
+                                <TH numeric>Total</TH>
                                 <TH numeric>Recibida</TH>
+                                <TH>Acciones</TH>
                             </TR>
                         </THead>
                         <TBody>
@@ -151,8 +178,56 @@ export default function CotizacionesIndex({
                                             </Badge>
                                         )}
                                     </TD>
+                                    <TD numeric>
+                                        {s.cotizacion ? (
+                                            <span className="font-mono text-texto">
+                                                {money(s.cotizacion.total)}
+                                            </span>
+                                        ) : (
+                                            <span className="text-texto-suave">
+                                                —
+                                            </span>
+                                        )}
+                                    </TD>
                                     <TD numeric className="text-texto-medio">
                                         {shortDate(s.creada_el)}
+                                    </TD>
+                                    <TD>
+                                        <div className="flex items-center gap-1">
+                                            {s.whatsapp_cliente && (
+                                                <Button
+                                                    variant="quiet"
+                                                    size="sm"
+                                                    onClick={() => responder(s)}
+                                                    title={
+                                                        s.cotizacion?.editable
+                                                            ? `Responder a ${s.nombre} por WhatsApp y dar la cotización por enviada`
+                                                            : `Responder a ${s.nombre} por WhatsApp`
+                                                    }
+                                                    icon={
+                                                        <MessageCircle
+                                                            className="size-4"
+                                                            aria-hidden="true"
+                                                        />
+                                                    }
+                                                >
+                                                    <span className="sr-only sm:not-sr-only">
+                                                        Responder
+                                                    </span>
+                                                </Button>
+                                            )}
+                                            <Link
+                                                href={`/admin/cotizaciones/${s.id}`}
+                                            >
+                                                <Button
+                                                    variant="quiet"
+                                                    size="sm"
+                                                    aria-label={`Ver la solicitud de ${s.nombre}`}
+                                                >
+                                                    Ver
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     </TD>
                                 </TR>
                             ))}

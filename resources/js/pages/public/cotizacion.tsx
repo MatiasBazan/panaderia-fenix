@@ -1,23 +1,27 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ClipboardList, Trash2, TriangleAlert } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { Pencil, ShoppingBasket, TriangleAlert } from 'lucide-react';
+import { useEffect } from 'react';
 import {
     Button,
     EmptyState,
     Input,
-    QuantityInput,
+    Pasos,
     Select,
     Textarea,
-    UnitBadge,
+    Thumb,
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
-import useCotizacion from '@/hooks/use-cotizacion';
-import { cn } from '@/lib/utils';
+import usePedido from '@/hooks/use-pedido';
+import usePedidoRevalidado from '@/hooks/use-pedido-revalidado';
 import PublicLayout from '@/layouts/public-layout';
+import { PASOS_PEDIDO, cantidadConUnidad } from '@/lib/pedido';
+import { cn } from '@/lib/utils';
 
 type Props = {
     /** Productos todavía activos, entre los que el visitante venía trayendo. */
     productos: PublicProduct[];
+    /** Ids por los que el servidor efectivamente preguntó. */
+    consultados: number[];
     zonas: string[];
 };
 
@@ -47,20 +51,17 @@ const TIPOS: { value: TipoPedido; label: string; hint: string }[] = [
     },
 ];
 
-export default function Cotizacion({ productos, zonas }: Props) {
-    const { items, actualizar, quitar, vaciar } = useCotizacion();
-
-    const vigentes = useMemo(
-        () => new Set(productos.map((p) => p.id)),
-        [productos],
-    );
-    const dadosDeBaja = useMemo(
-        () => items.filter((item) => !vigentes.has(item.id)),
-        [items, vigentes],
-    );
-    const disponibles = useMemo(
-        () => items.filter((item) => vigentes.has(item.id)),
-        [items, vigentes],
+/**
+ * Paso 2: sólo los datos de contacto. El pedido ya se revisó en `/carrito` y
+ * acá aparece como resumen de lectura — mezclar lista editable y formulario en
+ * una misma pantalla era lo que hacía imposible saber qué se estaba enviando.
+ */
+export default function Cotizacion({ productos, consultados, zonas }: Props) {
+    const { vaciar } = usePedido();
+    const { disponibles } = usePedidoRevalidado(
+        '/cotizacion',
+        productos,
+        consultados,
     );
 
     const form = useForm<FormData>({
@@ -95,15 +96,15 @@ export default function Cotizacion({ productos, zonas }: Props) {
         });
     };
 
-    if (items.length === 0) {
+    if (disponibles.length === 0) {
         return (
-            <PublicLayout hideQuoteBar>
-                <Head title="Pedir cotización" />
+            <PublicLayout sinPedido>
+                <Head title="Tus datos" />
                 <div className="mx-auto max-w-3xl px-4 py-16">
                     <EmptyState
-                        title="Tu lista está vacía"
-                        description="Recorré el catálogo y agregá los productos que te interesan. Después completás tus datos y te pasamos el presupuesto."
-                        icon={<ClipboardList className="size-8" />}
+                        title="Tu pedido está vacío"
+                        description="Recorré el catálogo y agregá lo que quieras. Después dejás tus datos y te pasamos los precios."
+                        icon={<ShoppingBasket className="size-8" />}
                         action={
                             <Link href="/productos">
                                 <Button>Ver el catálogo</Button>
@@ -116,134 +117,75 @@ export default function Cotizacion({ productos, zonas }: Props) {
     }
 
     return (
-        <PublicLayout hideQuoteBar>
-            <Head title="Pedir cotización" />
+        <PublicLayout sinPedido>
+            <Head title="Tus datos" />
 
             <form onSubmit={enviar} className="mx-auto max-w-3xl px-4 py-10">
-                <h1 className="font-display text-4xl text-texto">
-                    Pedir cotización
+                <Pasos pasos={PASOS_PEDIDO} actual={1} />
+
+                <h1 className="mt-6 font-display text-4xl text-texto">
+                    Tus datos
                 </h1>
                 <p className="mt-2 text-texto-medio">
-                    Revisá la lista, dejanos tus datos y te respondemos con
-                    precios dentro de las 24 horas hábiles.
+                    Con esto te respondemos con precios dentro de las 24 horas
+                    hábiles.
                 </p>
 
-                {dadosDeBaja.length > 0 && (
-                    <div className="mt-6 flex items-start gap-2.5 rounded-lg border border-alerta/40 bg-alerta/8 px-4 py-3">
-                        <TriangleAlert
-                            className="mt-0.5 size-4 shrink-0 text-alerta"
-                            aria-hidden="true"
-                        />
-                        <div className="text-sm">
-                            <p className="font-medium text-texto">
-                                Sacamos {dadosDeBaja.length}{' '}
-                                {dadosDeBaja.length === 1
-                                    ? 'producto'
-                                    : 'productos'}{' '}
-                                de tu lista
-                            </p>
-                            <p className="mt-0.5 text-texto-medio">
-                                Ya no{' '}
-                                {dadosDeBaja.length === 1 ? 'está' : 'están'}{' '}
-                                disponible
-                                {dadosDeBaja.length === 1 ? '' : 's'}:{' '}
-                                {dadosDeBaja
-                                    .map((item) => item.nombre)
-                                    .join(', ')}
-                                .
-                            </p>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    dadosDeBaja.forEach((item) =>
-                                        quitar(item.id),
-                                    )
-                                }
-                                className="mt-1.5 text-texto underline underline-offset-4 hover:text-bordo"
-                            >
-                                Entendido, quitarlos
-                            </button>
-                        </div>
+                {/* Resumen de lectura: lo editable quedó en el paso anterior. */}
+                <section className="mt-8 rounded-lg border border-borde bg-papel">
+                    <div className="flex items-center justify-between gap-3 border-b border-borde px-4 py-3">
+                        <h2 className="font-display text-xl text-texto">
+                            Lo que vas a pedir
+                        </h2>
+                        <Link
+                            href="/carrito"
+                            className="inline-flex items-center gap-1.5 text-sm text-texto-medio underline underline-offset-4 hover:text-bordo"
+                        >
+                            <Pencil className="size-3.5" aria-hidden="true" />
+                            Editar
+                        </Link>
                     </div>
-                )}
 
-                {/* Lista */}
-                <section className="mt-8">
-                    <h2 className="font-display text-2xl text-texto">
-                        Tu lista
-                    </h2>
-
-                    <ul className="mt-4 grid gap-3">
+                    <ul className="divide-y divide-borde">
                         {disponibles.map((item) => (
                             <li
                                 key={item.id}
-                                className="rounded-lg border border-borde bg-papel p-4"
+                                className="flex items-center gap-3 px-4 py-3"
                             >
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <div>
-                                        <p className="font-medium text-texto">
-                                            {item.nombre}
-                                        </p>
-                                        <UnitBadge
-                                            unidad={item.unidad}
-                                            className="mt-1.5"
-                                        />
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <QuantityInput
-                                            value={item.cantidad}
-                                            onChange={(cantidad) =>
-                                                actualizar(item.id, {
-                                                    cantidad,
-                                                })
-                                            }
-                                            unidad={item.unidad}
-                                            min={item.unidad === 'kg' ? 0.5 : 1}
-                                            size="sm"
-                                            label={`Cantidad de ${item.nombre}`}
-                                        />
-                                        <Button
-                                            variant="quiet"
-                                            size="sm"
-                                            onClick={() => quitar(item.id)}
-                                            aria-label={`Quitar ${item.nombre}`}
-                                        >
-                                            <Trash2
-                                                className="size-4"
-                                                aria-hidden="true"
-                                            />
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <input
-                                    type="text"
-                                    value={item.nota ?? ''}
-                                    onChange={(event) =>
-                                        actualizar(item.id, {
-                                            nota: event.target.value,
-                                        })
-                                    }
-                                    placeholder="Nota para este producto (opcional)"
-                                    aria-label={`Nota para ${item.nombre}`}
-                                    maxLength={180}
-                                    className="mt-3 h-9 w-full rounded-md border border-borde bg-crema px-3 text-sm text-texto placeholder:text-texto-suave focus:border-dorado focus:outline-none"
+                                <Thumb
+                                    src={item.imagen ?? null}
+                                    className="size-10"
                                 />
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium text-texto">
+                                        {item.nombre}
+                                    </p>
+                                    {item.nota && (
+                                        <p className="truncate text-xs text-texto-medio">
+                                            {item.nota}
+                                        </p>
+                                    )}
+                                </div>
+                                <p className="shrink-0 font-mono text-sm text-texto">
+                                    {cantidadConUnidad(
+                                        item.cantidad,
+                                        item.unidad,
+                                    )}
+                                </p>
                             </li>
                         ))}
                     </ul>
-
-                    {form.errors.items && (
-                        <p className="mt-3 flex items-start gap-1.5 text-sm text-error">
-                            <TriangleAlert
-                                className="mt-0.5 size-4 shrink-0"
-                                aria-hidden="true"
-                            />
-                            <span>{form.errors.items}</span>
-                        </p>
-                    )}
                 </section>
+
+                {form.errors.items && (
+                    <p className="mt-3 flex items-start gap-1.5 text-sm text-error">
+                        <TriangleAlert
+                            className="mt-0.5 size-4 shrink-0"
+                            aria-hidden="true"
+                        />
+                        <span>{form.errors.items}</span>
+                    </p>
+                )}
 
                 {/* Tipo de pedido: define a qué contacto se le abre el WhatsApp. */}
                 <section className="mt-10 border-t border-borde pt-8">
@@ -298,7 +240,7 @@ export default function Cotizacion({ productos, zonas }: Props) {
                 {/* Datos de contacto */}
                 <section className="mt-10 border-t border-borde pt-8">
                     <h2 className="font-display text-2xl text-texto">
-                        Tus datos
+                        Cómo te contactamos
                     </h2>
 
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -355,7 +297,7 @@ export default function Cotizacion({ productos, zonas }: Props) {
                         <Input
                             label="Fecha del evento"
                             type="date"
-                            hint="Sólo si la cotización es para una fecha puntual."
+                            hint="Sólo si el pedido es para una fecha puntual."
                             value={form.data.fecha_evento}
                             onChange={(e) =>
                                 form.setData('fecha_evento', e.target.value)
@@ -401,17 +343,12 @@ export default function Cotizacion({ productos, zonas }: Props) {
                 </section>
 
                 <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-borde pt-6">
-                    <Button
-                        type="submit"
-                        size="lg"
-                        loading={form.processing}
-                        disabled={disponibles.length === 0}
-                    >
-                        {form.processing ? 'Enviando…' : 'Enviar solicitud'}
+                    <Button type="submit" size="lg" loading={form.processing}>
+                        {form.processing ? 'Enviando…' : 'Enviar el pedido'}
                     </Button>
-                    <Link href="/productos">
+                    <Link href="/carrito">
                         <Button variant="secondary" size="lg">
-                            Seguir mirando
+                            Volver al pedido
                         </Button>
                     </Link>
                 </div>

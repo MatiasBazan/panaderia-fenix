@@ -24,7 +24,9 @@ class DashboardController extends Controller
         Gate::authorize('viewAny', QuoteRequest::class);
 
         // Las tres métricas de cotizaciones salen de un solo barrido de la tabla
-        // con agregados condicionales, en vez de tres COUNT sueltos.
+        // con agregados condicionales, en vez de tres COUNT sueltos. `toBase`:
+        // lo que vuelve son contadores, no cotizaciones, y hidratar un modelo
+        // con columnas que no son suyas es mentirle al que lo lea después.
         $cotizaciones = Quote::query()
             ->selectRaw('count(case when estado = ? then 1 end) as borrador', [QuoteEstado::Borrador->value])
             ->selectRaw('count(case when estado = ? then 1 end) as enviadas', [QuoteEstado::Enviada->value])
@@ -32,12 +34,14 @@ class DashboardController extends Controller
                 'count(case when estado = ? and vence_el between ? and ? then 1 end) as por_vencer',
                 [QuoteEstado::Enviada->value, now()->toDateString(), now()->addDays(7)->toDateString()],
             )
+            ->toBase()
             ->first();
 
         // Ídem para los dos estados de comercio que interesan al tablero.
         $comercios = Business::query()
             ->selectRaw('count(case when estado = ? then 1 end) as activos', [BusinessEstado::Activo->value])
             ->selectRaw('count(case when estado = ? then 1 end) as pendientes', [BusinessEstado::Pendiente->value])
+            ->toBase()
             ->first();
 
         return Inertia::render('admin/dashboard', [

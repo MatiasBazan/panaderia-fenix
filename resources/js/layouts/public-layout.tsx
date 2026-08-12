@@ -1,11 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { ClipboardList, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import Logo from '@/components/brand/logo';
-import { Button } from '@/components/ui';
-import useCotizacion from '@/hooks/use-cotizacion';
+import { PedidoBoton, PedidoPanel } from '@/components/ui';
 import useFlashToast from '@/hooks/use-flash-toast';
+import { usePanelPedido } from '@/hooks/use-pedido';
 import { cn } from '@/lib/utils';
 
 const navegacion = [
@@ -15,17 +15,14 @@ const navegacion = [
 ];
 
 type Props = PropsWithChildren<{
-    /** Oculta la barra flotante de cotización (en la propia pantalla de cotización). */
-    hideQuoteBar?: boolean;
+    /** Oculta el acceso al pedido, en las pantallas que ya son el pedido. */
+    sinPedido?: boolean;
 }>;
 
-export default function PublicLayout({
-    children,
-    hideQuoteBar = false,
-}: Props) {
+export default function PublicLayout({ children, sinPedido = false }: Props) {
     useFlashToast();
 
-    const { items, cantidadTotal } = useCotizacion();
+    const { abierto: panelAbierto } = usePanelPedido();
     const [scrolled, setScrolled] = useState(false);
     const [menuAbierto, setMenuAbierto] = useState(false);
 
@@ -38,10 +35,15 @@ export default function PublicLayout({
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
-    const idsQuery = items.map((item) => item.id).join(',');
-
     return (
-        <div className="flex min-h-dvh flex-col bg-crema">
+        <div
+            className={cn(
+                'flex min-h-dvh flex-col bg-crema transition-[padding] duration-200',
+                // El panel se queda al costado: el contenido le hace lugar en vez
+                // de quedar tapado, así se puede seguir agregando con él abierto.
+                !sinPedido && panelAbierto && 'lg:pr-[22rem]',
+            )}
+        >
             <header
                 className={cn(
                     'sticky top-0 z-30 bg-crema/95 backdrop-blur-sm transition-colors',
@@ -70,19 +72,27 @@ export default function PublicLayout({
                         ))}
                     </nav>
 
-                    <button
-                        type="button"
-                        onClick={() => setMenuAbierto((abierto) => !abierto)}
-                        aria-expanded={menuAbierto}
-                        aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
-                        className="rounded-md border border-borde bg-papel p-2 text-texto md:hidden"
-                    >
-                        {menuAbierto ? (
-                            <X className="size-4" aria-hidden="true" />
-                        ) : (
-                            <Menu className="size-4" aria-hidden="true" />
-                        )}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {!sinPedido && <PedidoBoton />}
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setMenuAbierto((abierto) => !abierto)
+                            }
+                            aria-expanded={menuAbierto}
+                            aria-label={
+                                menuAbierto ? 'Cerrar menú' : 'Abrir menú'
+                            }
+                            className="rounded-md border border-borde bg-papel p-2 text-texto md:hidden"
+                        >
+                            {menuAbierto ? (
+                                <X className="size-4" aria-hidden="true" />
+                            ) : (
+                                <Menu className="size-4" aria-hidden="true" />
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {menuAbierto && (
@@ -144,29 +154,8 @@ export default function PublicLayout({
                 </div>
             </footer>
 
-            {/* Barra flotante: cuántos productos lleva armados y por dónde sigue. */}
-            {!hideQuoteBar && cantidadTotal > 0 && (
-                <div className="sticky bottom-0 z-30 border-t border-borde bg-papel shadow-lg">
-                    <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-                        <p className="flex items-center gap-2 text-sm text-texto">
-                            <ClipboardList
-                                className="size-4 shrink-0 text-dorado"
-                                aria-hidden="true"
-                            />
-                            <span>
-                                <span className="font-mono font-medium">
-                                    {cantidadTotal}
-                                </span>{' '}
-                                {cantidadTotal === 1 ? 'producto' : 'productos'}{' '}
-                                en tu cotización
-                            </span>
-                        </p>
-                        <Link href={`/cotizacion?items=${idsQuery}`}>
-                            <Button size="sm">Pedir cotización</Button>
-                        </Link>
-                    </div>
-                </div>
-            )}
+            {/* Un solo acceso al pedido: el botón del header abre este panel. */}
+            {!sinPedido && <PedidoPanel />}
         </div>
     );
 }
