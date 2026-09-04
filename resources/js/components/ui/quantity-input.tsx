@@ -37,7 +37,8 @@ export default function QuantityInput({
     return (
         <div
             className={cn(
-                'inline-flex items-stretch overflow-hidden rounded-md border border-borde bg-papel',
+                'inline-flex items-stretch overflow-hidden rounded-md bg-papel ring-1 ring-borde',
+                'transition-shadow duration-200 ease-suave focus-within:ring-dorado',
                 alto,
                 className,
             )}
@@ -48,7 +49,7 @@ export default function QuantityInput({
                 disabled={disabled || value <= min}
                 aria-label={`Quitar ${step}`}
                 aria-controls={id}
-                className="px-2 text-texto-medio transition-colors hover:bg-crema hover:text-texto disabled:opacity-40 disabled:hover:bg-transparent"
+                className="px-2.5 text-texto-medio transition-colors duration-200 hover:bg-crema hover:text-texto active:bg-borde/60 disabled:opacity-40 disabled:hover:bg-transparent"
             >
                 <Minus className="size-4" aria-hidden="true" />
             </button>
@@ -78,7 +79,7 @@ export default function QuantityInput({
                 disabled={disabled || value >= max}
                 aria-label={`Agregar ${step}`}
                 aria-controls={id}
-                className="px-2 text-texto-medio transition-colors hover:bg-crema hover:text-texto disabled:opacity-40 disabled:hover:bg-transparent"
+                className="px-2.5 text-texto-medio transition-colors duration-200 hover:bg-crema hover:text-texto active:bg-borde/60 disabled:opacity-40 disabled:hover:bg-transparent"
             >
                 <Plus className="size-4" aria-hidden="true" />
             </button>

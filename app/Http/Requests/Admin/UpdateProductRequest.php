@@ -38,7 +38,7 @@ class UpdateProductRequest extends FormRequest
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'unidad' => ['required', Rule::enum(ProductUnidad::class)],
             'precio_base' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
-            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('fenix.imagen_producto.peso_max_kb')],
             // Sacar la foto actual sin subir una nueva.
             'eliminar_imagen' => ['required', 'boolean'],
             'activo' => ['required', 'boolean'],
@@ -93,7 +93,15 @@ class UpdateProductRequest extends FormRequest
             'slug.unique' => 'Ya hay un producto con ese identificador.',
             'category_id.exists' => 'La categoría elegida no existe.',
             'precio_base.decimal' => 'El precio admite como mucho dos decimales.',
-            'imagen.max' => 'La foto no puede pesar más de 10 MB.',
+            'imagen.max' => 'La foto no puede pesar más de '.self::pesoMaxMb().' MB.',
         ];
+    }
+
+    /** El tope de peso configurado, en MB, para los mensajes de error. */
+    private static function pesoMaxMb(): string
+    {
+        $mb = (int) config('fenix.imagen_producto.peso_max_kb') / 1024;
+
+        return rtrim(rtrim(number_format($mb, 1, ',', ''), '0'), ',');
     }
 }

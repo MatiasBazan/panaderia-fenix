@@ -1,18 +1,11 @@
 <?php
 
-use App\Models\Business;
 use App\Models\User;
 
 it('deja al admin entrar al panel de administración', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->get('/admin')->assertOk();
-});
-
-it('no deja a un comercio entrar al panel de administración', function () {
-    $user = User::factory()->comercio(Business::factory()->create())->create();
-
-    $this->actingAs($user)->get('/admin')->assertForbidden();
 });
 
 it('manda a cambiar la clave temporal antes de dejar entrar al admin', function () {

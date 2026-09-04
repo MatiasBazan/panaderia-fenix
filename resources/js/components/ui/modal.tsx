@@ -67,7 +67,7 @@ export default function Modal({
             onClick={handleClick}
             aria-labelledby="modal-title"
             className={cn(
-                'w-[calc(100%-2rem)] rounded-lg border border-borde bg-papel p-0 text-texto shadow-lg',
+                'w-[calc(100%-2rem)] rounded-xl bg-papel p-0 text-texto shadow-alzado ring-1 ring-borde',
                 'backdrop:bg-carbon/45 open:m-auto',
                 sizes[size],
                 className,

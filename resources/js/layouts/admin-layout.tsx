@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import {
     FileText,
     LayoutDashboard,
+    LogOut,
     Menu,
     Package,
     Tags,
@@ -15,7 +16,7 @@ import { cn } from '@/lib/utils';
 import type { PageProps } from '@/types';
 
 const navegacion = [
-    { href: '/admin', label: 'Panel', icon: LayoutDashboard },
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: FileText },
     { href: '/admin/productos', label: 'Productos', icon: Package },
     { href: '/admin/categorias', label: 'Categorías', icon: Tags },
@@ -26,17 +27,21 @@ type Props = PropsWithChildren<{
     title: string;
     /** Bajada opcional bajo el título. */
     description?: ReactNode;
+    /** Rótulo corto sobre el título, para ubicar la sección. */
+    eyebrow?: string;
     /** Acciones alineadas a la derecha del encabezado (botones «Nuevo», etc.). */
     actions?: ReactNode;
 }>;
 
 /**
  * Shell de la administración: barra superior con navegación, identidad del
- * usuario y salida. El contenido va centrado a un ancho cómodo de lectura.
+ * usuario y salida. Barra arriba y no lateral: son cuatro secciones, y una
+ * columna fija le comería ancho a las tablas, que es lo que acá se mira.
  */
 export default function AdminLayout({
     title,
     description,
+    eyebrow,
     actions,
     children,
 }: Props) {
@@ -50,11 +55,15 @@ export default function AdminLayout({
         <div className="min-h-dvh bg-crema">
             <Head title={title} />
 
-            <header className="border-b border-borde bg-papel">
-                <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-                    <div className="flex items-center gap-6">
-                        <Link href="/admin" className="text-carbon">
-                            <Logo size={28} />
+            <header className="sticky top-0 z-30 border-b border-borde bg-papel/92 backdrop-blur-md">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+                    <div className="flex items-center gap-8">
+                        <Link
+                            href="/admin"
+                            className="text-carbon transition-opacity hover:opacity-80"
+                            aria-label="Panadería Fénix, panel"
+                        >
+                            <Logo size={30} />
                         </Link>
 
                         <nav
@@ -65,22 +74,23 @@ export default function AdminLayout({
                         </nav>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <span className="hidden text-sm text-texto-medio sm:inline">
+                    <div className="flex items-center gap-2">
+                        <span className="hidden max-w-40 truncate text-sm text-texto-medio lg:inline">
                             {auth.user?.name}
                         </span>
                         <Link
                             href="/logout"
                             method="post"
                             as="button"
-                            className="rounded-md border border-borde px-3 py-1.5 text-sm text-texto transition-colors hover:border-bordo hover:text-bordo"
+                            className="inline-flex items-center gap-2 rounded-full bg-papel px-3.5 py-2 text-sm text-texto-medio ring-1 ring-borde transition-[box-shadow,color] duration-200 ease-suave hover:text-bordo hover:ring-bordo/50 active:scale-[0.97]"
                         >
-                            Salir
+                            <LogOut className="size-4" aria-hidden="true" />
+                            <span className="hidden sm:inline">Salir</span>
                         </Link>
                         <button
                             type="button"
                             onClick={() => setMenuAbierto((v) => !v)}
-                            className="rounded-md p-1.5 text-texto-medio transition-colors hover:bg-crema md:hidden"
+                            className="rounded-md bg-papel p-2 text-texto ring-1 ring-borde transition-[box-shadow] duration-200 hover:ring-dorado active:scale-95 md:hidden"
                             aria-label="Menú"
                             aria-expanded={menuAbierto}
                         >
@@ -95,7 +105,7 @@ export default function AdminLayout({
 
                 {menuAbierto && (
                     <nav
-                        className="border-t border-borde px-4 py-2 md:hidden"
+                        className="grid gap-1 border-t border-borde px-4 py-3 md:hidden"
                         aria-label="Administración"
                     >
                         <NavLinks
@@ -107,14 +117,19 @@ export default function AdminLayout({
                 )}
             </header>
 
-            <main className="mx-auto max-w-6xl px-4 py-8">
+            <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <h1 className="font-display text-3xl leading-tight text-texto">
+                        {eyebrow && (
+                            <p className="font-mono text-[11px] tracking-[0.2em] text-texto-suave uppercase">
+                                {eyebrow}
+                            </p>
+                        )}
+                        <h1 className="mt-2 font-display text-4xl leading-tight text-texto">
                             {title}
                         </h1>
                         {description && (
-                            <p className="mt-1 text-texto-medio">
+                            <p className="mt-2 max-w-2xl leading-relaxed text-texto-medio">
                                 {description}
                             </p>
                         )}
@@ -126,7 +141,7 @@ export default function AdminLayout({
                     )}
                 </div>
 
-                <div className="mt-8">{children}</div>
+                <div className="mt-10">{children}</div>
             </main>
         </div>
     );
@@ -148,24 +163,50 @@ function NavLinks({
 
     return (
         <>
-            {navegacion.map((item) => (
-                <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onNavigate}
-                    className={cn(
-                        'flex items-center gap-2 rounded-md text-sm font-medium transition-colors',
-                        mobile ? 'px-3 py-2' : 'px-3 py-1.5',
-                        esActivo(item.href)
-                            ? 'bg-crema text-texto'
-                            : 'text-texto-medio hover:bg-crema hover:text-texto',
-                    )}
-                    aria-current={esActivo(item.href) ? 'page' : undefined}
-                >
-                    <item.icon className="size-4 shrink-0" aria-hidden="true" />
-                    {item.label}
-                </Link>
-            ))}
+            {navegacion.map((item) => {
+                const activo = esActivo(item.href);
+
+                return (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onNavigate}
+                        className={cn(
+                            'relative flex items-center gap-2 text-sm font-medium transition-colors duration-200',
+                            mobile
+                                ? 'rounded-md px-3 py-2.5'
+                                : 'rounded-md px-3 py-2',
+                            // Filete dorado abajo: marca la sección sin encerrar
+                            // el texto en una pastilla más.
+                            !mobile &&
+                                'after:absolute after:inset-x-3 after:bottom-0.5 after:h-px after:origin-left after:bg-dorado after:transition-transform after:duration-300 after:ease-suave',
+                            activo
+                                ? cn(
+                                      'text-texto',
+                                      mobile ? 'bg-crema' : 'after:scale-x-100',
+                                  )
+                                : cn(
+                                      'text-texto-medio hover:text-texto',
+                                      mobile
+                                          ? 'hover:bg-crema'
+                                          : 'after:scale-x-0 hover:after:scale-x-100',
+                                  ),
+                        )}
+                        aria-current={activo ? 'page' : undefined}
+                    >
+                        <item.icon
+                            className={cn(
+                                'size-4 shrink-0',
+                                activo
+                                    ? 'text-dorado-hover'
+                                    : 'text-texto-suave',
+                            )}
+                            aria-hidden="true"
+                        />
+                        {item.label}
+                    </Link>
+                );
+            })}
         </>
     );
 }

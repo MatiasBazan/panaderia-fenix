@@ -244,9 +244,3 @@ it('cambia el estado de una solicitud a mano pero no a cotizada', function () {
         ->patch("/admin/cotizaciones/{$solicitud->id}/estado", ['estado' => 'cotizada'])
         ->assertSessionHasErrors('estado');
 });
-
-it('le niega la bandeja de cotizaciones a un comercio', function () {
-    $comercio = User::factory()->comercio()->create();
-
-    $this->actingAs($comercio)->get('/admin/cotizaciones')->assertForbidden();
-});

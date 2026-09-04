@@ -40,14 +40,14 @@ export function EmptyState({ title, description, icon, action, className }: Empt
     return (
         <div
             className={cn(
-                'flex flex-col items-center rounded-lg border border-dashed border-borde bg-papel px-6 py-12 text-center',
+                'flex flex-col items-center rounded-xl border border-dashed border-borde bg-papel px-6 py-14 text-center',
                 className,
             )}
         >
             <span className="text-texto-suave" aria-hidden="true">
                 {icon ?? <Inbox className="size-8" />}
             </span>
-            <p className="mt-4 font-display text-xl text-texto">{title}</p>
+            <p className="mt-5 font-display text-2xl text-texto">{title}</p>
             {description && (
                 <p className="mt-1.5 max-w-sm text-sm text-texto-medio">{description}</p>
             )}
@@ -65,7 +65,7 @@ export function LoadingState({ label = 'Cargando…', className }: LoadingStateP
     return (
         <div
             className={cn(
-                'flex flex-col items-center rounded-lg border border-borde bg-papel px-6 py-12 text-center',
+                'flex flex-col items-center rounded-xl bg-papel px-6 py-14 text-center ring-1 ring-borde',
                 className,
             )}
         >
@@ -94,12 +94,12 @@ export function ErrorState({
     return (
         <div
             className={cn(
-                'flex flex-col items-center rounded-lg border border-error/40 bg-papel px-6 py-12 text-center',
+                'flex flex-col items-center rounded-xl bg-papel px-6 py-14 text-center ring-1 ring-error/40',
                 className,
             )}
         >
             <CircleAlert className="size-8 text-error" aria-hidden="true" />
-            <p className="mt-4 font-display text-xl text-texto">{title}</p>
+            <p className="mt-5 font-display text-2xl text-texto">{title}</p>
             {description && (
                 <p className="mt-1.5 max-w-sm text-sm text-texto-medio">{description}</p>
             )}
@@ -107,7 +107,7 @@ export function ErrorState({
                 <button
                     type="button"
                     onClick={onRetry}
-                    className="mt-5 inline-flex items-center gap-2 rounded-md border border-borde bg-papel px-4 py-2 text-sm font-medium text-texto transition-colors hover:border-dorado"
+                    className="mt-5 inline-flex items-center gap-2 rounded-md bg-papel px-4 py-2 text-sm font-medium text-texto ring-1 ring-borde transition-shadow duration-200 hover:ring-dorado"
                 >
                     <RotateCw className="size-4" aria-hidden="true" />
                     Reintentar

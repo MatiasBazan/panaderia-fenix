@@ -44,6 +44,26 @@ class DashboardController extends Controller
             ->toBase()
             ->first();
 
+        // Actividad de las últimas dos semanas. Se agrupa en la base y después se
+        // rellenan los días sin solicitudes: un hueco en el eje se lee como
+        // «no hubo datos», y lo que hubo fue cero.
+        $desde = now()->startOfDay()->subDays(13);
+
+        $porDia = QuoteRequest::query()
+            ->where('created_at', '>=', $desde)
+            ->selectRaw('date(created_at) as dia, count(*) as total')
+            ->groupBy('dia')
+            ->toBase()
+            ->pluck('total', 'dia');
+
+        $serie = collect(range(0, 13))
+            ->map(function (int $offset) use ($desde, $porDia): array {
+                $dia = $desde->copy()->addDays($offset)->toDateString();
+
+                return ['dia' => $dia, 'total' => (int) $porDia->get($dia, 0)];
+            })
+            ->all();
+
         return Inertia::render('admin/dashboard', [
             'metricas' => [
                 'solicitudes_pendientes' => QuoteRequest::query()->pendientes()->count(),
@@ -55,6 +75,7 @@ class DashboardController extends Controller
                 'comercios_activos' => (int) $comercios->activos,
                 'comercios_pendientes' => (int) $comercios->pendientes,
             ],
+            'serie_solicitudes' => $serie,
             'ultimas_solicitudes' => QuoteRequest::query()
                 ->withCount('items')
                 ->with('quote:id,quote_request_id,numero,estado')

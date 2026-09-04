@@ -74,6 +74,7 @@ export default function ProductosIndex({
 
     return (
         <AdminLayout
+            eyebrow="Catálogo"
             title="Productos"
             description="El catálogo de la panadería. Acá se ven y se editan los precios."
             actions={

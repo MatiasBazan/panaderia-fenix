@@ -12,7 +12,7 @@ export function Table({
     ...props
 }: HTMLAttributes<HTMLTableElement> & { children: ReactNode }) {
     return (
-        <div className="w-full overflow-x-auto rounded-lg border border-borde bg-papel">
+        <div className="w-full overflow-x-auto rounded-xl bg-papel shadow-xs ring-1 ring-borde">
             <table className={cn('w-full border-collapse text-sm', className)} {...props}>
                 {children}
             </table>
@@ -22,7 +22,7 @@ export function Table({
 
 export function THead({ className, children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
     return (
-        <thead className={cn('border-b border-borde bg-crema/60', className)} {...props}>
+        <thead className={cn('border-b border-borde bg-crema/70', className)} {...props}>
             {children}
         </thead>
     );
@@ -38,7 +38,7 @@ export function TBody({ className, children, ...props }: HTMLAttributes<HTMLTabl
 
 export function TR({ className, children, ...props }: HTMLAttributes<HTMLTableRowElement>) {
     return (
-        <tr className={cn('transition-colors hover:bg-crema/50', className)} {...props}>
+        <tr className={cn('transition-colors duration-200 hover:bg-crema/60', className)} {...props}>
             {children}
         </tr>
     );
@@ -59,7 +59,7 @@ export function TH({
         <th
             scope="col"
             className={cn(
-                'px-3 py-2.5 text-left text-xs font-semibold tracking-wide text-texto-medio uppercase',
+                'px-4 py-3 text-left font-mono text-[11px] font-medium tracking-[0.14em] text-texto-suave uppercase',
                 numeric && 'text-right',
                 className,
             )}
@@ -79,7 +79,7 @@ export function TD({
     return (
         <td
             className={cn(
-                'px-3 py-2.5 text-texto',
+                'px-4 py-3 text-texto',
                 numeric && 'text-right font-mono tabular-nums',
                 className,
             )}
@@ -101,7 +101,7 @@ export function StackedRow({
 }: HTMLAttributes<HTMLDivElement> & { children: ReactNode }) {
     return (
         <div
-            className={cn('rounded-md border border-borde bg-papel px-3 py-3', className)}
+            className={cn('rounded-lg bg-papel px-4 py-3.5 shadow-xs ring-1 ring-borde', className)}
             {...props}
         >
             {children}
@@ -120,7 +120,7 @@ export function StackedField({
 }) {
     return (
         <div className="flex items-baseline justify-between gap-3 py-0.5">
-            <span className="text-xs tracking-wide text-texto-medio uppercase">{label}</span>
+            <span className="font-mono text-[11px] tracking-[0.14em] text-texto-suave uppercase">{label}</span>
             <span className={cn('text-sm text-texto', numeric && 'font-mono tabular-nums')}>
                 {value}
             </span>
