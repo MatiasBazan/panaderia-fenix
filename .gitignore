@@ -23,6 +23,12 @@ npm-debug.log
 yarn-error.log
 *.stackdump
 /auth.json
+# Skills de Claude Code bajadas con `npx skills add`: se reinstalan por comando,
+# no son fuente del proyecto. Se ignora la carpeta y no todo `.claude/`, para
+# que un settings.json compartido del equipo sí pueda entrar al repo.
+/.claude/skills
+/skills-lock.json
+
 /.fleet
 /.idea
 /.nova
