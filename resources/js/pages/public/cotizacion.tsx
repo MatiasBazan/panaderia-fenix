@@ -100,7 +100,7 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
         return (
             <PublicLayout sinPedido>
                 <Head title="Tus datos" />
-                <div className="mx-auto max-w-3xl px-4 py-16">
+                <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
                     <EmptyState
                         title="Tu pedido está vacío"
                         description="Recorré el catálogo y agregá lo que quieras. Después dejás tus datos y te pasamos los precios."
@@ -120,20 +120,23 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
         <PublicLayout sinPedido>
             <Head title="Tus datos" />
 
-            <form onSubmit={enviar} className="mx-auto max-w-3xl px-4 py-10">
+            <form
+                onSubmit={enviar}
+                className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16"
+            >
                 <Pasos pasos={PASOS_PEDIDO} actual={1} />
 
-                <h1 className="mt-6 font-display text-4xl text-texto">
+                <h1 className="mt-8 font-display text-seccion text-texto">
                     Tus datos
                 </h1>
-                <p className="mt-2 text-texto-medio">
+                <p className="mt-3 max-w-lg leading-relaxed text-texto-medio">
                     Con esto te respondemos con precios dentro de las 24 horas
                     hábiles.
                 </p>
 
                 {/* Resumen de lectura: lo editable quedó en el paso anterior. */}
-                <section className="mt-8 rounded-lg border border-borde bg-papel">
-                    <div className="flex items-center justify-between gap-3 border-b border-borde px-4 py-3">
+                <section className="mt-10 overflow-hidden rounded-xl bg-papel shadow-xs ring-1 ring-borde">
+                    <div className="flex items-center justify-between gap-3 border-b border-borde px-5 py-4">
                         <h2 className="font-display text-xl text-texto">
                             Lo que vas a pedir
                         </h2>
@@ -150,7 +153,7 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                         {disponibles.map((item) => (
                             <li
                                 key={item.id}
-                                className="flex items-center gap-3 px-4 py-3"
+                                className="flex items-center gap-3 px-5 py-3.5"
                             >
                                 <Thumb
                                     src={item.imagen ?? null}
@@ -188,8 +191,8 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                 )}
 
                 {/* Tipo de pedido: define a qué contacto se le abre el WhatsApp. */}
-                <section className="mt-10 border-t border-borde pt-8">
-                    <h2 className="font-display text-2xl text-texto">
+                <section className="mt-14 border-t border-borde pt-10">
+                    <h2 className="font-display text-3xl text-texto">
                         Tipo de pedido
                     </h2>
                     <p className="mt-1 text-texto-medio">
@@ -238,8 +241,8 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                 </section>
 
                 {/* Datos de contacto */}
-                <section className="mt-10 border-t border-borde pt-8">
-                    <h2 className="font-display text-2xl text-texto">
+                <section className="mt-14 border-t border-borde pt-10">
+                    <h2 className="font-display text-3xl text-texto">
                         Cómo te contactamos
                     </h2>
 
@@ -342,7 +345,7 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                     )}
                 </section>
 
-                <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-borde pt-6">
+                <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-borde pt-8">
                     <Button type="submit" size="lg" loading={form.processing}>
                         {form.processing ? 'Enviando…' : 'Enviar el pedido'}
                     </Button>

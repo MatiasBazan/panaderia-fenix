@@ -16,7 +16,7 @@ export default function Thumb({ src, className }: Props) {
                 src={src}
                 alt=""
                 className={cn(
-                    'shrink-0 rounded-md border border-borde object-cover',
+                    'shrink-0 rounded-lg object-cover ring-1 ring-borde',
                     className,
                 )}
             />
@@ -26,7 +26,7 @@ export default function Thumb({ src, className }: Props) {
     return (
         <div
             className={cn(
-                'flex shrink-0 items-center justify-center rounded-md border border-borde bg-crema text-texto-suave',
+                'flex shrink-0 items-center justify-center rounded-lg bg-crema text-texto-suave ring-1 ring-borde',
                 className,
             )}
         >

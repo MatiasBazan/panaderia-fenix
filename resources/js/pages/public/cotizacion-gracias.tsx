@@ -31,14 +31,14 @@ export default function CotizacionGracias({
         <PublicLayout sinPedido>
             <Head title="Solicitud enviada" />
 
-            <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+            <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 sm:py-24">
                 {enviada ? (
                     <>
                         <CircleCheck
                             className="mx-auto size-12 text-exito"
                             aria-hidden="true"
                         />
-                        <h1 className="mt-6 font-display text-4xl leading-tight text-texto">
+                        <h1 className="mt-6 font-display text-seccion text-texto">
                             Recibimos tu solicitud
                         </h1>
                         {whatsappUrl ? (
@@ -60,7 +60,7 @@ export default function CotizacionGracias({
                             className="mx-auto size-12 text-exito"
                             aria-hidden="true"
                         />
-                        <h1 className="mt-6 font-display text-4xl leading-tight text-texto">
+                        <h1 className="mt-6 font-display text-seccion text-texto">
                             ¡Gracias por tu pedido!
                         </h1>
                         <p className="mt-4 text-lg text-texto-medio">
@@ -107,7 +107,7 @@ export default function CotizacionGracias({
                 </div>
 
                 {enviada && (panaderia.telefono || panaderia.email) && (
-                    <div className="mt-12 rounded-lg border border-borde bg-papel p-5 text-left">
+                    <div className="mt-14 rounded-xl bg-papel p-6 text-left shadow-xs ring-1 ring-borde">
                         <p className="text-sm font-semibold text-texto">
                             ¿Es urgente?
                         </p>

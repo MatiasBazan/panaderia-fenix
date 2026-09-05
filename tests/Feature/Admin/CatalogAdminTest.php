@@ -134,8 +134,44 @@ it('da de baja un producto con soft delete', function () {
         ->and(Product::withTrashed()->whereKey($producto->id)->exists())->toBeTrue();
 });
 
-it('le niega el catálogo de administración a un comercio', function () {
-    $comercio = User::factory()->comercio()->create();
+it('deriva las medidas de la foto de la configuración', function () {
+    config([
+        'fenix.imagen_producto.ancho_max' => 1600,
+        'fenix.imagen_producto.thumb_ancho' => 800,
+        'fenix.imagen_producto.thumb_alto' => 800,
+        'fenix.imagen_producto.peso_max_kb' => 5120,
+    ]);
 
-    $this->actingAs($comercio)->get('/admin/productos')->assertForbidden();
+    $this->actingAs($this->admin)
+        ->get('/admin/productos/create')
+        ->assertOk()
+        ->assertInertia(
+            fn ($page) => $page
+                ->where('imagen.ancho_max', 1600)
+                ->where('imagen.alto_sugerido', 1600)
+                ->where('imagen.proporcion', '1:1')
+                ->where('imagen.peso_max_mb', '5'),
+        );
+});
+
+it('rechaza una foto que pasa el peso configurado', function () {
+    Storage::fake('public');
+    config(['fenix.imagen_producto.peso_max_kb' => 100]);
+
+    $categoria = Category::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->post('/admin/productos', [
+            'category_id' => $categoria->id,
+            'sku' => 'PAN-TEST-001',
+            'nombre' => 'Pan de prueba',
+            'descripcion' => null,
+            'unidad' => 'kg',
+            'precio_base' => '1000.00',
+            'activo' => true,
+            'destacado' => false,
+            'orden' => 0,
+            'imagen' => UploadedFile::fake()->image('foto.jpg')->size(200),
+        ])
+        ->assertSessionHasErrors('imagen');
 });

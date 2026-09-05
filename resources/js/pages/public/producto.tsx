@@ -37,36 +37,48 @@ export default function Producto({ producto, relacionados }: Props) {
         <PublicLayout>
             <Head title={producto.nombre} />
 
-            <div className="mx-auto max-w-6xl px-4 py-8">
+            <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
                 <Link
                     href={
                         producto.categoria
                             ? `/productos?categoria=${producto.categoria.slug}`
                             : '/productos'
                     }
-                    className="inline-flex items-center gap-1.5 text-sm text-texto-medio transition-colors hover:text-bordo"
+                    className="group inline-flex items-center gap-1.5 text-sm text-texto-medio transition-colors hover:text-bordo"
                 >
-                    <ChevronLeft className="size-4" aria-hidden="true" />
+                    <ChevronLeft
+                        className="size-4 transition-transform duration-200 ease-suave group-hover:-translate-x-0.5"
+                        aria-hidden="true"
+                    />
                     {producto.categoria
                         ? producto.categoria.nombre
                         : 'Todos los productos'}
                 </Link>
 
-                <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
-                    {producto.imagen ? (
-                        <img
-                            src={producto.imagen}
-                            alt={producto.nombre}
-                            className="aspect-4/3 w-full rounded-lg border border-borde object-cover"
-                        />
-                    ) : (
-                        <PhotoPlaceholder
-                            label={producto.nombre.toLowerCase()}
-                        />
-                    )}
+                <div className="mt-8 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16">
+                    {/* La foto acompaña la lectura mientras se decide la cantidad. */}
+                    <div className="lg:sticky lg:top-24">
+                        {producto.imagen ? (
+                            <img
+                                src={producto.imagen}
+                                alt={producto.nombre}
+                                className="aspect-4/3 w-full rounded-xl object-cover shadow-lg ring-1 ring-borde"
+                            />
+                        ) : (
+                            <PhotoPlaceholder
+                                label={producto.nombre.toLowerCase()}
+                                className="shadow-lg"
+                            />
+                        )}
+                    </div>
 
                     <div>
                         <div className="flex flex-wrap items-center gap-3">
+                            {producto.categoria && (
+                                <p className="font-mono text-[11px] tracking-[0.18em] text-texto-suave uppercase">
+                                    {producto.categoria.nombre}
+                                </p>
+                            )}
                             <UnitBadge unidad={producto.unidad} />
                             {producto.sku && (
                                 <span className="font-mono text-xs text-texto-suave">
@@ -75,23 +87,23 @@ export default function Producto({ producto, relacionados }: Props) {
                             )}
                         </div>
 
-                        <h1 className="mt-3 font-display text-4xl leading-tight text-texto">
+                        <h1 className="mt-4 font-display text-seccion text-texto">
                             {producto.nombre}
                         </h1>
 
                         {producto.descripcion && (
-                            <p className="mt-4 text-lg text-texto-medio">
+                            <p className="mt-5 max-w-prose text-lg leading-relaxed text-texto-medio">
                                 {producto.descripcion}
                             </p>
                         )}
 
-                        <p className="mt-4 text-sm text-texto-medio">
+                        <p className="mt-6 max-w-prose border-l-2 border-dorado py-1 pl-5 text-sm leading-relaxed text-texto-medio">
                             Se vende {producto.unidad_label ?? 'por unidad'}. No
                             publicamos precios: te los pasamos al responder el
                             pedido, según cantidad y frecuencia de compra.
                         </p>
 
-                        <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-borde pt-6">
+                        <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-borde pt-8">
                             <QuantityInput
                                 value={cantidad}
                                 onChange={setCantidad}
@@ -116,7 +128,7 @@ export default function Producto({ producto, relacionados }: Props) {
                         </div>
 
                         {enPedido > 0 && (
-                            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
+                            <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
                                 <Check
                                     className="size-4 shrink-0 text-exito"
                                     aria-hidden="true"
@@ -134,7 +146,7 @@ export default function Producto({ producto, relacionados }: Props) {
                                 <button
                                     type="button"
                                     onClick={abrir}
-                                    className="underline underline-offset-4 hover:text-bordo"
+                                    className="underline decoration-dorado underline-offset-4 hover:text-bordo"
                                 >
                                     Ver pedido
                                 </button>
@@ -144,11 +156,14 @@ export default function Producto({ producto, relacionados }: Props) {
                 </div>
 
                 {relacionados.length > 0 && (
-                    <section className="mt-16 border-t border-borde pt-10">
-                        <h2 className="font-display text-2xl text-texto">
+                    <section className="mt-24 border-t border-borde pt-12">
+                        <p className="font-mono text-[11px] tracking-[0.2em] text-texto-suave uppercase">
+                            De la misma mesa
+                        </p>
+                        <h2 className="mt-3 font-display text-3xl text-texto">
                             También te puede servir
                         </h2>
-                        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {relacionados.map((item) => (
                                 <ProductCard key={item.id} product={item} />
                             ))}

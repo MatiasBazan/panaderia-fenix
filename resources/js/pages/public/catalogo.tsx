@@ -22,6 +22,9 @@ type Props = {
 /** Solo se recargan la grilla y los filtros; la barra de categorías queda cacheada. */
 const SOLO_GRILLA = { only: ['productos', 'filtros'] };
 
+const chip =
+    'rounded-full px-3.5 py-1.5 text-sm ring-1 transition-[background-color,color,box-shadow] duration-200 ease-suave';
+
 export default function Catalogo({ productos, categorias, filtros }: Props) {
     const [busqueda, setBusqueda] = useState(filtros.q ?? '');
 
@@ -58,74 +61,106 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
         <PublicLayout>
             <Head title="Productos" />
 
-            <div className="mx-auto max-w-6xl px-4 py-10">
-                <h1 className="font-display text-4xl text-texto">
-                    Nuestros productos
-                </h1>
-                <p className="mt-2 max-w-2xl text-texto-medio">
-                    Armá tu pedido y pedinos los precios. Te los pasamos por
-                    mail, según cantidad y frecuencia.
-                </p>
+            {/* Encabezado editorial sobre el halo del horno. */}
+            <div className="grano relative overflow-hidden border-b border-borde halo-horno">
+                <div className="relative z-1 mx-auto max-w-6xl px-4 pt-14 pb-12 sm:px-6 sm:pt-20">
+                    <p className="font-mono text-[11px] tracking-[0.2em] text-bordo uppercase">
+                        Catálogo
+                    </p>
+                    <h1 className="mt-4 max-w-2xl font-display text-titular text-texto">
+                        Nuestros productos
+                    </h1>
+                    <p className="mt-5 max-w-xl text-lg leading-relaxed text-texto-medio">
+                        Armá tu pedido y pedinos los precios. Te los pasamos por
+                        mail, según cantidad y frecuencia.
+                    </p>
+                </div>
+            </div>
 
-                {/* Filtros */}
-                <div className="mt-8 grid gap-4">
-                    <div className="relative max-w-sm">
-                        <Search
-                            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-texto-suave"
-                            aria-hidden="true"
-                        />
-                        <input
-                            type="search"
-                            value={busqueda}
-                            onChange={(event) =>
-                                setBusqueda(event.target.value)
-                            }
-                            placeholder="Buscar pan, facturas, tortas…"
-                            aria-label="Buscar productos"
-                            className="h-10 w-full rounded-md border border-borde bg-papel pr-3 pl-9 text-sm text-texto placeholder:text-texto-suave focus:border-dorado focus:outline-none"
-                        />
-                    </div>
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+                {/* Filtros: quedan a mano mientras se recorre la grilla. */}
+                <div className="sticky top-[4.25rem] z-20 -mx-4 border-b border-borde bg-crema/88 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:px-6">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="relative w-full max-w-sm">
+                            <Search
+                                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-texto-suave"
+                                aria-hidden="true"
+                            />
+                            <input
+                                type="search"
+                                value={busqueda}
+                                onChange={(event) =>
+                                    setBusqueda(event.target.value)
+                                }
+                                placeholder="Buscar pan, facturas, tortas…"
+                                aria-label="Buscar productos"
+                                className="h-11 w-full rounded-full bg-papel pr-4 pl-10 text-sm text-texto ring-1 ring-borde transition-shadow duration-200 placeholder:text-texto-suave focus:ring-dorado focus:outline-none"
+                            />
+                        </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                            href="/productos"
-                            preserveScroll
-                            only={SOLO_GRILLA.only}
-                            className={cn(
-                                'rounded-md border px-3 py-1.5 text-sm transition-colors',
-                                filtros.categoria === null
-                                    ? 'border-dorado bg-dorado/15 font-medium text-texto'
-                                    : 'border-borde bg-papel text-texto-medio hover:border-dorado',
-                            )}
-                        >
-                            Todo
-                        </Link>
-                        {categorias.map((categoria) => (
+                        <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto px-1 pb-1 lg:flex-wrap lg:overflow-visible lg:pb-0">
                             <Link
-                                key={categoria.slug}
-                                href={`/productos?categoria=${categoria.slug}`}
+                                href="/productos"
                                 preserveScroll
                                 only={SOLO_GRILLA.only}
+                                aria-current={
+                                    filtros.categoria === null
+                                        ? 'true'
+                                        : undefined
+                                }
                                 className={cn(
-                                    'rounded-md border px-3 py-1.5 text-sm transition-colors',
-                                    filtros.categoria === categoria.slug
-                                        ? 'border-dorado bg-dorado/15 font-medium text-texto'
-                                        : 'border-borde bg-papel text-texto-medio hover:border-dorado',
+                                    chip,
+                                    'shrink-0',
+                                    filtros.categoria === null
+                                        ? 'bg-carbon text-crema ring-carbon'
+                                        : 'bg-papel text-texto-medio ring-borde hover:text-texto hover:ring-dorado',
                                 )}
                             >
-                                {categoria.nombre}
-                                <span className="ml-1.5 font-mono text-xs text-texto-suave">
-                                    {categoria.productos_count}
-                                </span>
+                                Todo
                             </Link>
-                        ))}
+                            {categorias.map((categoria) => {
+                                const activa =
+                                    filtros.categoria === categoria.slug;
+
+                                return (
+                                    <Link
+                                        key={categoria.slug}
+                                        href={`/productos?categoria=${categoria.slug}`}
+                                        preserveScroll
+                                        only={SOLO_GRILLA.only}
+                                        aria-current={
+                                            activa ? 'true' : undefined
+                                        }
+                                        className={cn(
+                                            chip,
+                                            'shrink-0',
+                                            activa
+                                                ? 'bg-carbon text-crema ring-carbon'
+                                                : 'bg-papel text-texto-medio ring-borde hover:text-texto hover:ring-dorado',
+                                        )}
+                                    >
+                                        {categoria.nombre}
+                                        <span
+                                            className={cn(
+                                                'ml-2 font-mono text-xs',
+                                                activa
+                                                    ? 'text-crema/70'
+                                                    : 'text-texto-suave',
+                                            )}
+                                        >
+                                            {categoria.productos_count}
+                                        </span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 
                 {/* Grilla */}
                 {productos.data.length === 0 ? (
                     <EmptyState
-                        className="mt-10"
+                        className="my-16"
                         title="No encontramos nada con ese filtro"
                         description={
                             hayFiltros
@@ -152,8 +187,8 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                         }
                     />
                 ) : (
-                    <div className="mt-8 grid gap-6">
-                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-8 py-10 sm:py-12">
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {productos.data.map((producto) => (
                                 <ProductCard
                                     key={producto.id}

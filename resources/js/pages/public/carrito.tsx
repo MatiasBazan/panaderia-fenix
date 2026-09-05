@@ -48,7 +48,7 @@ export default function Carrito({ productos, consultados }: Props) {
         return (
             <PublicLayout sinPedido>
                 <Head title="Tu pedido" />
-                <div className="mx-auto max-w-3xl px-4 py-16">
+                <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
                     <EmptyState
                         title="Tu pedido está vacío"
                         description="Recorré el catálogo y agregá lo que quieras. Después dejás tus datos y te pasamos los precios."
@@ -68,19 +68,19 @@ export default function Carrito({ productos, consultados }: Props) {
         <PublicLayout sinPedido>
             <Head title="Tu pedido" />
 
-            <div className="mx-auto max-w-3xl px-4 py-10">
+            <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
                 <Pasos pasos={PASOS_PEDIDO} actual={0} />
 
-                <h1 className="mt-6 font-display text-4xl text-texto">
+                <h1 className="mt-8 font-display text-seccion text-texto">
                     Tu pedido
                 </h1>
-                <p className="mt-2 text-texto-medio">
+                <p className="mt-3 max-w-lg leading-relaxed text-texto-medio">
                     Revisá cantidades y agregá una nota si hace falta. Todavía
                     no estás enviando nada.
                 </p>
 
                 {dadosDeBaja.length > 0 && (
-                    <div className="mt-6 flex items-start gap-2.5 rounded-lg border border-alerta/40 bg-alerta/8 px-4 py-3">
+                    <div className="mt-8 flex items-start gap-3 rounded-lg bg-alerta/8 px-4 py-3.5 ring-1 ring-alerta/40">
                         <TriangleAlert
                             className="mt-0.5 size-4 shrink-0 text-alerta"
                             aria-hidden="true"
@@ -118,7 +118,7 @@ export default function Carrito({ productos, consultados }: Props) {
                     {disponibles.map((item) => (
                         <li
                             key={item.id}
-                            className="rounded-lg border border-borde bg-papel p-4"
+                            className="rounded-xl bg-papel p-4 shadow-xs ring-1 ring-borde transition-shadow duration-300 ease-suave hover:shadow-sm"
                         >
                             <div className="flex gap-4">
                                 <Link
@@ -136,7 +136,7 @@ export default function Carrito({ productos, consultados }: Props) {
                                         <div>
                                             <Link
                                                 href={`/productos/${item.slug}`}
-                                                className="font-medium text-texto transition-colors hover:text-bordo"
+                                                className="font-display text-lg leading-tight text-texto transition-colors hover:text-bordo"
                                             >
                                                 {item.nombre}
                                             </Link>
@@ -188,7 +188,7 @@ export default function Carrito({ productos, consultados }: Props) {
                                         placeholder="Nota para este producto (opcional)"
                                         aria-label={`Nota para ${item.nombre}`}
                                         maxLength={180}
-                                        className="mt-3 h-9 w-full rounded-md border border-borde bg-crema px-3 text-sm text-texto placeholder:text-texto-suave focus:border-dorado focus:outline-none"
+                                        className="mt-3 h-9 w-full rounded-md bg-crema px-3 text-sm text-texto ring-1 ring-borde placeholder:text-texto-suave focus:ring-dorado focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -196,7 +196,7 @@ export default function Carrito({ productos, consultados }: Props) {
                     ))}
                 </ul>
 
-                <div className="mt-6 flex flex-wrap items-baseline justify-between gap-3 border-t border-borde pt-4">
+                <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3 border-t border-borde pt-5">
                     <p className="text-sm text-texto">
                         <span className="font-mono font-medium">
                             {disponibles.length}
@@ -208,7 +208,7 @@ export default function Carrito({ productos, consultados }: Props) {
                     </p>
                 </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3">
+                <div className="mt-8 flex flex-wrap items-center gap-3">
                     <Button
                         size="lg"
                         onClick={continuar}
@@ -230,7 +230,7 @@ export default function Carrito({ productos, consultados }: Props) {
                     </button>
                 </div>
 
-                <p className="mt-6 text-sm text-texto-medio">
+                <p className="mt-8 max-w-lg border-l-2 border-dorado py-1 pl-5 text-sm leading-relaxed text-texto-medio">
                     En el próximo paso te pedimos nombre y teléfono para poder
                     responderte con los precios.
                 </p>

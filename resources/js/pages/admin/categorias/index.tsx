@@ -95,6 +95,7 @@ export default function CategoriasIndex({ categorias }: Props) {
 
     return (
         <AdminLayout
+            eyebrow="Catálogo"
             title="Categorías"
             description="Agrupan el catálogo. Se ordenan por el número de orden."
             actions={

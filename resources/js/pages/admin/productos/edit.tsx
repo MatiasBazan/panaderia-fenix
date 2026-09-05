@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import AdminLayout from '@/layouts/admin-layout';
 import ProductoForm from './producto-form';
 import type {
+    ConfigImagen,
     OpcionCategoria,
     OpcionUnidad,
     ProductoEdit,
@@ -12,15 +13,18 @@ type Props = {
     producto: ProductoEdit;
     categorias: OpcionCategoria[];
     unidades: OpcionUnidad[];
+    imagen: ConfigImagen;
 };
 
 export default function ProductoEditar({
     producto,
     categorias,
     unidades,
+    imagen,
 }: Props) {
     return (
         <AdminLayout
+            eyebrow="Catálogo"
             title="Editar producto"
             description={producto.nombre}
             actions={
@@ -37,6 +41,7 @@ export default function ProductoEditar({
                 producto={producto}
                 categorias={categorias}
                 unidades={unidades}
+                imagen={imagen}
             />
         </AdminLayout>
     );

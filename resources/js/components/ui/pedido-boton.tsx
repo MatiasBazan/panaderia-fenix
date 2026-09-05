@@ -42,9 +42,10 @@ export default function PedidoBoton({ className }: { className?: string }) {
                     : `Tu pedido: ${lineas} ${lineas === 1 ? 'producto' : 'productos'}`
             }
             className={cn(
-                'relative inline-flex items-center gap-2 rounded-md border bg-papel px-3 py-2',
-                'text-sm text-texto transition-colors hover:border-dorado',
-                abierto ? 'border-dorado' : 'border-borde',
+                'relative inline-flex items-center gap-2 rounded-full bg-papel px-4 py-2.5 ring-1',
+                'text-sm text-texto shadow-xs transition-[box-shadow,background-color] duration-200 ease-suave',
+                'hover:shadow-sm hover:ring-dorado active:scale-[0.97]',
+                abierto ? 'ring-dorado' : 'ring-borde',
                 className,
             )}
         >

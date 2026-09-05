@@ -57,47 +57,77 @@ export default function ProductCard({ product, className }: Props) {
     return (
         <article
             className={cn(
-                'flex flex-col overflow-hidden rounded-lg border bg-papel transition-colors',
-                enPedido > 0 ? 'border-dorado' : 'border-borde',
+                'group relative flex flex-col overflow-hidden rounded-xl bg-papel',
+                'shadow-xs ring-1 transition-[box-shadow,translate,--tw-ring-color] duration-300 ease-suave',
+                'hover:-translate-y-0.5 hover:shadow-md',
+                enPedido > 0
+                    ? 'ring-dorado'
+                    : 'ring-borde hover:ring-dorado/60',
                 className,
             )}
         >
-            <Link href={`/productos/${product.slug}`} className="block">
+            {/* La foto es la mitad del argumento: se acerca apenas al pasar. */}
+            <div className="relative overflow-hidden">
                 {product.imagen ? (
-                    <img
-                        src={product.imagen_thumb ?? product.imagen}
-                        alt={product.nombre}
-                        className="aspect-4/3 w-full object-cover"
-                        width={400}
-                        height={300}
-                        loading="lazy"
-                    />
+                    <>
+                        <img
+                            src={product.imagen_thumb ?? product.imagen}
+                            alt=""
+                            className="aspect-4/3 w-full object-cover transition-transform duration-700 ease-suave group-hover:scale-[1.045]"
+                            width={400}
+                            height={300}
+                            loading="lazy"
+                        />
+                        {/* Velo al pie de la foto: separa la imagen del texto. */}
+                        <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-carbon/18 to-transparent"
+                        />
+                    </>
                 ) : (
                     <PhotoPlaceholder
                         label={product.nombre.toLowerCase()}
-                        className="rounded-none border-0 border-b border-borde"
+                        className="rounded-none ring-0"
                     />
                 )}
-            </Link>
 
-            <div className="flex flex-1 flex-col gap-2 p-4">
+                {product.destacado && (
+                    <span className="absolute top-3 left-3 rounded-sm bg-papel/92 px-2 py-1 font-mono text-[10px] leading-none tracking-[0.14em] text-bordo uppercase backdrop-blur-sm">
+                        De la casa
+                    </span>
+                )}
+            </div>
+
+            <div className="flex flex-1 flex-col gap-2 p-5">
+                {product.categoria && (
+                    <p className="font-mono text-[10px] tracking-[0.16em] text-texto-suave uppercase">
+                        {product.categoria.nombre}
+                    </p>
+                )}
+
                 <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base leading-snug font-semibold text-texto">
+                    <h3 className="font-display text-xl leading-tight text-texto">
                         <Link
                             href={`/productos/${product.slug}`}
-                            className="transition-colors hover:text-bordo"
+                            className="transition-colors after:absolute after:inset-0 hover:text-bordo"
                         >
                             {product.nombre}
                         </Link>
                     </h3>
-                    <UnitBadge unidad={product.unidad} className="mt-0.5 shrink-0" />
+                    <UnitBadge
+                        unidad={product.unidad}
+                        className="mt-1 shrink-0"
+                    />
                 </div>
 
                 {product.descripcion && (
-                    <p className="line-clamp-2 text-sm text-texto-medio">{product.descripcion}</p>
+                    <p className="line-clamp-2 text-sm leading-relaxed text-texto-medio">
+                        {product.descripcion}
+                    </p>
                 )}
 
-                <div className="mt-auto flex items-center gap-2 pt-3">
+                {/* Los controles van por encima del enlace que cubre la tarjeta. */}
+                <div className="relative z-10 mt-auto flex items-center gap-2 pt-4">
                     <QuantityInput
                         value={cantidad}
                         onChange={setCantidad}
@@ -116,7 +146,7 @@ export default function ProductCard({ product, className }: Props) {
 
                 {/* Estado en el pedido: sin esto, agregar dos veces no se nota. */}
                 {enPedido > 0 && (
-                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
+                    <p className="relative z-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
                         <Check
                             className="size-3.5 shrink-0 text-exito"
                             aria-hidden="true"

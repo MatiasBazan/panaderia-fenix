@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'comercio';
+export type UserRole = 'admin';
 
 export type BusinessEstado =
     'pendiente' | 'activo' | 'suspendido' | 'rechazado';

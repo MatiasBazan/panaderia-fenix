@@ -50,4 +50,27 @@ return [
     'prefijo_cotizacion' => 'COT',
     'prefijo_pedido' => 'PED',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fotos de producto
+    |--------------------------------------------------------------------------
+    |
+    | Único lugar donde se define el tamaño de las imágenes del catálogo. Lo
+    | leen el servicio que las optimiza al subirlas, la validación del formulario
+    | y la ayuda que ve el admin (incluido el prompt para la IA). Cambiar acá o
+    | en el `.env` alcanza: no hay medidas escritas en ningún otro lado.
+    |
+    | `ancho_max` acota el original que se ve en la ficha del producto; el
+    | thumbnail es el 4:3 recortado que usan las tarjetas y los listados.
+    |
+    */
+
+    'imagen_producto' => [
+        'ancho_max' => (int) env('FENIX_IMG_ANCHO_MAX', 1200),
+        'thumb_ancho' => (int) env('FENIX_IMG_THUMB_ANCHO', 400),
+        'thumb_alto' => (int) env('FENIX_IMG_THUMB_ALTO', 300),
+        'calidad' => (int) env('FENIX_IMG_CALIDAD', 80),
+        'peso_max_kb' => (int) env('FENIX_IMG_PESO_MAX_KB', 10240),
+    ],
+
 ];

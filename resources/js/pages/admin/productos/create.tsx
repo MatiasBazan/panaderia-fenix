@@ -2,16 +2,22 @@ import { Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import AdminLayout from '@/layouts/admin-layout';
 import ProductoForm from './producto-form';
-import type { OpcionCategoria, OpcionUnidad } from './producto-form';
+import type {
+    ConfigImagen,
+    OpcionCategoria,
+    OpcionUnidad,
+} from './producto-form';
 
 type Props = {
     categorias: OpcionCategoria[];
     unidades: OpcionUnidad[];
+    imagen: ConfigImagen;
 };
 
-export default function ProductoCrear({ categorias, unidades }: Props) {
+export default function ProductoCrear({ categorias, unidades, imagen }: Props) {
     return (
         <AdminLayout
+            eyebrow="Catálogo"
             title="Nuevo producto"
             description="Cargá los datos y el precio. Podés dejar la foto para después."
             actions={
@@ -24,7 +30,11 @@ export default function ProductoCrear({ categorias, unidades }: Props) {
                 </Link>
             }
         >
-            <ProductoForm categorias={categorias} unidades={unidades} />
+            <ProductoForm
+                categorias={categorias}
+                unidades={unidades}
+                imagen={imagen}
+            />
         </AdminLayout>
     );
 }

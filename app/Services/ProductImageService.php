@@ -13,34 +13,39 @@ use Intervention\Image\ImageManager;
  * Optimiza las fotos de producto al subirlas. En vez de guardar el archivo
  * crudo (que puede pesar varios MB), lo pasa a WebP y genera dos versiones:
  *
- *   - original acotado a {@see self::ANCHO_MAX}px de ancho → detalle de producto
- *   - thumbnail 4:3 de {@see self::ANCHO_THUMB}px           → tarjetas y listados
+ *   - original acotado en ancho → detalle de producto
+ *   - thumbnail recortado       → tarjetas y listados
  *
- * Así el catálogo sirve decenas de KB por foto en lugar de megas, sin importar
- * cómo venga la imagen que sube el admin.
+ * Las medidas salen de `config/fenix.php` (`imagen_producto`), que es el único
+ * lugar donde se tocan. Así el catálogo sirve decenas de KB por foto en lugar
+ * de megas, sin importar cómo venga la imagen que sube el admin.
  */
 class ProductImageService
 {
     /** Carpeta de las fotos dentro del disco `public`. */
     public const DIR = 'productos';
 
-    /** Ancho máximo del original que se muestra en el detalle. */
-    private const ANCHO_MAX = 1200;
-
-    /** Ancho del thumbnail 4:3 que se usa en tarjetas y listados. */
-    private const ANCHO_THUMB = 400;
-
-    private const ALTO_THUMB = 300;
-
-    /** Calidad WebP: 80 es el punto donde no se nota la pérdida. */
-    private const CALIDAD = 80;
-
     private readonly ImageManager $manager;
+
+    /** Ancho máximo del original que se muestra en el detalle. */
+    private readonly int $anchoMax;
+
+    private readonly int $anchoThumb;
+
+    private readonly int $altoThumb;
+
+    /** Calidad WebP. El default de 80 es donde no se nota la pérdida. */
+    private readonly int $calidad;
 
     public function __construct()
     {
         // Driver GD: viene con PHP y trae soporte WebP en este entorno.
         $this->manager = new ImageManager(new Driver);
+
+        $this->anchoMax = (int) config('fenix.imagen_producto.ancho_max');
+        $this->anchoThumb = (int) config('fenix.imagen_producto.thumb_ancho');
+        $this->altoThumb = (int) config('fenix.imagen_producto.thumb_alto');
+        $this->calidad = (int) config('fenix.imagen_producto.calidad');
     }
 
     /**
@@ -79,14 +84,14 @@ class ProductImageService
     private function procesar(string $binario): string
     {
         $ruta = self::DIR.'/'.Str::random(40).'.webp';
-        $webp = new WebpEncoder(quality: self::CALIDAD);
+        $webp = new WebpEncoder(quality: $this->calidad);
 
         $grande = $this->manager->decode($binario)
-            ->scaleDown(width: self::ANCHO_MAX)
+            ->scaleDown(width: $this->anchoMax)
             ->encode($webp);
 
         $thumb = $this->manager->decode($binario)
-            ->cover(self::ANCHO_THUMB, self::ALTO_THUMB)
+            ->cover($this->anchoThumb, $this->altoThumb)
             ->encode($webp);
 
         $disk = Storage::disk('public');

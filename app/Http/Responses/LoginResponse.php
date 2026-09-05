@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 /**
- * Un solo formulario de login para las dos caras privadas del sistema:
- * el destino lo decide el rol del usuario.
+ * Después del login sólo hay un destino posible: el panel de administración,
+ * que es la única cara privada del sistema.
  */
 class LoginResponse implements LoginResponseContract
 {
@@ -23,6 +23,14 @@ class LoginResponse implements LoginResponseContract
         }
 
         $destino = $user?->role->homeRoute() ?? '/';
+
+        // Una pantalla pública guardada como `intended` (la landing, el catálogo)
+        // dejaría al admin fuera de su panel: en ese caso se descarta.
+        $intended = session()->get('url.intended');
+
+        if ($intended !== null && ! str_starts_with($intended, url('/admin'))) {
+            session()->forget('url.intended');
+        }
 
         return $request->wantsJson()
             ? new JsonResponse(['two_factor' => false, 'redirect' => $destino])

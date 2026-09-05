@@ -85,6 +85,7 @@ export default function CotizacionesIndex({
 
     return (
         <AdminLayout
+            eyebrow="Bandeja"
             title="Cotizaciones"
             description="Las solicitudes que entran desde el sitio y su cotización."
         >

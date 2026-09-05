@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Business;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -17,19 +16,8 @@ it('manda al admin a /admin después de ingresar', function () {
     $this->assertAuthenticatedAs($admin);
 });
 
-it('manda al comercio a la landing después de ingresar', function () {
-    $business = Business::factory()->create();
-    $user = User::factory()->comercio($business)->create();
-
-    $this->post('/login', ['email' => $user->email, 'password' => 'password'])
-        ->assertRedirect('/');
-
-    $this->assertAuthenticatedAs($user);
-});
-
 it('manda a cambiar la clave temporal antes que a su destino', function () {
-    $business = Business::factory()->create();
-    $user = User::factory()->comercio($business)->debeCambiarPassword()->create();
+    $user = User::factory()->admin()->debeCambiarPassword()->create();
 
     $this->post('/login', ['email' => $user->email, 'password' => 'password'])
         ->assertRedirect('/cambiar-clave');

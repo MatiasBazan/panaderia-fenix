@@ -49,3 +49,24 @@ export function longDate(fecha: string | null | undefined): string {
         timeZone: 'America/Argentina/Cordoba',
     }).format(new Date(fecha));
 }
+
+/**
+ * `dd/mm` a partir de una fecha plana `aaaa-mm-dd`. No pasa por `Date`: esas
+ * fechas no tienen hora, y parsearlas como UTC las corre un día en Córdoba.
+ */
+export function dayMonth(fecha: string): string {
+    const [, mes, dia] = fecha.split('-');
+
+    return `${dia}/${mes}`;
+}
+
+/** `lunes 4 de agosto` a partir de una fecha plana `aaaa-mm-dd`. */
+export function plainDayLabel(fecha: string): string {
+    const [anio, mes, dia] = fecha.split('-').map(Number);
+
+    return new Intl.DateTimeFormat('es-AR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+    }).format(new Date(anio, mes - 1, dia));
+}

@@ -32,7 +32,10 @@ export default function Field({
 
     return (
         <div className={cn('grid gap-1.5', className)}>
-            <label htmlFor={id} className="text-sm font-medium text-texto">
+            <label
+                htmlFor={id}
+                className="text-sm font-medium text-texto"
+            >
                 {label}
                 {required && (
                     <span className="ml-1 text-bordo" aria-hidden="true">
@@ -62,8 +65,10 @@ export default function Field({
 /** Clases compartidas por input, textarea y select. */
 export const controlClass = (invalid = false) =>
     cn(
-        'w-full rounded-md border bg-papel px-3 text-sm text-texto transition-colors',
+        // Anillo en vez de borde: al enfocarse no se mueve ni un píxel.
+        'w-full rounded-md bg-papel px-3 text-sm text-texto ring-1',
+        'transition-[box-shadow,background-color] duration-200 ease-suave',
         'placeholder:text-texto-suave',
         'disabled:cursor-not-allowed disabled:bg-crema disabled:text-texto-suave',
-        invalid ? 'border-error' : 'border-borde focus:border-dorado',
+        invalid ? 'ring-error' : 'ring-borde hover:ring-borde focus:ring-dorado focus:outline-none',
     );

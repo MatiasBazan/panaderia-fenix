@@ -2,6 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import { Button, Checkbox, Input, Select, Thumb } from '@/components/ui';
 import { Textarea } from '@/components/ui/input';
 import type { UnidadValue } from '@/lib/estados';
+import PromptFoto from './prompt-foto';
 
 export type ProductoEdit = {
     id: number;
@@ -19,6 +20,15 @@ export type ProductoEdit = {
 };
 
 export type OpcionCategoria = { id: number; nombre: string; slug: string };
+
+/** Medidas de la foto. Vienen de `config/fenix.php`, no se escriben acá. */
+export type ConfigImagen = {
+    ancho_max: number;
+    alto_sugerido: number;
+    proporcion: string;
+    peso_max_mb: string;
+};
+
 export type OpcionUnidad = {
     value: string;
     label: string;
@@ -28,6 +38,7 @@ export type OpcionUnidad = {
 type Props = {
     categorias: OpcionCategoria[];
     unidades: OpcionUnidad[];
+    imagen: ConfigImagen;
     /** Si viene, el formulario edita; si no, crea. */
     producto?: ProductoEdit;
 };
@@ -35,6 +46,7 @@ type Props = {
 export default function ProductoForm({
     categorias,
     unidades,
+    imagen,
     producto,
 }: Props) {
     const editando = producto !== undefined;
@@ -202,8 +214,9 @@ export default function ProductoForm({
                             className="text-sm text-texto-medio file:mr-3 file:rounded-md file:border file:border-borde file:bg-papel file:px-3 file:py-1.5 file:text-sm file:text-texto hover:file:border-dorado"
                         />
                         <p className="text-xs text-texto-medio">
-                            JPG, PNG o WEBP · hasta 10 MB · proporción 4:3
-                            (ideal 1200×900 px).
+                            JPG, PNG o WEBP · hasta {imagen.peso_max_mb} MB ·
+                            proporción {imagen.proporcion} (ideal{' '}
+                            {imagen.ancho_max}×{imagen.alto_sugerido} px).
                         </p>
                         {editando && producto?.imagen && (
                             <Checkbox
@@ -222,6 +235,8 @@ export default function ProductoForm({
                 {form.errors.imagen && (
                     <p className="text-sm text-error">{form.errors.imagen}</p>
                 )}
+
+                <PromptFoto nombre={form.data.nombre} imagen={imagen} />
             </div>
 
             <div className="flex flex-wrap gap-6">

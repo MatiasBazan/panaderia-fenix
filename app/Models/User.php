@@ -55,14 +55,15 @@ class User extends Authenticatable
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * El sistema tiene un solo rol privado. Sigue expresado como match para que
+     * agregar un rol nuevo obligue a decidir acá si es administración o no.
+     */
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::Admin;
-    }
-
-    public function isComercio(): bool
-    {
-        return $this->role === UserRole::Comercio;
+        return match ($this->role) {
+            UserRole::Admin => true,
+        };
     }
 
     /** @param Builder<$this> $query */

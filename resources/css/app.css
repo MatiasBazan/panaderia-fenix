@@ -1,7 +1,10 @@
 @import 'tailwindcss';
 
 @import '@fontsource/dm-serif-display/400.css';
+@import '@fontsource/dm-serif-display/400-italic.css';
+@import '@fontsource/work-sans/300.css';
 @import '@fontsource/work-sans/400.css';
+@import '@fontsource/work-sans/400-italic.css';
 @import '@fontsource/work-sans/500.css';
 @import '@fontsource/work-sans/600.css';
 @import '@fontsource/jetbrains-mono/400.css';
@@ -39,18 +42,38 @@
     --font-sans: 'Work Sans', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    /* Radios */
+    /* Escala fluida del display: el titular crece con el viewport sin saltos. */
+    --text-titular: clamp(2.5rem, 1.4rem + 4.6vw, 4.75rem);
+    --text-titular--line-height: 1.02;
+    --text-titular--letter-spacing: -0.022em;
+    --text-seccion: clamp(1.875rem, 1.35rem + 1.9vw, 2.75rem);
+    --text-seccion--line-height: 1.08;
+    --text-seccion--letter-spacing: -0.018em;
+
+    /* Radios: más cerrado adentro, más suave en el contenedor. */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 14px;
+    --radius-xl: 22px;
 
-    /* Sombras cálidas */
+    /* Sombras cálidas: el marrón de la miga, nunca negro puro. */
+    --shadow-xs: 0 1px 1px rgba(58, 44, 26, 0.05);
     --shadow-sm: 0 1px 2px rgba(58, 44, 26, 0.06);
-    --shadow-md: 0 4px 12px rgba(58, 44, 26, 0.08);
-    --shadow-lg: 0 12px 32px rgba(58, 44, 26, 0.12);
+    --shadow-md:
+        0 1px 2px rgba(58, 44, 26, 0.05), 0 6px 16px -6px rgba(58, 44, 26, 0.12);
+    --shadow-lg:
+        0 2px 4px rgba(58, 44, 26, 0.05),
+        0 18px 40px -12px rgba(58, 44, 26, 0.18);
+    --shadow-alzado:
+        0 2px 4px rgba(58, 44, 26, 0.06),
+        0 24px 48px -16px rgba(58, 44, 26, 0.22);
 
-    /* Movimiento: sólo el panel del pedido y el globo del carrito. */
-    --animate-deslizar: deslizar 200ms ease-out;
+    /* Curvas: masa que se asienta, nunca lineal. */
+    --ease-suave: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-resorte: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Movimiento */
+    --animate-deslizar: deslizar 260ms var(--ease-suave);
     --animate-latido: latido 320ms ease-out;
 
     @keyframes deslizar {
@@ -84,15 +107,45 @@
             scale: 1;
         }
     }
+
+    /* Entrada al entrar en cuadro: sube y aparece, una sola vez. */
+    @keyframes emerger {
+        from {
+            opacity: 0;
+            translate: 0 1.25rem;
+        }
+        to {
+            opacity: 1;
+            translate: 0 0;
+        }
+    }
 }
 
 @layer base {
     html {
         -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
     }
 
     body {
         @apply bg-crema font-sans text-texto antialiased;
+    }
+
+    /* Sin viudas colgando en titulares, y cortes razonables en párrafos. */
+    h1,
+    h2,
+    h3 {
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+
+    /* Los números se leen en columna: mismo ancho de dígito siempre. */
+    .font-mono,
+    [class*='font-mono'] {
+        font-variant-numeric: tabular-nums;
     }
 
     /* Foco visible y consistente en todo control interactivo. */
@@ -103,12 +156,69 @@
 
     /* Quien pide menos movimiento no ve ninguno. */
     @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
         *,
         *::before,
         *::after {
             animation-duration: 0.01ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+/**
+ * Grano de papel. Una panadería no imprime en vinilo: la superficie tiene
+ * textura. Va como capa fija sobre el fondo, sin interceptar el puntero.
+ */
+@utility grano {
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.5;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+    }
+}
+
+/** Halo cálido de horno: gradiente radial suave, sin bordes visibles. */
+@utility halo-horno {
+    background-image:
+        radial-gradient(
+            60rem 34rem at 78% -12%,
+            color-mix(in srgb, var(--color-dorado) 22%, transparent) 0%,
+            transparent 62%
+        ),
+        radial-gradient(
+            46rem 30rem at -8% 108%,
+            color-mix(in srgb, var(--color-bordo) 11%, transparent) 0%,
+            transparent 60%
+        );
+}
+
+/** Filo de luz sobre el borde superior: da espesor a tarjetas y barras. */
+@utility filo {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+/**
+ * Revelado al entrar en cuadro. Usa scroll-driven animations donde existen;
+ * donde no, el contenido ya está visible y no pasa nada.
+ */
+@utility emerge {
+    @supports (animation-timeline: view()) {
+        @media (prefers-reduced-motion: no-preference) {
+            animation: emerger 700ms var(--ease-suave) both;
+            animation-timeline: view();
+            animation-range: entry 0% cover 22%;
         }
     }
 }

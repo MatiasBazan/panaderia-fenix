@@ -2,16 +2,18 @@
 
 namespace App\Enums;
 
+/**
+ * Roles con acceso privado al sistema. Por ahora sólo la administración:
+ * el sistema es de gestión interna y los comercios no tienen cuenta.
+ */
 enum UserRole: string
 {
     case Admin = 'admin';
-    case Comercio = 'comercio';
 
     public function label(): string
     {
         return match ($this) {
             self::Admin => 'Administración',
-            self::Comercio => 'Comercio',
         };
     }
 
@@ -20,8 +22,6 @@ enum UserRole: string
     {
         return match ($this) {
             self::Admin => '/admin',
-            // El portal de comercios se retiró: sólo queda la landing pública y el admin.
-            self::Comercio => '/',
         };
     }
 }

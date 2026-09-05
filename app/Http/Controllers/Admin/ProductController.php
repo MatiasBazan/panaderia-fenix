@@ -68,6 +68,7 @@ class ProductController extends Controller
         return Inertia::render('admin/productos/create', [
             'categorias' => $this->opcionesCategorias(),
             'unidades' => $this->opcionesUnidades(),
+            'imagen' => $this->configImagen(),
         ]);
     }
 
@@ -95,6 +96,7 @@ class ProductController extends Controller
             'producto' => AdminProductResource::make($product->load('category:id,nombre,slug'))->resolve(),
             'categorias' => $this->opcionesCategorias(),
             'unidades' => $this->opcionesUnidades(),
+            'imagen' => $this->configImagen(),
         ]);
     }
 
@@ -133,6 +135,37 @@ class ProductController extends Controller
         return redirect()
             ->route('admin.productos.index')
             ->with('exito', "Producto «{$product->nombre}» dado de baja.");
+    }
+
+    /**
+     * Medidas de la foto, para la ayuda del formulario y el prompt de la IA.
+     * Salen de `config/fenix.php`: si mañana el catálogo pide otro tamaño, se
+     * cambia ahí y el texto que ve el admin se acomoda solo.
+     *
+     * @return array{ancho_max: int, alto_sugerido: int, proporcion: string, peso_max_mb: string}
+     */
+    private function configImagen(): array
+    {
+        $ancho = (int) config('fenix.imagen_producto.ancho_max');
+        $thumbAncho = (int) config('fenix.imagen_producto.thumb_ancho');
+        $thumbAlto = (int) config('fenix.imagen_producto.thumb_alto');
+        $pesoMb = (int) config('fenix.imagen_producto.peso_max_kb') / 1024;
+
+        // La proporción de la ficha es la del thumbnail: si se cambia una, la
+        // tarjeta y el detalle tienen que seguir recortando igual.
+        $divisor = max(1, $this->mcd($thumbAncho, $thumbAlto));
+
+        return [
+            'ancho_max' => $ancho,
+            'alto_sugerido' => (int) round($ancho * $thumbAlto / max(1, $thumbAncho)),
+            'proporcion' => intdiv($thumbAncho, $divisor).':'.intdiv($thumbAlto, $divisor),
+            'peso_max_mb' => rtrim(rtrim(number_format($pesoMb, 1, ',', ''), '0'), ','),
+        ];
+    }
+
+    private function mcd(int $a, int $b): int
+    {
+        return $b === 0 ? $a : $this->mcd($b, $a % $b);
     }
 
     /**

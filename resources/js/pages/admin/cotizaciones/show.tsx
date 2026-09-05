@@ -123,6 +123,7 @@ export default function CotizacionShow({
 
     return (
         <AdminLayout
+            eyebrow="Solicitud"
             title={solicitud.nombre}
             description={`Solicitud recibida el ${shortDate(solicitud.creada_el)}`}
             actions={
@@ -138,9 +139,9 @@ export default function CotizacionShow({
             <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
                 {/* Columna izquierda: la solicitud tal como entró */}
                 <div className="grid gap-6">
-                    <section className="rounded-lg border border-borde bg-papel p-5">
+                    <section className="rounded-xl bg-papel p-6 shadow-xs ring-1 ring-borde">
                         <div className="flex items-center justify-between gap-3">
-                            <h2 className="font-display text-lg text-texto">
+                            <h2 className="font-display text-xl text-texto">
                                 Datos del cliente
                             </h2>
                             <StatusBadge
@@ -187,8 +188,8 @@ export default function CotizacionShow({
                         </div>
                     </section>
 
-                    <section className="rounded-lg border border-borde bg-papel p-5">
-                        <h2 className="font-display text-lg text-texto">
+                    <section className="rounded-xl bg-papel p-6 shadow-xs ring-1 ring-borde">
+                        <h2 className="font-display text-xl text-texto">
                             Productos pedidos
                         </h2>
                         <ul className="mt-3 divide-y divide-borde">
@@ -415,10 +416,10 @@ function CotizacionPanel({
     };
 
     return (
-        <section className="rounded-lg border border-borde bg-papel p-5">
+        <section className="rounded-xl bg-papel p-6 shadow-xs ring-1 ring-borde">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                    <h2 className="font-display text-lg text-texto">
+                    <h2 className="font-display text-xl text-texto">
                         Cotización{' '}
                         <span className="font-mono text-base">
                             {cotizacion.numero}

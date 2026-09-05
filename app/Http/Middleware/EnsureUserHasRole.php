@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Restringe un grupo de rutas a uno o más roles.
- * Uso: `->middleware('role:admin')` o `->middleware('role:admin,comercio')`.
+ * Uso: `->middleware('role:admin')`.
  */
 class EnsureUserHasRole
 {

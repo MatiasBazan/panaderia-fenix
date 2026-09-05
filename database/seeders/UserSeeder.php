@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Hash;
 class UserSeeder extends Seeder
 {
     /**
-     * Cuentas de arranque: la administración de la panadería y comercios de
-     * ejemplo en los tres estados de la cuenta corriente en el admin.
+     * Cuentas de arranque. La única cuenta del sistema es la administración:
+     * los comercios no acceden, se los gestiona desde el admin. Los negocios
+     * de ejemplo quedan para ver los tres estados de la cuenta corriente.
      */
     public function run(): void
     {
@@ -30,7 +31,7 @@ class UserSeeder extends Seeder
             ],
         );
 
-        $activo = Business::updateOrCreate(
+        Business::updateOrCreate(
             ['cuit' => '30-71234567-4'],
             [
                 'razon_social' => 'Almacén Don Pedro S.R.L.',
@@ -46,19 +47,7 @@ class UserSeeder extends Seeder
             ],
         );
 
-        User::updateOrCreate(
-            ['email' => 'compras@donpedro.com.ar'],
-            [
-                'name' => 'Pedro Gutiérrez',
-                'password' => Hash::make('password'),
-                'role' => UserRole::Comercio,
-                'business_id' => $activo->id,
-                'must_change_password' => false,
-                'email_verified_at' => now(),
-            ],
-        );
-
-        $suspendido = Business::updateOrCreate(
+        Business::updateOrCreate(
             ['cuit' => '30-70987654-1'],
             [
                 'razon_social' => 'Kiosco La Esquina',
@@ -75,20 +64,7 @@ class UserSeeder extends Seeder
             ],
         );
 
-        // Comercio recién dado de alta: entra con clave temporal y debe cambiarla.
-        User::updateOrCreate(
-            ['email' => 'laesquina@gmail.com'],
-            [
-                'name' => 'Marta Ríos',
-                'password' => Hash::make('password'),
-                'role' => UserRole::Comercio,
-                'business_id' => $suspendido->id,
-                'must_change_password' => true,
-                'email_verified_at' => now(),
-            ],
-        );
-
-        // Solicitud de alta esperando revisión del admin: todavía sin usuario.
+        // Solicitud de alta esperando revisión del admin.
         Business::updateOrCreate(
             ['cuit' => '27-33445566-8'],
             [

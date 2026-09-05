@@ -101,19 +101,19 @@ export default function PedidoPanel() {
                 onClick={cerrar}
                 aria-label="Cerrar el pedido"
                 tabIndex={-1}
-                className="fixed inset-0 z-30 cursor-default bg-carbon/40 lg:hidden"
+                className="fixed inset-0 z-30 cursor-default bg-carbon/45 backdrop-blur-[2px] lg:hidden"
             />
 
             <aside
                 aria-label="Tu pedido"
                 className={cn(
                     'fixed top-0 right-0 bottom-0 z-40 flex w-full max-w-sm flex-col',
-                    'animate-deslizar border-l border-borde bg-papel shadow-lg',
+                    'animate-deslizar border-l border-borde bg-papel shadow-alzado',
                     'lg:w-[22rem] lg:max-w-none lg:shadow-none',
                 )}
             >
-                <div className="flex items-center justify-between gap-4 border-b border-borde px-5 py-4">
-                    <h2 className="font-display text-xl leading-tight text-texto">
+                <div className="flex items-center justify-between gap-4 border-b border-borde px-5 py-4.5">
+                    <h2 className="font-display text-2xl leading-tight text-texto">
                         Tu pedido
                     </h2>
                     <button
@@ -132,7 +132,7 @@ export default function PedidoPanel() {
                             className="size-8 text-texto-suave"
                             aria-hidden="true"
                         />
-                        <p className="font-medium text-texto">
+                        <p className="font-display text-xl text-texto">
                             Todavía no agregaste nada
                         </p>
                         <p className="text-sm text-texto-medio">
@@ -214,7 +214,7 @@ export default function PedidoPanel() {
                             ))}
                         </ul>
 
-                        <div className="border-t border-borde bg-crema/50 px-5 py-4">
+                        <div className="filo border-t border-borde bg-crema/60 px-5 py-5">
                             <p className="flex items-baseline justify-between gap-3 text-sm">
                                 <span className="text-texto">
                                     <span className="font-mono font-medium">
