@@ -1,0 +1,76 @@
+services:
+  app:
+    build:
+      context: .
+      target: app
+    image: panaderia-fenix:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUN_MIGRATIONS: "true"
+      # Poné "true" solo en el PRIMER arranque para cargar admin + catálogo.
+      RUN_SEED: "${RUN_SEED:-false}"
+    volumes:
+      # Fotos de producto subidas por el admin. storage/ es efímero en la
+      # imagen: sin este volumen se perderían en cada rebuild.
+      - app_storage:/var/www/html/storage/app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan inspire >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  web:
+    build:
+      context: .
+      target: web
+    image: panaderia-fenix-web:latest
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      # Read-only: nginx sirve /storage/* directo desde el mismo volumen.
+      - app_storage:/var/www/html/storage/app:ro
+    networks:
+      # Red propia (para hablar con 'app' vía fastcgi en app:9000).
+      default: {}
+      # Red del Caddy compartido: lo alcanza como 'fenix-web' y le hace TLS.
+      caddy:
+        aliases:
+          - fenix-web
+    ports:
+      # Solo localhost, para probar con curl desde el VPS. Caddy lo alcanza por
+      # red, no por este puerto. 8090 y 8080 ya están ocupados en el host.
+      - "127.0.0.1:${APP_PORT:-8091}:80"
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:-panaderia_fenix}"
+      MYSQL_USER: "${DB_USERNAME:-fenix}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-${DB_PASSWORD}}"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  db_data:
+  app_storage:
+
+networks:
+  default:
+  # Red del stack espaciodiamond donde vive el Caddy que hace de reverse proxy.
+  caddy:
+    external: true
+    name: espaciodiamond_default

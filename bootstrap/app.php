@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Detrás del Caddy compartido: confiamos en sus cabeceras X-Forwarded-*
+        // para detectar HTTPS y la IP real. Solo Caddy alcanza a nginx por la
+        // red interna, así que confiar en cualquier proxy es seguro acá.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
