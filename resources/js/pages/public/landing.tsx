@@ -165,10 +165,13 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                         }
                     />
                 ) : (
-                    <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-10 grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {destacados.map((producto) => (
-                            <div key={producto.id} className="emerge">
-                                <ProductCard product={producto} />
+                            <div key={producto.id} className="emerge h-full">
+                                <ProductCard
+                                    product={producto}
+                                    className="h-full"
+                                />
                             </div>
                         ))}
                     </div>

@@ -188,11 +188,12 @@ export default function Catalogo({ productos, categorias, filtros }: Props) {
                     />
                 ) : (
                     <div className="grid gap-8 py-10 sm:py-12">
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {productos.data.map((producto) => (
                                 <ProductCard
                                     key={producto.id}
                                     product={producto}
+                                    className="h-full"
                                 />
                             ))}
                         </div>
