@@ -111,7 +111,7 @@ docker compose up -d
 | Acción | Comando |
 |---|---|
 | Ver logs de la app | `docker compose logs -f app` |
-| Actualizar (nuevo código) | `git pull && docker compose build && docker compose up -d` |
+| Actualizar (nuevo código) | `./deploy.sh` (trae main, rebuildea, levanta y verifica) |
 | Comando artisan | `docker compose exec app php artisan <cmd>` |
 | Crear/editar admin | `docker compose exec app php artisan tinker` |
 | Backup de la base | `docker compose exec db mysqldump -ufenix -p"$DB_PASSWORD" panaderia_fenix > backup.sql` |
