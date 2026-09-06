@@ -12,6 +12,7 @@ import { useState } from 'react';
 import {
     Badge,
     Button,
+    DatePicker,
     Input,
     Modal,
     Select,
@@ -568,14 +569,13 @@ function CotizacionPanel({
                                 form.setData('descuento', e.target.value)
                             }
                         />
-                        <Input
+                        <DatePicker
                             label="Vence el"
-                            type="date"
                             required
                             value={form.data.vence_el}
                             error={form.errors.vence_el}
-                            onChange={(e) =>
-                                form.setData('vence_el', e.target.value)
+                            onChange={(valor) =>
+                                form.setData('vence_el', valor)
                             }
                         />
                     </div>

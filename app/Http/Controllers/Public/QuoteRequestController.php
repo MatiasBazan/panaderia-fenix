@@ -34,6 +34,7 @@ class QuoteRequestController extends Controller
             'productos' => PublicProductResource::collection($productos),
             'consultados' => $consultados,
             'zonas' => $settings->zonasEntrega(),
+            'sena' => (int) config('fenix.sena_pedido'),
         ]);
     }
 
@@ -65,6 +66,7 @@ class QuoteRequestController extends Controller
             'enviada' => $solicitud !== null,
             'panaderia' => $settings->datosPanaderia(),
             'contacto' => $contacto['nombre'] ?? null,
+            'sena' => (int) config('fenix.sena_pedido'),
             'whatsappUrl' => $solicitud === null || $contacto === null
                 ? null
                 : $this->whatsappUrl($solicitud, $contacto),
@@ -132,6 +134,13 @@ class QuoteRequestController extends Controller
 
         if ($solicitud->mensaje !== null && $solicitud->mensaje !== '') {
             $lineas[] = "Mensaje: {$solicitud->mensaje}";
+        }
+
+        $sena = (int) config('fenix.sena_pedido');
+
+        if ($sena > 0) {
+            $lineas[] = '';
+            $lineas[] = 'Sé que el pedido se seña con $'.number_format($sena, 0, ',', '.').'.';
         }
 
         return 'https://wa.me/'.$numero.'?text='.rawurlencode(implode("\n", $lineas));

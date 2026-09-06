@@ -1,8 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Pencil, ShoppingBasket, TriangleAlert } from 'lucide-react';
-import { useEffect } from 'react';
+import { Pencil, ShoppingBasket, TriangleAlert, Wallet } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
 import {
     Button,
+    DatePicker,
     EmptyState,
     Input,
     Pasos,
@@ -23,6 +24,8 @@ type Props = {
     /** Ids por los que el servidor efectivamente preguntó. */
     consultados: number[];
     zonas: string[];
+    /** Seña que se pide para reservar el pedido, en pesos. 0 oculta el aviso. */
+    sena: number;
 };
 
 type TipoPedido = 'minorista' | 'mayorista';
@@ -56,7 +59,12 @@ const TIPOS: { value: TipoPedido; label: string; hint: string }[] = [
  * acá aparece como resumen de lectura — mezclar lista editable y formulario en
  * una misma pantalla era lo que hacía imposible saber qué se estaba enviando.
  */
-export default function Cotizacion({ productos, consultados, zonas }: Props) {
+export default function Cotizacion({
+    productos,
+    consultados,
+    zonas,
+    sena,
+}: Props) {
     const { vaciar } = usePedido();
     const { disponibles } = usePedidoRevalidado(
         '/cotizacion',
@@ -74,6 +82,15 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
         sitio_web: '',
         items: [],
     });
+
+    // Hoy en ISO local: la fecha del evento no puede ser en el pasado.
+    const hoyISO = useMemo(() => {
+        const hoy = new Date();
+        const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoy.getDate()).padStart(2, '0');
+
+        return `${hoy.getFullYear()}-${mes}-${dia}`;
+    }, []);
 
     // El listado de ítems se sincroniza desde el almacenamiento local.
     useEffect(() => {
@@ -297,13 +314,13 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                                 error={form.errors.localidad}
                             />
                         )}
-                        <Input
+                        <DatePicker
                             label="Fecha del evento"
-                            type="date"
                             hint="Sólo si el pedido es para una fecha puntual."
+                            min={hoyISO}
                             value={form.data.fecha_evento}
-                            onChange={(e) =>
-                                form.setData('fecha_evento', e.target.value)
+                            onChange={(valor) =>
+                                form.setData('fecha_evento', valor)
                             }
                             error={form.errors.fecha_evento}
                             className="sm:col-span-2 sm:max-w-xs"
@@ -344,6 +361,23 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                         </p>
                     )}
                 </section>
+
+                {sena > 0 && (
+                    <div className="mt-10 flex items-start gap-3 rounded-xl bg-dorado/10 p-5 ring-1 ring-dorado/30">
+                        <Wallet
+                            className="mt-0.5 size-5 shrink-0 text-dorado"
+                            aria-hidden="true"
+                        />
+                        <p className="text-sm leading-relaxed text-texto">
+                            Para reservar el pedido se pide una seña de{' '}
+                            <span className="font-semibold">
+                                ${sena.toLocaleString('es-AR')}
+                            </span>
+                            . Te pasamos cómo abonarla cuando confirmemos los
+                            precios.
+                        </p>
+                    </div>
+                )}
 
                 <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-borde pt-8">
                     <Button type="submit" size="lg" loading={form.processing}>

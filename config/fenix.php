@@ -52,6 +52,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Seña de pedidos
+    |--------------------------------------------------------------------------
+    |
+    | Monto que el cliente debe adelantar para reservar el pedido. Se le avisa
+    | en la pantalla de datos y en la de gracias, y va escrito en el mensaje de
+    | WhatsApp que se le abre al contacto. En pesos; 0 desactiva el aviso.
+    |
+    */
+
+    'sena_pedido' => (int) env('FENIX_SENA_PEDIDO', 3000),
+
+    /*
+    |--------------------------------------------------------------------------
     | Fotos de producto
     |--------------------------------------------------------------------------
     |

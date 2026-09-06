@@ -198,6 +198,24 @@ it('arma el enlace wa.me hacia Nati para un pedido minorista', function () {
     );
 });
 
+it('avisa la seña del pedido en el mensaje de WhatsApp', function () {
+    config()->set('fenix.sena_pedido', 3000);
+    $product = Product::factory()->create();
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [['product_id' => $product->id, 'cantidad' => 1]],
+    ]));
+
+    $this->get('/cotizacion/gracias')->assertInertia(
+        fn (Assert $page) => $page
+            ->where('sena', 3000)
+            ->where('whatsappUrl', fn (string $url): bool => str_contains(
+                rawurldecode($url),
+                'se seña con $3.000',
+            )),
+    );
+});
+
 it('deriva el pedido mayorista al WhatsApp de Juan', function () {
     $product = Product::factory()->create();
 

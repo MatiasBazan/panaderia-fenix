@@ -7,6 +7,7 @@ import {
     Badge,
     Button,
     Checkbox,
+    DatePicker,
     EmptyState,
     ErrorState,
     Input,
@@ -119,6 +120,7 @@ export default function Componentes() {
     const [modalAbierto, setModalAbierto] = useState(false);
     const [cantidad, setCantidad] = useState(3);
     const [conError, setConError] = useState(false);
+    const [fecha, setFecha] = useState('');
 
     return (
         <div className="min-h-dvh bg-crema">
@@ -253,6 +255,15 @@ export default function Componentes() {
                                     label: 'Consumidor final',
                                 },
                             ]}
+                        />
+                        <DatePicker
+                            label="Fecha de entrega"
+                            hint="Elegí el día en el calendario."
+                            value={fecha}
+                            onChange={setFecha}
+                            error={
+                                conError ? 'Elegí una fecha válida.' : undefined
+                            }
                         />
                         <Input
                             label="Correo de contacto"

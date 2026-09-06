@@ -36,6 +36,13 @@ class BuildQuoteWhatsAppLink
         }
 
         $lineas[] = 'Total: $'.$this->plata($quote->total);
+
+        $sena = (int) config('fenix.sena_pedido');
+
+        if ($sena > 0) {
+            $lineas[] = 'Para reservarlo, seña de $'.number_format($sena, 0, ',', '.').'.';
+        }
+
         $lineas[] = 'Válida hasta el '.$quote->vence_el->format('d/m/Y').'.';
 
         return 'https://wa.me/'.$numero.'?text='.rawurlencode(implode("\n", $lineas));
