@@ -35,6 +35,7 @@ class CatalogSeeder extends Seeder
                         'nombre' => $producto['nombre'],
                         'slug' => Str::slug($producto['nombre']),
                         'descripcion' => $producto['descripcion'],
+                        'variantes' => $producto['variantes'] ?? null,
                         'unidad' => $producto['unidad'],
                         'precio_base' => $producto['precio_base'],
                         'imagen' => null,
@@ -48,7 +49,7 @@ class CatalogSeeder extends Seeder
     }
 
     /**
-     * @return list<array{nombre: string, productos: list<array{sku: string, nombre: string, descripcion: string, unidad: ProductUnidad, precio_base: string, destacado?: bool, activo?: bool}>}>
+     * @return list<array{nombre: string, productos: list<array{sku: string, nombre: string, descripcion: string, variantes?: list<array{nombre: string, opciones: list<array{label: string, precio?: string}>}>, unidad: ProductUnidad, precio_base: string, destacado?: bool, activo?: bool}>}>
      */
     protected function catalogo(): array
     {
@@ -191,10 +192,43 @@ class CatalogSeeder extends Seeder
                     ],
                     [
                         'sku' => 'PAS-ALF-004',
-                        'nombre' => 'Alfajores de maicena',
-                        'descripcion' => 'Rellenos de dulce de leche repostero y coco rallado.',
+                        'nombre' => 'Alfajores',
+                        'descripcion' => 'Rellenos de dulce de leche repostero. Elegí el relleno y el tamaño.',
+                        'variantes' => [
+                            [
+                                'nombre' => 'Relleno',
+                                'opciones' => [
+                                    ['label' => 'Chocolate'],
+                                    ['label' => 'Maicena'],
+                                ],
+                            ],
+                            [
+                                'nombre' => 'Tamaño',
+                                'opciones' => [
+                                    ['label' => 'Grande', 'precio' => '1500.00'],
+                                    ['label' => 'Chico', 'precio' => '900.00'],
+                                ],
+                            ],
+                        ],
                         'unidad' => ProductUnidad::Docena,
                         'precio_base' => '12800.00',
+                    ],
+                    [
+                        'sku' => 'PAS-PAF-006',
+                        'nombre' => 'Pastafloras',
+                        'descripcion' => 'Masa sablée dulce. Elegí el sabor del relleno.',
+                        'variantes' => [
+                            [
+                                'nombre' => 'Sabor',
+                                'opciones' => [
+                                    ['label' => 'Membrillo'],
+                                    ['label' => 'Dulce de leche'],
+                                    ['label' => 'Batata'],
+                                ],
+                            ],
+                        ],
+                        'unidad' => ProductUnidad::Unidad,
+                        'precio_base' => '8500.00',
                     ],
                     [
                         'sku' => 'PAS-MAS-005',

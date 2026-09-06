@@ -12,8 +12,14 @@ type Resultado = {
     dadosDeBaja: PedidoItem[];
 };
 
+/**
+ * Firma de una lista de ids: únicos y ordenados. Deduplica porque un producto
+ * con dos variantes son dos líneas pero un solo id, y el servidor confirma por
+ * id único: sin deduplicar, la lista del navegador nunca coincidiría con la suya
+ * y se repediría la página en un bucle.
+ */
 function ordenados(ids: number[]): string {
-    return [...ids].sort((a, b) => a - b).join(',');
+    return [...new Set(ids)].sort((a, b) => a - b).join(',');
 }
 
 /**

@@ -49,11 +49,19 @@ class GenerateQuote
                 $precioUnitario = $this->prices->unitPrice($product);
                 $lineaSubtotal = $this->prices->lineSubtotal($precioUnitario, (string) $item->cantidad);
 
+                $descripcion = $product->nombre;
+
+                if ($item->variante !== null && $item->variante !== '') {
+                    $descripcion .= " — {$item->variante}";
+                }
+
+                if ($item->nota !== null && $item->nota !== '') {
+                    $descripcion .= " ({$item->nota})";
+                }
+
                 $items[] = [
                     'product_id' => $product->id,
-                    'descripcion' => $item->nota === null
-                        ? $product->nombre
-                        : "{$product->nombre} ({$item->nota})",
+                    'descripcion' => $descripcion,
                     'cantidad' => (string) $item->cantidad,
                     'precio_unitario' => $precioUnitario,
                     'subtotal' => $lineaSubtotal,

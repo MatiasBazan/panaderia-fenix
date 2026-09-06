@@ -21,3 +21,4 @@ export { EmptyState, ErrorState, LoadingState, Skeleton, Spinner } from './state
 export { StackedField, StackedRow, TBody, TD, TH, THead, TR, Table } from './table';
 export { default as Thumb } from './thumb';
 export { ToastProvider, useToast } from './toast';
+export { default as VarianteSelector } from './variante-selector';

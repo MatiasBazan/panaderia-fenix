@@ -3,6 +3,8 @@ import { Button, Checkbox, Input, Select, Thumb } from '@/components/ui';
 import { Textarea } from '@/components/ui/input';
 import type { UnidadValue } from '@/lib/estados';
 import PromptFoto from './prompt-foto';
+import VariantesEditor from './variantes-editor';
+import type { GrupoEdit } from './variantes-editor';
 
 export type ProductoEdit = {
     id: number;
@@ -11,6 +13,12 @@ export type ProductoEdit = {
     nombre: string;
     slug: string;
     descripcion: string | null;
+    variantes:
+        | {
+              nombre: string;
+              opciones: { label: string; precio?: string | number | null }[];
+          }[]
+        | null;
     unidad: UnidadValue;
     precio_base: string;
     imagen: string | null;
@@ -18,6 +26,20 @@ export type ProductoEdit = {
     destacado: boolean;
     orden: number;
 };
+
+/** Pasa las variantes guardadas al formato del editor (precio siempre texto). */
+function variantesParaEditar(producto?: ProductoEdit): GrupoEdit[] {
+    return (producto?.variantes ?? []).map((grupo) => ({
+        nombre: grupo.nombre,
+        opciones: grupo.opciones.map((opcion) => ({
+            label: opcion.label,
+            precio:
+                opcion.precio === null || opcion.precio === undefined
+                    ? ''
+                    : String(opcion.precio),
+        })),
+    }));
+}
 
 export type OpcionCategoria = { id: number; nombre: string; slug: string };
 
@@ -57,6 +79,7 @@ export default function ProductoForm({
         nombre: string;
         slug: string;
         descripcion: string;
+        variantes: GrupoEdit[];
         unidad: string;
         precio_base: string;
         activo: boolean;
@@ -70,6 +93,7 @@ export default function ProductoForm({
         nombre: producto?.nombre ?? '',
         slug: producto?.slug ?? '',
         descripcion: producto?.descripcion ?? '',
+        variantes: variantesParaEditar(producto),
         unidad: producto?.unidad ?? '',
         precio_base: producto?.precio_base ?? '',
         activo: producto?.activo ?? true,
@@ -82,15 +106,21 @@ export default function ProductoForm({
     const guardar = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (editando) {
-            // Con archivos, el PUT viaja como POST + _method para que PHP lo parsee.
-            form.transform((data) => ({ ...data, _method: 'put' }));
-            form.post(`/admin/productos/${producto.slug}`, {
+        // El form es multipart por la foto: las variantes viajan como JSON string
+        // y el backend las decodifica. El PUT va como POST + _method para que PHP
+        // parsee el multipart.
+        form.transform((data) => ({
+            ...data,
+            variantes: JSON.stringify(data.variantes),
+            ...(editando ? { _method: 'put' } : {}),
+        }));
+
+        form.post(
+            editando ? `/admin/productos/${producto.slug}` : '/admin/productos',
+            {
                 forceFormData: true,
-            });
-        } else {
-            form.post('/admin/productos', { forceFormData: true });
-        }
+            },
+        );
     };
 
     return (
@@ -188,6 +218,12 @@ export default function ProductoForm({
                 value={form.data.descripcion}
                 error={form.errors.descripcion}
                 onChange={(e) => form.setData('descripcion', e.target.value)}
+            />
+
+            <VariantesEditor
+                value={form.data.variantes}
+                onChange={(variantes) => form.setData('variantes', variantes)}
+                error={form.errors.variantes}
             />
 
             <div className="grid gap-2">

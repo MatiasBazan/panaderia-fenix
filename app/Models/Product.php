@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string $nombre
  * @property string $slug
  * @property string|null $descripcion
+ * @property list<array{nombre: string, opciones: list<array{label: string, precio?: string}>}>|null $variantes
  * @property ProductUnidad $unidad
  * @property string $precio_base
  * @property string|null $imagen
@@ -31,7 +32,7 @@ use Illuminate\Support\Carbon;
  * @property-read Category $category
  */
 #[Fillable([
-    'category_id', 'sku', 'nombre', 'slug', 'descripcion', 'unidad',
+    'category_id', 'sku', 'nombre', 'slug', 'descripcion', 'variantes', 'unidad',
     'precio_base', 'imagen', 'activo', 'destacado', 'orden',
 ])]
 class Product extends Model
@@ -52,6 +53,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'variantes' => 'array',
             'unidad' => ProductUnidad::class,
             'precio_base' => 'decimal:2',
             'activo' => 'boolean',

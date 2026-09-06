@@ -5,11 +5,18 @@ import { cn } from '@/lib/utils';
 import type { UnidadValue } from '@/lib/estados';
 import usePedido, { usePanelPedido } from '@/hooks/use-pedido';
 import useAgregarProducto from '@/hooks/use-agregar-producto';
-import { cantidadConUnidad } from '@/lib/pedido';
+import {
+    cantidadConUnidad,
+    claveLinea,
+    componerVariante,
+    varianteInicial,
+} from '@/lib/pedido';
+import type { VarianteGrupo } from '@/lib/pedido';
 import Button from './button';
 import { UnitBadge } from './badge';
 import PhotoPlaceholder from './photo-placeholder';
 import QuantityInput from './quantity-input';
+import VarianteSelector from './variante-selector';
 
 /** Espeja `App\Http\Resources\PublicProductResource`. Sin precio, a propósito. */
 export type PublicProduct = {
@@ -23,6 +30,7 @@ export type PublicProduct = {
     sku?: string;
     unidad_label?: string;
     destacado?: boolean;
+    variantes?: VarianteGrupo[];
     categoria?: { nombre: string; slug: string };
 };
 
@@ -41,15 +49,23 @@ type Props = {
  */
 export default function ProductCard({ product, className }: Props) {
     const [cantidad, setCantidad] = useState(1);
+    const grupos = product.variantes ?? [];
+    const [seleccion, setSeleccion] = useState(() => varianteInicial(grupos));
     const agregarProducto = useAgregarProducto();
     const { cantidadDe } = usePedido();
     const { abrir } = usePanelPedido();
 
     const minimo = product.unidad === 'kg' ? 0.5 : 1;
-    const enPedido = cantidadDe(product.id);
+    const variante = componerVariante(seleccion);
+    const enPedido = cantidadDe(claveLinea(product.id, variante));
+
+    const elegir = (indiceGrupo: number, label: string) =>
+        setSeleccion((previa) =>
+            previa.map((valor, i) => (i === indiceGrupo ? label : valor)),
+        );
 
     const agregar = () => {
-        agregarProducto(product, cantidad);
+        agregarProducto(product, cantidad, variante);
         // Vuelve al mínimo: si el número quedara, el próximo clic sumaría de más.
         setCantidad(minimo);
     };
@@ -124,6 +140,15 @@ export default function ProductCard({ product, className }: Props) {
                     <p className="line-clamp-2 text-sm leading-relaxed text-texto-medio">
                         {product.descripcion}
                     </p>
+                )}
+
+                {grupos.length > 0 && (
+                    <VarianteSelector
+                        grupos={grupos}
+                        seleccion={seleccion}
+                        onElegir={elegir}
+                        className="relative z-10 mt-3"
+                    />
                 )}
 
                 {/* Los controles van por encima del enlace que cubre la tarjeta. */}

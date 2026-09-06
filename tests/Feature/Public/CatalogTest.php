@@ -61,6 +61,29 @@ it('no expone precios en el carrito', function () {
     assertSinPrecios($response->getContent(), '75319.84');
 });
 
+it('muestra las variantes pero nunca su precio interno', function () {
+    $product = Product::factory()->create([
+        'variantes' => [
+            [
+                'nombre' => 'Tamaño',
+                'opciones' => [
+                    ['label' => 'Grande', 'precio' => '54321.99'],
+                    ['label' => 'Chico', 'precio' => '12345.67'],
+                ],
+            ],
+        ],
+    ]);
+
+    $response = $this->get("/productos/{$product->slug}");
+
+    $response->assertOk();
+    // La etiqueta llega al catálogo; el precio de referencia, jamás.
+    expect($response->getContent())
+        ->toContain('Grande')
+        ->not->toContain('54321.99')
+        ->not->toContain('12345.67');
+});
+
 it('el carrito sólo devuelve los productos vigentes que le pasan', function () {
     $activo = Product::factory()->create();
     $inactivo = Product::factory()->inactivo()->create();

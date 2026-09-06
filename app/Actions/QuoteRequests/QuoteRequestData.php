@@ -11,7 +11,7 @@ use App\Http\Requests\Public\StoreQuoteRequestRequest;
 final class QuoteRequestData
 {
     /**
-     * @param  list<array{product_id: int, cantidad: string, nota: string|null}>  $items
+     * @param  list<array{product_id: int, variante: string|null, cantidad: string, nota: string|null}>  $items
      */
     public function __construct(
         public readonly string $nombre,
@@ -34,9 +34,11 @@ final class QuoteRequestData
             }
 
             $nota = isset($item['nota']) ? trim((string) $item['nota']) : '';
+            $variante = isset($item['variante']) ? trim((string) $item['variante']) : '';
 
             $items[] = [
                 'product_id' => (int) ($item['product_id'] ?? 0),
+                'variante' => $variante === '' ? null : $variante,
                 'cantidad' => (string) ($item['cantidad'] ?? '0'),
                 'nota' => $nota === '' ? null : $nota,
             ];

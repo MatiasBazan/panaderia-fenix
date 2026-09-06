@@ -7,12 +7,18 @@ import {
     ProductCard,
     QuantityInput,
     UnitBadge,
+    VarianteSelector,
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
 import useAgregarProducto from '@/hooks/use-agregar-producto';
 import usePedido, { usePanelPedido } from '@/hooks/use-pedido';
 import PublicLayout from '@/layouts/public-layout';
-import { cantidadConUnidad } from '@/lib/pedido';
+import {
+    cantidadConUnidad,
+    claveLinea,
+    componerVariante,
+    varianteInicial,
+} from '@/lib/pedido';
 
 type Props = {
     producto: PublicProduct;
@@ -26,10 +32,18 @@ export default function Producto({ producto, relacionados }: Props) {
 
     const minimo = producto.unidad === 'kg' ? 0.5 : 1;
     const [cantidad, setCantidad] = useState(minimo);
-    const enPedido = cantidadDe(producto.id);
+    const grupos = producto.variantes ?? [];
+    const [seleccion, setSeleccion] = useState(() => varianteInicial(grupos));
+    const variante = componerVariante(seleccion);
+    const enPedido = cantidadDe(claveLinea(producto.id, variante));
+
+    const elegir = (indiceGrupo: number, label: string) =>
+        setSeleccion((previa) =>
+            previa.map((valor, i) => (i === indiceGrupo ? label : valor)),
+        );
 
     const sumar = () => {
-        agregarProducto(producto, cantidad);
+        agregarProducto(producto, cantidad, variante);
         setCantidad(minimo);
     };
 
@@ -102,6 +116,15 @@ export default function Producto({ producto, relacionados }: Props) {
                             publicamos precios: te los pasamos al responder el
                             pedido, según cantidad y frecuencia de compra.
                         </p>
+
+                        {grupos.length > 0 && (
+                            <VarianteSelector
+                                grupos={grupos}
+                                seleccion={seleccion}
+                                onElegir={elegir}
+                                className="mt-8"
+                            />
+                        )}
 
                         <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-borde pt-8">
                             <QuantityInput

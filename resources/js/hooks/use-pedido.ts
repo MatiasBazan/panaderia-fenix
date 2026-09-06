@@ -1,5 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
-import { resumenPorUnidad } from '@/lib/pedido';
+import { claveLinea, resumenPorUnidad } from '@/lib/pedido';
 import type { PedidoItem } from '@/lib/pedido';
 
 const CLAVE = 'fenix.pedido';
@@ -83,12 +83,15 @@ export default function usePedido() {
     const agregar = useCallback(
         (item: Omit<PedidoItem, 'cantidad'>, cantidad: number) => {
             const actuales = leer();
-            const existente = actuales.find((i) => i.id === item.id);
+            const clave = claveLinea(item.id, item.variante);
+            const existe = actuales.some(
+                (i) => claveLinea(i.id, i.variante) === clave,
+            );
 
             escribir(
-                existente
+                existe
                     ? actuales.map((i) =>
-                          i.id === item.id
+                          claveLinea(i.id, i.variante) === clave
                               ? {
                                     ...i,
                                     ...item,
@@ -103,16 +106,22 @@ export default function usePedido() {
     );
 
     const actualizar = useCallback(
-        (id: number, cambios: Partial<PedidoItem>) => {
+        (clave: string, cambios: Partial<PedidoItem>) => {
             escribir(
-                leer().map((i) => (i.id === id ? { ...i, ...cambios } : i)),
+                leer().map((i) =>
+                    claveLinea(i.id, i.variante) === clave
+                        ? { ...i, ...cambios }
+                        : i,
+                ),
             );
         },
         [],
     );
 
-    const quitar = useCallback((id: number) => {
-        escribir(leer().filter((i) => i.id !== id));
+    const quitar = useCallback((clave: string) => {
+        escribir(
+            leer().filter((i) => claveLinea(i.id, i.variante) !== clave),
+        );
     }, []);
 
     const vaciar = useCallback(() => {
@@ -120,7 +129,9 @@ export default function usePedido() {
     }, []);
 
     const cantidadDe = useCallback(
-        (id: number): number => items.find((i) => i.id === id)?.cantidad ?? 0,
+        (clave: string): number =>
+            items.find((i) => claveLinea(i.id, i.variante) === clave)
+                ?.cantidad ?? 0,
         [items],
     );
 

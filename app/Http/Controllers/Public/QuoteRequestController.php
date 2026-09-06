@@ -114,6 +114,10 @@ class QuoteRequestController extends Controller
             $cantidad = rtrim(rtrim((string) $item->cantidad, '0'), '.');
             $linea = "• {$cantidad} × {$item->product->nombre}";
 
+            if ($item->variante !== null && $item->variante !== '') {
+                $linea .= " — {$item->variante}";
+            }
+
             if ($item->nota !== null && $item->nota !== '') {
                 $linea .= " ({$item->nota})";
             }

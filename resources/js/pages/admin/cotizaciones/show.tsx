@@ -33,6 +33,7 @@ type SolicitudItem = {
     id: number;
     product_id: number;
     nombre: string;
+    variante: string | null;
     unidad_label: string;
     precio_base: string;
     dado_de_baja: boolean;
@@ -202,6 +203,11 @@ export default function CotizacionShow({
                                     <div>
                                         <p className="font-medium text-texto">
                                             {item.nombre}
+                                            {item.variante && (
+                                                <span className="ml-2 text-xs font-normal text-bordo">
+                                                    {item.variante}
+                                                </span>
+                                            )}
                                             {item.dado_de_baja && (
                                                 <span className="ml-2 text-xs text-texto-suave">
                                                     (dado de baja)

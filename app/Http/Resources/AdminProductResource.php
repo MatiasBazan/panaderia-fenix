@@ -28,6 +28,8 @@ class AdminProductResource extends JsonResource
             'nombre' => $this->nombre,
             'slug' => $this->slug,
             'descripcion' => $this->descripcion,
+            // Crudo, con el precio de referencia interno: solo lo ve el admin.
+            'variantes' => $this->variantes ?? [],
             'unidad' => $this->unidad->value,
             'unidad_label' => $this->unidad->label(),
             'precio_base' => (string) $this->precio_base,

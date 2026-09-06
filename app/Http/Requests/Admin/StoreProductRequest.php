@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Enums\ProductUnidad;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\VarianteInput;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -27,6 +28,11 @@ class StoreProductRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique(Product::class, 'slug')],
             'descripcion' => ['nullable', 'string', 'max:2000'],
+            'variantes' => ['nullable', 'array', 'max:5'],
+            'variantes.*.nombre' => ['required', 'string', 'max:60'],
+            'variantes.*.opciones' => ['required', 'array', 'min:1', 'max:20'],
+            'variantes.*.opciones.*.label' => ['required', 'string', 'max:80'],
+            'variantes.*.opciones.*.precio' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'unidad' => ['required', Rule::enum(ProductUnidad::class)],
             // La columna es decimal(10,2): más de dos decimales se rechaza en vez de redondearse solo.
             'precio_base' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
@@ -48,6 +54,7 @@ class StoreProductRequest extends FormRequest
             'slug' => Str::slug($slug !== '' ? $slug : $nombre),
             'sku' => $this->string('sku')->trim()->upper()->toString(),
             'orden' => $this->input('orden', 0),
+            'variantes' => VarianteInput::normalizar($this->input('variantes')),
             'activo' => $this->boolean('activo'),
             'destacado' => $this->boolean('destacado'),
         ]);

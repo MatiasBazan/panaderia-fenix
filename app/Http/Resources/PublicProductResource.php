@@ -30,6 +30,20 @@ class PublicProductResource extends JsonResource
             'nombre' => $this->nombre,
             'slug' => $this->slug,
             'descripcion' => $this->descripcion,
+            // Solo el nombre del grupo y las etiquetas: el precio de cada opción
+            // es interno y no puede filtrarse por la cara pública.
+            'variantes' => collect($this->variantes ?? [])
+                ->map(fn (array $grupo): array => [
+                    'nombre' => $grupo['nombre'],
+                    'opciones' => collect($grupo['opciones'])
+                        ->map(fn (array $opcion): array => [
+                            'label' => $opcion['label'],
+                        ])
+                        ->values()
+                        ->all(),
+                ])
+                ->values()
+                ->all(),
             'unidad' => $this->unidad->value,
             'unidad_label' => $this->unidad->label(),
             'imagen' => $this->imagen === null ? null : asset('storage/'.$this->imagen),

@@ -36,6 +36,7 @@ class StoreQuoteRequestRequest extends FormRequest
                 'integer',
                 Rule::exists(Product::class, 'id')->where('activo', true),
             ],
+            'items.*.variante' => ['nullable', 'string', 'max:120'],
             'items.*.cantidad' => ['required', 'numeric', 'min:0.01', 'max:9999'],
             'items.*.nota' => ['nullable', 'string', 'max:180'],
         ];

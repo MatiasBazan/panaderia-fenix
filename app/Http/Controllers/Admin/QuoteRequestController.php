@@ -113,6 +113,7 @@ class QuoteRequestController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'nombre' => $item->product->nombre,
+                    'variante' => $item->variante,
                     'unidad_label' => $item->product->unidad->label(),
                     'precio_base' => (string) $item->product->precio_base,
                     'dado_de_baja' => $item->product->trashed(),

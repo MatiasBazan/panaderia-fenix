@@ -47,6 +47,38 @@ it('registra la solicitud con sus ítems', function () {
         ->and($solicitud->items->firstWhere('product_id', $pan->id)->nota)->toBe('Bien cocido');
 });
 
+it('guarda la variante elegida del producto', function () {
+    $alfajor = Product::factory()->create();
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [
+            ['product_id' => $alfajor->id, 'variante' => 'Chocolate · Grande', 'cantidad' => 2],
+        ],
+    ]))->assertRedirect('/cotizacion/gracias');
+
+    expect(QuoteRequest::sole()->items->sole()->variante)->toBe('Chocolate · Grande');
+});
+
+it('mete la variante en el enlace de WhatsApp', function () {
+    $alfajor = Product::factory()->create(['nombre' => 'Alfajores']);
+
+    $this->post('/cotizacion', datosValidos([
+        'items' => [
+            ['product_id' => $alfajor->id, 'variante' => 'Maicena · Chico', 'cantidad' => 6],
+        ],
+    ]));
+
+    $this->get('/cotizacion/gracias')->assertInertia(
+        fn (Assert $page) => $page->where(
+            'whatsappUrl',
+            fn (string $url): bool => str_contains(
+                rawurldecode($url),
+                '6 × Alfajores — Maicena · Chico',
+            ),
+        ),
+    );
+});
+
 it('cotiza sola la solicitud apenas entra', function () {
     $pan = Product::factory()->conPrecio('1000.00')->create();
     $facturas = Product::factory()->conPrecio('250.50')->create();

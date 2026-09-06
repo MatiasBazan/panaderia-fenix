@@ -20,7 +20,7 @@
 | Producto | Cantidad |
 | :------- | -------: |
 @foreach ($solicitud->items as $item)
-| {{ $item->product?->nombre ?? 'Producto dado de baja' }}@if ($item->nota)<br><small>{{ $item->nota }}</small>@endif | {{ rtrim(rtrim(number_format((float) $item->cantidad, 2, ',', '.'), '0'), ',') }} {{ $item->product?->unidad->badge() }} |
+| {{ $item->product?->nombre ?? 'Producto dado de baja' }}@if ($item->variante) — {{ $item->variante }}@endif@if ($item->nota)<br><small>{{ $item->nota }}</small>@endif | {{ rtrim(rtrim(number_format((float) $item->cantidad, 2, ',', '.'), '0'), ',') }} {{ $item->product?->unidad->badge() }} |
 @endforeach
 </x-mail::table>
 

@@ -15,7 +15,7 @@ import type { PublicProduct } from '@/components/ui';
 import usePedido from '@/hooks/use-pedido';
 import usePedidoRevalidado from '@/hooks/use-pedido-revalidado';
 import PublicLayout from '@/layouts/public-layout';
-import { PASOS_PEDIDO, cantidadConUnidad } from '@/lib/pedido';
+import { PASOS_PEDIDO, cantidadConUnidad, claveLinea } from '@/lib/pedido';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -38,7 +38,12 @@ type FormData = {
     fecha_evento: string;
     mensaje: string;
     sitio_web: string;
-    items: { product_id: number; cantidad: number; nota: string }[];
+    items: {
+        product_id: number;
+        variante: string;
+        cantidad: number;
+        nota: string;
+    }[];
 };
 
 const TIPOS: { value: TipoPedido; label: string; hint: string }[] = [
@@ -98,6 +103,7 @@ export default function Cotizacion({
             'items',
             disponibles.map((item) => ({
                 product_id: item.id,
+                variante: item.variante ?? '',
                 cantidad: item.cantidad,
                 nota: item.nota ?? '',
             })),
@@ -169,7 +175,7 @@ export default function Cotizacion({
                     <ul className="divide-y divide-borde">
                         {disponibles.map((item) => (
                             <li
-                                key={item.id}
+                                key={claveLinea(item.id, item.variante)}
                                 className="flex items-center gap-3 px-5 py-3.5"
                             >
                                 <Thumb
@@ -179,6 +185,12 @@ export default function Cotizacion({
                                 <div className="min-w-0 flex-1">
                                     <p className="text-sm font-medium text-texto">
                                         {item.nombre}
+                                        {item.variante && (
+                                            <span className="text-texto-medio">
+                                                {' '}
+                                                · {item.variante}
+                                            </span>
+                                        )}
                                     </p>
                                     {item.nota && (
                                         <p className="truncate text-xs text-texto-medio">

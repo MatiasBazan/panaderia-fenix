@@ -12,12 +12,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $quote_request_id
  * @property int $product_id
+ * @property string|null $variante
  * @property string $cantidad
  * @property string|null $nota
  * @property-read QuoteRequest $quoteRequest
  * @property-read Product $product
  */
-#[Fillable(['quote_request_id', 'product_id', 'cantidad', 'nota'])]
+#[Fillable(['quote_request_id', 'product_id', 'variante', 'cantidad', 'nota'])]
 class QuoteRequestItem extends Model
 {
     /** @use HasFactory<QuoteRequestItemFactory> */

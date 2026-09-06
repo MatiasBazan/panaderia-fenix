@@ -5,7 +5,7 @@ import usePedido, {
     hayLugarParaElPanel,
     usePanelPedido,
 } from '@/hooks/use-pedido';
-import { cantidadConUnidad } from '@/lib/pedido';
+import { cantidadConUnidad, claveLinea } from '@/lib/pedido';
 
 /**
  * Agregar un producto al pedido es lo mismo en la landing, el catálogo y el
@@ -21,13 +21,14 @@ export default function useAgregarProducto() {
     const { push } = useToast();
 
     return useCallback(
-        (product: PublicProduct, cantidad: number) => {
+        (product: PublicProduct, cantidad: number, variante?: string) => {
             agregar(
                 {
                     id: product.id,
                     slug: product.slug,
                     nombre: product.nombre,
                     unidad: product.unidad,
+                    variante: variante || undefined,
                     imagen: product.imagen_thumb ?? product.imagen ?? null,
                 },
                 cantidad,
@@ -39,11 +40,13 @@ export default function useAgregarProducto() {
                 return;
             }
 
-            const total = cantidadDe(product.id) + cantidad;
+            const total =
+                cantidadDe(claveLinea(product.id, variante)) + cantidad;
+            const detalle = variante ? ` (${variante})` : '';
 
             push(
                 'exito',
-                `${product.nombre}: llevás ${cantidadConUnidad(total, product.unidad)}.`,
+                `${product.nombre}${detalle}: llevás ${cantidadConUnidad(total, product.unidad)}.`,
             );
         },
         [agregar, abrir, cantidadDe, push],

@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { ShoppingBasket, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import usePedido, { usePanelPedido } from '@/hooks/use-pedido';
+import { claveLinea } from '@/lib/pedido';
 import { cn } from '@/lib/utils';
 import Button from './button';
 import QuantityInput from './quantity-input';
@@ -10,6 +11,11 @@ import { UnitBadge } from './badge';
 
 /** Cuánto dura el resaltado de la línea que acaba de entrar. */
 const DESTACADO_MS = 1400;
+
+/** Id de DOM para una clave de línea: la clave lleva espacios y no vale como id. */
+function idLinea(clave: string): string {
+    return `pedido-linea-${encodeURIComponent(clave)}`;
+}
 
 /**
  * Panel con el pedido armado, al costado del catálogo.
@@ -24,12 +30,18 @@ export default function PedidoPanel() {
     const { items, lineas, resumen, actualizar, quitar, vaciar } = usePedido();
 
     // Qué línea acaba de crecer, para que se vea entrar y no haya que buscarla.
-    const [destacado, setDestacado] = useState<number | null>(null);
-    const cantidades = useRef(new Map<number, number>());
+    // Se sigue por clave de línea: dos variantes del mismo producto son distintas.
+    const [destacado, setDestacado] = useState<string | null>(null);
+    const cantidades = useRef(new Map<string, number>());
     const sembrado = useRef(false);
 
     useEffect(() => {
-        const actuales = new Map(items.map((item) => [item.id, item.cantidad]));
+        const actuales = new Map(
+            items.map((item) => [
+                claveLinea(item.id, item.variante),
+                item.cantidad,
+            ]),
+        );
 
         // El primer render no destaca nada: la lista ya venía armada.
         if (! sembrado.current) {
@@ -39,13 +51,13 @@ export default function PedidoPanel() {
             return;
         }
 
-        let crecio: number | null = null;
+        let crecio: string | null = null;
 
-        actuales.forEach((cantidad, id) => {
-            const antes = cantidades.current.get(id);
+        actuales.forEach((cantidad, clave) => {
+            const antes = cantidades.current.get(clave);
 
             if (antes === undefined || cantidad > antes) {
-                crecio = id;
+                crecio = clave;
             }
         });
 
@@ -68,7 +80,7 @@ export default function PedidoPanel() {
         }
 
         document
-            .getElementById(`pedido-linea-${destacado}`)
+            .getElementById(idLinea(destacado))
             ?.scrollIntoView({ block: 'nearest' });
     }, [destacado]);
 
@@ -149,69 +161,84 @@ export default function PedidoPanel() {
                             className="flex-1 overflow-y-auto px-5 py-4"
                             aria-live="polite"
                         >
-                            {items.map((item) => (
-                                <li
-                                    key={item.id}
-                                    id={`pedido-linea-${item.id}`}
-                                    className={cn(
-                                        '-mx-2 flex gap-3 rounded-md border-b border-borde px-2 py-3 last:border-b-0',
-                                        destacado === item.id &&
-                                            'animate-destacar',
-                                    )}
-                                >
-                                    <Link
-                                        href={`/productos/${item.slug}`}
-                                        aria-label={`Ver ${item.nombre}`}
+                            {items.map((item) => {
+                                const clave = claveLinea(item.id, item.variante);
+
+                                return (
+                                    <li
+                                        key={clave}
+                                        id={idLinea(clave)}
+                                        className={cn(
+                                            '-mx-2 flex gap-3 rounded-md border-b border-borde px-2 py-3 last:border-b-0',
+                                            destacado === clave &&
+                                                'animate-destacar',
+                                        )}
                                     >
-                                        <Thumb
-                                            src={item.imagen ?? null}
-                                            className="size-14"
-                                        />
-                                    </Link>
-
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <Link
-                                                href={`/productos/${item.slug}`}
-                                                className="text-sm leading-snug font-medium text-texto transition-colors hover:text-bordo"
-                                            >
-                                                {item.nombre}
-                                            </Link>
-                                            <button
-                                                type="button"
-                                                onClick={() => quitar(item.id)}
-                                                aria-label={`Quitar ${item.nombre} del pedido`}
-                                                className="-mt-0.5 rounded-md p-1 text-texto-suave transition-colors hover:bg-crema hover:text-error"
-                                            >
-                                                <Trash2
-                                                    className="size-4"
-                                                    aria-hidden="true"
-                                                />
-                                            </button>
-                                        </div>
-
-                                        <div className="mt-2 flex items-center gap-2">
-                                            <QuantityInput
-                                                value={item.cantidad}
-                                                onChange={(cantidad) =>
-                                                    actualizar(item.id, {
-                                                        cantidad,
-                                                    })
-                                                }
-                                                unidad={item.unidad}
-                                                min={
-                                                    item.unidad === 'kg'
-                                                        ? 0.5
-                                                        : 1
-                                                }
-                                                size="sm"
-                                                label={`Cantidad de ${item.nombre}`}
+                                        <Link
+                                            href={`/productos/${item.slug}`}
+                                            aria-label={`Ver ${item.nombre}`}
+                                        >
+                                            <Thumb
+                                                src={item.imagen ?? null}
+                                                className="size-14"
                                             />
-                                            <UnitBadge unidad={item.unidad} />
+                                        </Link>
+
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="min-w-0">
+                                                    <Link
+                                                        href={`/productos/${item.slug}`}
+                                                        className="text-sm leading-snug font-medium text-texto transition-colors hover:text-bordo"
+                                                    >
+                                                        {item.nombre}
+                                                    </Link>
+                                                    {item.variante && (
+                                                        <p className="text-xs text-texto-medio">
+                                                            {item.variante}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        quitar(clave)
+                                                    }
+                                                    aria-label={`Quitar ${item.nombre} del pedido`}
+                                                    className="-mt-0.5 rounded-md p-1 text-texto-suave transition-colors hover:bg-crema hover:text-error"
+                                                >
+                                                    <Trash2
+                                                        className="size-4"
+                                                        aria-hidden="true"
+                                                    />
+                                                </button>
+                                            </div>
+
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <QuantityInput
+                                                    value={item.cantidad}
+                                                    onChange={(cantidad) =>
+                                                        actualizar(clave, {
+                                                            cantidad,
+                                                        })
+                                                    }
+                                                    unidad={item.unidad}
+                                                    min={
+                                                        item.unidad === 'kg'
+                                                            ? 0.5
+                                                            : 1
+                                                    }
+                                                    size="sm"
+                                                    label={`Cantidad de ${item.nombre}`}
+                                                />
+                                                <UnitBadge
+                                                    unidad={item.unidad}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                </li>
-                            ))}
+                                    </li>
+                                );
+                            })}
                         </ul>
 
                         <div className="filo border-t border-borde bg-crema/60 px-5 py-5">
@@ -235,7 +262,7 @@ export default function PedidoPanel() {
                             {/* Los ids viajan en la URL: el servidor confirma
                                 cuáles siguen a la venta antes de dibujar nada. */}
                             <Link
-                                href={`/carrito?items=${items.map((item) => item.id).join(',')}`}
+                                href={`/carrito?items=${[...new Set(items.map((item) => item.id))].join(',')}`}
                                 className="mt-3 block"
                             >
                                 <Button block>Pedir precios</Button>

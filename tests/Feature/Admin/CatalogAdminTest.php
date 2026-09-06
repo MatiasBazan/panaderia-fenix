@@ -82,6 +82,46 @@ it('crea un producto con foto y lo guarda en el disco público', function () {
     Storage::disk('public')->assertExists($producto->imagen);
 });
 
+it('guarda las variantes que vienen como JSON del formulario', function () {
+    $categoria = Category::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->post('/admin/productos', [
+            'category_id' => $categoria->id,
+            'sku' => 'MM-VAR',
+            'nombre' => 'Alfajores',
+            'unidad' => 'docena',
+            'precio_base' => '12800.00',
+            // Como lo manda el front: string JSON, con un precio vacío que se descarta.
+            'variantes' => json_encode([
+                [
+                    'nombre' => 'Relleno',
+                    'opciones' => [
+                        ['label' => 'Chocolate', 'precio' => ''],
+                        ['label' => 'Maicena', 'precio' => ''],
+                    ],
+                ],
+                [
+                    'nombre' => 'Tamaño',
+                    'opciones' => [
+                        ['label' => 'Grande', 'precio' => '1500'],
+                    ],
+                ],
+            ]),
+            'activo' => true,
+            'destacado' => false,
+            'orden' => 1,
+        ])
+        ->assertRedirect('/admin/productos');
+
+    $variantes = Product::query()->where('sku', 'MM-VAR')->sole()->variantes;
+
+    expect($variantes)->toHaveCount(2)
+        ->and($variantes[0]['nombre'])->toBe('Relleno')
+        ->and($variantes[0]['opciones'][0])->toBe(['label' => 'Chocolate'])
+        ->and($variantes[1]['opciones'][0])->toBe(['label' => 'Grande', 'precio' => '1500']);
+});
+
 it('rechaza un precio con más de dos decimales', function () {
     $categoria = Category::factory()->create();
 

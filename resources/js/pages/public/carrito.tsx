@@ -12,7 +12,7 @@ import type { PublicProduct } from '@/components/ui';
 import usePedido from '@/hooks/use-pedido';
 import usePedidoRevalidado from '@/hooks/use-pedido-revalidado';
 import PublicLayout from '@/layouts/public-layout';
-import { PASOS_PEDIDO, resumenPorUnidad } from '@/lib/pedido';
+import { PASOS_PEDIDO, claveLinea, resumenPorUnidad } from '@/lib/pedido';
 
 type Props = {
     /** Productos todavía activos, entre los que el visitante venía trayendo. */
@@ -40,7 +40,7 @@ export default function Carrito({ productos, consultados }: Props) {
     // vigentes lo dejaría desincronizado y pidiendo la página de nuevo al llegar.
     const continuar = () => {
         router.get('/cotizacion', {
-            items: items.map((item) => item.id).join(','),
+            items: [...new Set(items.map((item) => item.id))].join(','),
         });
     };
 
@@ -103,7 +103,9 @@ export default function Carrito({ productos, consultados }: Props) {
                                 type="button"
                                 onClick={() =>
                                     dadosDeBaja.forEach((item) =>
-                                        quitar(item.id),
+                                        quitar(
+                                            claveLinea(item.id, item.variante),
+                                        ),
                                     )
                                 }
                                 className="mt-1.5 text-texto underline underline-offset-4 hover:text-bordo"
@@ -117,7 +119,7 @@ export default function Carrito({ productos, consultados }: Props) {
                 <ul className="mt-8 grid gap-3">
                     {disponibles.map((item) => (
                         <li
-                            key={item.id}
+                            key={claveLinea(item.id, item.variante)}
                             className="rounded-xl bg-papel p-4 shadow-xs ring-1 ring-borde transition-shadow duration-300 ease-suave hover:shadow-sm"
                         >
                             <div className="flex gap-4">
@@ -140,6 +142,11 @@ export default function Carrito({ productos, consultados }: Props) {
                                             >
                                                 {item.nombre}
                                             </Link>
+                                            {item.variante && (
+                                                <p className="mt-0.5 text-sm text-texto-medio">
+                                                    {item.variante}
+                                                </p>
+                                            )}
                                             <UnitBadge
                                                 unidad={item.unidad}
                                                 className="mt-1.5 block w-fit"
@@ -150,9 +157,13 @@ export default function Carrito({ productos, consultados }: Props) {
                                             <QuantityInput
                                                 value={item.cantidad}
                                                 onChange={(cantidad) =>
-                                                    actualizar(item.id, {
-                                                        cantidad,
-                                                    })
+                                                    actualizar(
+                                                        claveLinea(
+                                                            item.id,
+                                                            item.variante,
+                                                        ),
+                                                        { cantidad },
+                                                    )
                                                 }
                                                 unidad={item.unidad}
                                                 min={
@@ -166,7 +177,14 @@ export default function Carrito({ productos, consultados }: Props) {
                                             <Button
                                                 variant="quiet"
                                                 size="sm"
-                                                onClick={() => quitar(item.id)}
+                                                onClick={() =>
+                                                    quitar(
+                                                        claveLinea(
+                                                            item.id,
+                                                            item.variante,
+                                                        ),
+                                                    )
+                                                }
                                                 aria-label={`Quitar ${item.nombre}`}
                                             >
                                                 <Trash2
@@ -181,9 +199,13 @@ export default function Carrito({ productos, consultados }: Props) {
                                         type="text"
                                         value={item.nota ?? ''}
                                         onChange={(event) =>
-                                            actualizar(item.id, {
-                                                nota: event.target.value,
-                                            })
+                                            actualizar(
+                                                claveLinea(
+                                                    item.id,
+                                                    item.variante,
+                                                ),
+                                                { nota: event.target.value },
+                                            )
                                         }
                                         placeholder="Nota para este producto (opcional)"
                                         aria-label={`Nota para ${item.nombre}`}
