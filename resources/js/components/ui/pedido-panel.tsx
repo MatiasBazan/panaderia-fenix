@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import usePedido, { usePanelPedido } from '@/hooks/use-pedido';
 import { cn } from '@/lib/utils';
 import Button from './button';
+import CondicionesPedido from './condiciones-pedido';
 import QuantityInput from './quantity-input';
 import Thumb from './thumb';
 import { UnitBadge } from './badge';
@@ -231,6 +232,11 @@ export default function PedidoPanel() {
                                 No mostramos precios en el sitio: te los pasamos
                                 según cantidad y frecuencia.
                             </p>
+
+                            <CondicionesPedido
+                                variante="linea"
+                                className="mt-1"
+                            />
 
                             {/* Los ids viajan en la URL: el servidor confirma
                                 cuáles siguen a la venta antes de dibujar nada. */}

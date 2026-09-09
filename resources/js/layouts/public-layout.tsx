@@ -183,7 +183,7 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
                         <div>
                             <Logo size={32} className="text-carbon" />
                             <p className="mt-4 max-w-xs leading-relaxed text-texto-medio">
-                                Panadería de barrio desde 1987. Horneamos todos
+                                Panadería familiar desde 2021. Horneamos todos
                                 los días, incluso los domingos.
                             </p>
                         </div>

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\QuoteController;
 use App\Http\Controllers\Admin\QuoteRequestController as AdminQuoteRequestController;
+use App\Http\Controllers\Admin\SitePhotoController;
 use App\Http\Controllers\Auth\ForcedPasswordController;
 use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Public\CatalogController;
@@ -70,6 +71,15 @@ Route::middleware(['auth', 'role:admin', 'password.changed'])
         Route::resource('productos', ProductController::class)
             ->parameters(['productos' => 'product'])
             ->except(['show']);
+
+        // Fotos de la landing. El slot va en la URL pero se valida contra
+        // `config/fenix.php`: uno que no exista da 404, no una clave nueva.
+        Route::get('sitio/fotos', [SitePhotoController::class, 'index'])
+            ->name('sitio.fotos.index');
+        Route::post('sitio/fotos/{slot}', [SitePhotoController::class, 'update'])
+            ->name('sitio.fotos.update');
+        Route::delete('sitio/fotos/{slot}', [SitePhotoController::class, 'destroy'])
+            ->name('sitio.fotos.destroy');
 
         // La bandeja lista solicitudes; el detalle muestra la solicitud junto a
         // su cotización, si ya se generó.

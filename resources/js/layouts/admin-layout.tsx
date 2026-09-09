@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     FileText,
+    Images,
     LayoutDashboard,
     LogOut,
     Menu,
@@ -20,6 +21,7 @@ const navegacion = [
     { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: FileText },
     { href: '/admin/productos', label: 'Productos', icon: Package },
     { href: '/admin/categorias', label: 'Categorías', icon: Tags },
+    { href: '/admin/sitio/fotos', label: 'Fotos del sitio', icon: Images },
 ];
 
 type Props = PropsWithChildren<{

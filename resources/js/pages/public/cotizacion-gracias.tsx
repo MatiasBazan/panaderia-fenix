@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { CircleCheck, Mail, MessageCircle, Phone } from 'lucide-react';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui';
+import { Button, CondicionesPedido } from '@/components/ui';
 import PublicLayout from '@/layouts/public-layout';
 
 type Props = {
@@ -68,6 +68,8 @@ export default function CotizacionGracias({
                         </p>
                     </>
                 )}
+
+                <CondicionesPedido className="mt-8 text-left" />
 
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                     {enviada && whatsappUrl && (

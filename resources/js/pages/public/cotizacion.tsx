@@ -3,6 +3,7 @@ import { Pencil, ShoppingBasket, TriangleAlert } from 'lucide-react';
 import { useEffect } from 'react';
 import {
     Button,
+    CondicionesPedido,
     EmptyState,
     Input,
     Pasos,
@@ -344,6 +345,9 @@ export default function Cotizacion({ productos, consultados, zonas }: Props) {
                         </p>
                     )}
                 </section>
+
+                {/* Antes del botón, no después: se enteran mientras deciden. */}
+                <CondicionesPedido className="mt-10" />
 
                 <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-borde pt-8">
                     <Button type="submit" size="lg" loading={form.processing}>

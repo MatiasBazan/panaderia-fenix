@@ -52,6 +52,48 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Fotos de la landing
+    |--------------------------------------------------------------------------
+    |
+    | Los huecos de foto del sitio público. Esta lista es la fuente única: de
+    | acá salen el formulario del admin, la validación de la subida y el orden
+    | en que se muestran. Agregar un hueco es agregar una entrada — no hay
+    | nombres de slot escritos en ningún otro lado del backend.
+    |
+    | `ancho` es el ancho al que se guarda el WebP; `proporcion` es sólo la
+    | ayuda que lee el admin al subir. Si un hueco no tiene foto cargada, el
+    | sitio sigue mostrando el placeholder rayado.
+    |
+    */
+
+    'fotos_landing' => [
+        'mostrador' => [
+            'label' => 'Mostrador con pan recién horneado',
+            'ayuda' => 'La foto grande del encabezado. Es lo primero que se ve al entrar.',
+            'proporcion' => '3:2',
+            'ancho' => 1600,
+        ],
+        'miga' => [
+            'label' => 'Detalle de la miga',
+            'ayuda' => 'La foto chica que se superpone al encabezado. Un primer plano funciona mejor que un plano general.',
+            'proporcion' => '1:1',
+            'ancho' => 800,
+        ],
+        'amasado' => [
+            'label' => 'Amasado a mano',
+            'ayuda' => 'Acompaña a «Una panadería familiar», en el medio de la página.',
+            'proporcion' => '4:3',
+            'ancho' => 1200,
+        ],
+    ],
+
+    'imagen_sitio' => [
+        'calidad' => (int) env('FENIX_IMG_SITIO_CALIDAD', 82),
+        'peso_max_kb' => (int) env('FENIX_IMG_SITIO_PESO_MAX_KB', 15360),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Fotos de producto
     |--------------------------------------------------------------------------
     |
@@ -70,7 +112,7 @@ return [
         'thumb_ancho' => (int) env('FENIX_IMG_THUMB_ANCHO', 400),
         'thumb_alto' => (int) env('FENIX_IMG_THUMB_ALTO', 300),
         'calidad' => (int) env('FENIX_IMG_CALIDAD', 80),
-        'peso_max_kb' => (int) env('FENIX_IMG_PESO_MAX_KB', 10240),
+        'peso_max_kb' => (int) env('FENIX_IMG_PESO_MAX_KB', 15360),
     ],
 
 ];

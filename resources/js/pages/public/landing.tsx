@@ -3,11 +3,15 @@ import { Clock, Instagram, MapPin, Phone } from 'lucide-react';
 import {
     Button,
     EmptyState,
+    FotoSitio,
     PhotoPlaceholder,
     ProductCard,
+    condicionesEnFrase,
+    useCondiciones,
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
 import PublicLayout from '@/layouts/public-layout';
+import type { Condiciones } from '@/types/shared';
 
 type Horario = { dias: string; horario: string };
 
@@ -24,21 +28,26 @@ type Panaderia = {
     redes?: Record<string, string>;
 };
 
+/** Fotos cargadas desde el admin, por hueco. Falta una = va el placeholder. */
+type Fotos = Partial<Record<'mostrador' | 'miga' | 'amasado', string>>;
+
 type Props = {
     destacados: PublicProduct[];
     panaderia: Panaderia;
+    fotos: Fotos;
     zonas: string[];
 };
 
 /** El oficio contado en números: lo que distingue una panadería de una fábrica. */
 const oficio = [
-    { dato: '1987', detalle: 'en la misma esquina' },
-    { dato: '18 h', detalle: 'de fermentación lenta' },
-    { dato: '06:00', detalle: 'primera hornada del día' },
-    { dato: '7 días', detalle: 'incluidos los domingos' },
+    { dato: '2021', detalle: 'desde el 8 de marzo' },
+    { dato: 'Familiar', detalle: 'y artesanal, desde el primer día' },
+    { dato: '07:00', detalle: 'abrimos con el pan del día' },
+    { dato: '7 días', detalle: 'domingos incluidos' },
 ];
 
-const pasos = [
+/** El tercer paso nombra las condiciones, que salen de `settings`. */
+const construirPasos = (condiciones: Condiciones) => [
     {
         titulo: 'Armá la lista',
         texto: 'Elegí productos y cantidades desde el catálogo. El pedido queda guardado en este navegador mientras mirás.',
@@ -49,38 +58,45 @@ const pasos = [
     },
     {
         titulo: 'Coordinamos la entrega',
-        texto: 'Te respondemos dentro de las 24 horas hábiles con precios, y ajustamos cantidades y días por WhatsApp.',
+        texto: `Te respondemos dentro de las 24 horas hábiles con precios. Los pedidos se toman ${condicionesEnFrase(condiciones)}, y ajustamos cantidades y días por WhatsApp.`,
     },
 ];
 
-export default function Landing({ destacados, panaderia, zonas }: Props) {
+export default function Landing({
+    destacados,
+    panaderia,
+    fotos,
+    zonas,
+}: Props) {
     const mapa = panaderia.mapa;
+    const pasos = construirPasos(useCondiciones());
 
     return (
         <PublicLayout>
-            <Head title="Panadería de barrio en Leones" />
+            <Head title="Panadería familiar en Leones" />
 
             {/* Hero: el titular manda, la foto lo acompaña desde el margen. */}
             <section className="grano relative overflow-hidden border-b border-borde halo-horno">
                 <div className="relative z-1 mx-auto grid max-w-6xl gap-12 px-4 pt-16 pb-20 sm:px-6 sm:pt-24 sm:pb-28 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16">
                     <div>
                         <p className="font-mono text-[11px] tracking-[0.2em] text-bordo uppercase">
-                            Leones · Desde 1987
+                            Leones · Desde 2021
                         </p>
 
                         <h1 className="mt-6 font-display text-titular text-texto">
-                            El pan que sale del horno
+                            El buen sabor artesanal
                             <span className="text-dorado-hover italic">
                                 {' '}
-                                a las seis
+                                en cada rinconcito
                             </span>{' '}
-                            de la mañana
+                            de tu hogar
                         </h1>
 
                         <p className="mt-7 max-w-lg text-lg leading-relaxed text-texto-medio">
-                            Masa madre de fermentación lenta, facturas de
-                            manteca hojaldradas a mano y pastelería hecha el
-                            mismo día. Armá tu pedido y te pasamos los precios.
+                            Panadería familiar de Leones. Pan, facturas y
+                            pastelería del día, hechos con el compromiso que nos
+                            caracteriza. Armá tu pedido y te pasamos los
+                            precios.
                         </p>
 
                         <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -98,12 +114,14 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
 
                     {/* Dos fotos desalineadas a propósito: el mostrador y el detalle. */}
                     <div className="relative pb-14 sm:pb-16 lg:pb-20">
-                        <PhotoPlaceholder
+                        <FotoSitio
+                            url={fotos.mostrador}
                             label="mostrador con pan recién horneado"
                             ratio="3:2"
                             className="w-full shadow-lg"
                         />
-                        <PhotoPlaceholder
+                        <FotoSitio
+                            url={fotos.miga}
                             label="miga"
                             ratio="1:1"
                             className="absolute -bottom-2 left-2 w-28 shadow-alzado sm:w-36 lg:-left-10 lg:w-44"
@@ -182,14 +200,14 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
             >
                 <div className="relative z-1 mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-16">
                     <div className="relative">
-                        <PhotoPlaceholder
+                        <FotoSitio
+                            url={fotos.amasado}
                             label="amasado a mano"
                             ratio="4:3"
                             className="shadow-lg"
                         />
                         <p className="mt-6 max-w-xs border-l-2 border-dorado pl-5 font-display text-xl leading-snug text-texto italic lg:absolute lg:-bottom-14 lg:-left-6 lg:mt-0 lg:max-w-sm lg:border-l-0 lg:bg-papel lg:p-6 lg:pl-6 lg:shadow-alzado">
-                            “La masa avisa cuándo está. Uno solo tiene que
-                            llegar a tiempo.”
+                            “Pensando siempre lo mejor para cada cliente.”
                         </p>
                     </div>
 
@@ -198,16 +216,16 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
                             El obrador
                         </p>
                         <h2 className="mt-3 font-display text-seccion text-texto">
-                            Tres generaciones amasando lo mismo
+                            Una panadería familiar
                         </h2>
 
                         <div className="mt-6 grid gap-5 leading-relaxed text-texto-medio">
                             <p>
-                                Abrimos en 1987 en una esquina de barrio y
-                                seguimos en la misma. El pan de campo lleva
-                                dieciocho horas de fermentación, las facturas se
-                                hojaldran a mano y la pastelería sale del horno
-                                el mismo día en que se vende.
+                                Fénix abrió el 8 de marzo de 2021 en Leones con
+                                una idea simple: llevar el buen sabor artesanal
+                                a cada rinconcito de tu hogar. Es una panadería
+                                familiar, y así seguimos trabajando todos los
+                                días.
                             </p>
                             <p>
                                 Trabajamos con almacenes, kioscos, bares y
@@ -280,7 +298,7 @@ export default function Landing({ destacados, panaderia, zonas }: Props) {
             >
                 <div className="relative z-1 mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
                     <p className="font-mono text-[11px] tracking-[0.2em] text-texto-suave uppercase">
-                        La esquina
+                        El local
                     </p>
                     <h2 className="mt-3 font-display text-seccion text-texto">
                         Dónde estamos

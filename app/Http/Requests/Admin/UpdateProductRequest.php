@@ -3,14 +3,19 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\ProductUnidad;
+use App\Http\Requests\Concerns\AvisaFotoDemasiadoPesada;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\LimiteSubida;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateProductRequest extends FormRequest
 {
+    use AvisaFotoDemasiadoPesada;
+
     public function authorize(): bool
     {
         return $this->user()?->can('update', $this->route('product')) ?? false;
@@ -38,7 +43,7 @@ class UpdateProductRequest extends FormRequest
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'unidad' => ['required', Rule::enum(ProductUnidad::class)],
             'precio_base' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
-            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.config('fenix.imagen_producto.peso_max_kb')],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.LimiteSubida::kb(self::pesoPedidoKb())],
             // Sacar la foto actual sin subir una nueva.
             'eliminar_imagen' => ['required', 'boolean'],
             'activo' => ['required', 'boolean'],
@@ -61,6 +66,11 @@ class UpdateProductRequest extends FormRequest
             'activo' => $this->boolean('activo'),
             'destacado' => $this->boolean('destacado'),
         ]);
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(fn (Validator $v) => $this->avisarSiLaFotoNoEntro($v));
     }
 
     /**
@@ -97,11 +107,15 @@ class UpdateProductRequest extends FormRequest
         ];
     }
 
-    /** El tope de peso configurado, en MB, para los mensajes de error. */
+    /** Lo que pide la app, antes de que PHP diga la suya. */
+    protected static function pesoPedidoKb(): int
+    {
+        return (int) config('fenix.imagen_producto.peso_max_kb');
+    }
+
+    /** El máximo que rige, ya acotado por php.ini. */
     private static function pesoMaxMb(): string
     {
-        $mb = (int) config('fenix.imagen_producto.peso_max_kb') / 1024;
-
-        return rtrim(rtrim(number_format($mb, 1, ',', ''), '0'), ',');
+        return LimiteSubida::texto(self::pesoPedidoKb());
     }
 }
