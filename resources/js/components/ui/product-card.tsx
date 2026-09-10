@@ -122,7 +122,7 @@ export default function ProductCard({ product, className }: Props) {
                 )}
 
                 <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-display text-xl leading-tight text-texto">
+                    <h3 className="line-clamp-2 min-h-[2.5em] font-display text-xl leading-tight text-texto">
                         <Link
                             href={`/productos/${product.slug}`}
                             className="transition-colors after:absolute after:inset-0 hover:text-bordo"
@@ -136,11 +136,9 @@ export default function ProductCard({ product, className }: Props) {
                     />
                 </div>
 
-                {product.descripcion && (
-                    <p className="line-clamp-2 text-sm leading-relaxed text-texto-medio">
-                        {product.descripcion}
-                    </p>
-                )}
+                <p className="line-clamp-2 min-h-[3.25em] text-sm leading-relaxed text-texto-medio">
+                    {product.descripcion}
+                </p>
 
                 {grupos.length > 0 && (
                     <VarianteSelector
@@ -169,28 +167,32 @@ export default function ProductCard({ product, className }: Props) {
                     </Button>
                 </div>
 
-                {/* Estado en el pedido: sin esto, agregar dos veces no se nota. */}
-                {enPedido > 0 && (
-                    <p className="relative z-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
-                        <Check
-                            className="size-3.5 shrink-0 text-exito"
-                            aria-hidden="true"
-                        />
-                        <span>
-                            Llevás{' '}
-                            <span className="font-medium text-texto">
-                                {cantidadConUnidad(enPedido, product.unidad)}
+                {/* Estado en el pedido: sin esto, agregar dos veces no se nota.
+                    El hueco existe aunque esté vacío para que agregar un producto
+                    no cambie el alto de la tarjeta ni el de su fila. */}
+                <p className="relative z-10 flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-texto-medio">
+                    {enPedido > 0 && (
+                        <>
+                            <Check
+                                className="size-3.5 shrink-0 text-exito"
+                                aria-hidden="true"
+                            />
+                            <span>
+                                Llevás{' '}
+                                <span className="font-medium text-texto">
+                                    {cantidadConUnidad(enPedido, product.unidad)}
+                                </span>
                             </span>
-                        </span>
-                        <button
-                            type="button"
-                            onClick={abrir}
-                            className="underline underline-offset-4 hover:text-bordo"
-                        >
-                            Ver pedido
-                        </button>
-                    </p>
-                )}
+                            <button
+                                type="button"
+                                onClick={abrir}
+                                className="underline underline-offset-4 hover:text-bordo"
+                            >
+                                Ver pedido
+                            </button>
+                        </>
+                    )}
+                </p>
             </div>
         </article>
     );

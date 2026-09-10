@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Settings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -11,6 +12,8 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(private readonly Settings $settings) {}
 
     public function version(Request $request): ?string
     {
@@ -44,6 +47,9 @@ class HandleInertiaRequests extends Middleware
                     'last_login_at' => $user->last_login_at?->toIso8601String(),
                 ],
             ],
+            // El panel del pedido vive en el layout, así que las condiciones
+            // tienen que estar en toda pantalla pública, no en un controller.
+            'condiciones' => fn (): array => $this->settings->condicionesPedido(),
             'flash' => fn (): array => [
                 'tipo' => collect($niveles)->first(fn (string $tipo): bool => $request->session()->has($tipo)),
                 'mensaje' => collect($niveles)

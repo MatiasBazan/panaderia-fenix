@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Setting;
+use App\Services\SiteImageService;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -25,6 +26,10 @@ class Settings
 
     public const DATOS_PANADERIA = 'datos_panaderia';
 
+    public const SENIA_REQUERIDA = 'senia_requerida';
+
+    public const FOTOS_LANDING = 'fotos_landing';
+
     /**
      * Valores por defecto, usados cuando la clave todavía no está en la base.
      *
@@ -32,10 +37,12 @@ class Settings
      */
     public const DEFAULTS = [
         self::HORA_CORTE_PEDIDOS => '18:00',
-        self::DIAS_ANTICIPACION_MINIMA => 1,
+        self::DIAS_ANTICIPACION_MINIMA => 2,
         self::MONTO_MINIMO_PEDIDO => '0.00',
         self::ZONAS_ENTREGA => [],
         self::DATOS_PANADERIA => [],
+        self::SENIA_REQUERIDA => true,
+        self::FOTOS_LANDING => [],
     ];
 
     public function get(string $clave, mixed $default = null): mixed
@@ -108,6 +115,54 @@ class Settings
             static fn (mixed $zona): string => (string) $zona,
             (array) $this->get(self::ZONAS_ENTREGA),
         ));
+    }
+
+    /**
+     * Fotos cargadas para la landing, como `slot => ruta en el disco public`.
+     * Sólo devuelve los huecos que siguen declarados en config: si mañana se
+     * saca uno, su foto deja de viajar aunque la fila quede en la base.
+     *
+     * @return array<string, string>
+     */
+    public function fotosLanding(): array
+    {
+        /** @var array<string, mixed> $guardadas */
+        $guardadas = (array) $this->get(self::FOTOS_LANDING);
+
+        $fotos = [];
+
+        foreach (SiteImageService::huecos() as $slot => $_) {
+            $ruta = $guardadas[$slot] ?? null;
+
+            if (is_string($ruta) && $ruta !== '') {
+                $fotos[$slot] = $ruta;
+            }
+        }
+
+        return $fotos;
+    }
+
+    public function seniaRequerida(): bool
+    {
+        return (bool) $this->get(self::SENIA_REQUERIDA);
+    }
+
+    /**
+     * Condiciones que el visitante tiene que conocer antes de mandar el pedido.
+     *
+     * Van compartidas en toda respuesta porque el panel del pedido vive en el
+     * layout: si dependieran de cada controller, la mitad de las pantallas las
+     * mostraría y la otra mitad no. Nunca llevan importes — el invariante de
+     * que ningún precio sale al público sigue valiendo acá.
+     *
+     * @return array{dias_anticipacion: int, senia: bool}
+     */
+    public function condicionesPedido(): array
+    {
+        return [
+            'dias_anticipacion' => $this->diasAnticipacionMinima(),
+            'senia' => $this->seniaRequerida(),
+        ];
     }
 
     /**

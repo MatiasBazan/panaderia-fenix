@@ -4,12 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#F7F1E3">
-        <meta name="description" content="Panadería de barrio en Leones, Córdoba, desde 1987. Pan de masa madre, facturas de manteca y pastelería del día. Armá tu pedido y te pasamos los precios.">
+        <meta name="description" content="Panadería familiar en Leones, Córdoba, desde 2021. Pan, facturas y pastelería del día. Armá tu pedido y te pasamos los precios.">
 
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="{{ config('app.name', 'Panadería Fénix') }}">
-        <meta property="og:title" content="Panadería Fénix · Pan de masa madre en Leones">
-        <meta property="og:description" content="Horneamos todos los días desde 1987. Armá tu pedido mayorista y te pasamos los precios dentro de las 24 horas hábiles.">
+        <meta property="og:title" content="Panadería Fénix · Panadería familiar en Leones">
+        <meta property="og:description" content="Horneamos todos los días desde 2021. Armá tu pedido y te pasamos los precios dentro de las 24 horas hábiles.">
         <meta property="og:image" content="{{ url('/img/logo-768.png') }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta name="twitter:card" content="summary_large_image">

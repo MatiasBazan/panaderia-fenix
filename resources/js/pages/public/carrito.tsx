@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ShoppingBasket, Trash2, TriangleAlert } from 'lucide-react';
 import {
     Button,
+    CondicionesPedido,
     EmptyState,
     Pasos,
     QuantityInput,
@@ -256,6 +257,8 @@ export default function Carrito({ productos, consultados }: Props) {
                     En el próximo paso te pedimos nombre y teléfono para poder
                     responderte con los precios.
                 </p>
+
+                <CondicionesPedido className="mt-6 max-w-lg" />
             </div>
         </PublicLayout>
     );

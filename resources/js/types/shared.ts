@@ -7,11 +7,21 @@ export type Flash = {
     mensaje: string | null;
 };
 
+/**
+ * Condiciones del pedido, servidas desde `settings`. Sin importes: el sitio
+ * público no muestra precios.
+ */
+export type Condiciones = {
+    dias_anticipacion: number;
+    senia: boolean;
+};
+
 /** Props que `HandleInertiaRequests` comparte en toda respuesta. */
 export type SharedProps = {
     name: string;
     auth: Auth;
     flash: Flash;
+    condiciones: Condiciones;
 };
 
 export type PageProps<

@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
-import { CircleCheck, Mail, MessageCircle, Phone, Wallet } from 'lucide-react';
+import { CircleCheck, Mail, MessageCircle, Phone } from 'lucide-react';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui';
+import { Button, CondicionesPedido } from '@/components/ui';
 import PublicLayout from '@/layouts/public-layout';
 
 type Props = {
@@ -72,6 +72,11 @@ export default function CotizacionGracias({
                     </>
                 )}
 
+                <CondicionesPedido
+                    className="mt-8 text-left"
+                    senaMonto={enviada ? sena : 0}
+                />
+
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                     {enviada && whatsappUrl && (
                         <a
@@ -108,23 +113,6 @@ export default function CotizacionGracias({
                         </Button>
                     </Link>
                 </div>
-
-                {enviada && sena > 0 && (
-                    <div className="mt-10 flex items-start gap-3 rounded-xl bg-dorado/10 p-5 text-left ring-1 ring-dorado/30">
-                        <Wallet
-                            className="mt-0.5 size-5 shrink-0 text-dorado"
-                            aria-hidden="true"
-                        />
-                        <p className="text-sm leading-relaxed text-texto">
-                            Recordá que el pedido se reserva con una seña de{' '}
-                            <span className="font-semibold">
-                                ${sena.toLocaleString('es-AR')}
-                            </span>
-                            . Te pasamos cómo abonarla cuando confirmemos los
-                            precios.
-                        </p>
-                    </div>
-                )}
 
                 {enviada && (panaderia.telefono || panaderia.email) && (
                     <div className="mt-14 rounded-xl bg-papel p-6 text-left shadow-xs ring-1 ring-borde">

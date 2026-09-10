@@ -13,8 +13,9 @@ class SettingsSeeder extends Seeder
     {
         $this->settings->setMany([
             Settings::HORA_CORTE_PEDIDOS => '18:00',
-            Settings::DIAS_ANTICIPACION_MINIMA => 1,
+            Settings::DIAS_ANTICIPACION_MINIMA => 2,
             Settings::MONTO_MINIMO_PEDIDO => '25000.00',
+            Settings::SENIA_REQUERIDA => true,
             // Localidades aledañas a Leones (este de Córdoba, dptos. Marcos
             // Juárez y Unión), ordenadas más o menos por cercanía. El formulario
             // público suma "Otra" al final por si la localidad no está.

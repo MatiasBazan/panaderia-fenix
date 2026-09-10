@@ -1,8 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Pencil, ShoppingBasket, TriangleAlert, Wallet } from 'lucide-react';
+import { Pencil, ShoppingBasket, TriangleAlert } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import {
     Button,
+    CondicionesPedido,
     DatePicker,
     EmptyState,
     Input,
@@ -374,22 +375,8 @@ export default function Cotizacion({
                     )}
                 </section>
 
-                {sena > 0 && (
-                    <div className="mt-10 flex items-start gap-3 rounded-xl bg-dorado/10 p-5 ring-1 ring-dorado/30">
-                        <Wallet
-                            className="mt-0.5 size-5 shrink-0 text-dorado"
-                            aria-hidden="true"
-                        />
-                        <p className="text-sm leading-relaxed text-texto">
-                            Para reservar el pedido se pide una seña de{' '}
-                            <span className="font-semibold">
-                                ${sena.toLocaleString('es-AR')}
-                            </span>
-                            . Te pasamos cómo abonarla cuando confirmemos los
-                            precios.
-                        </p>
-                    </div>
-                )}
+                {/* Antes del botón, no después: se enteran mientras deciden. */}
+                <CondicionesPedido className="mt-10" senaMonto={sena} />
 
                 <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-borde pt-8">
                     <Button type="submit" size="lg" loading={form.processing}>
