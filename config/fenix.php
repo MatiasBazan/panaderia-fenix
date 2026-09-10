@@ -29,7 +29,7 @@ return [
 
     'contactos_pedidos' => [
         'minorista' => [
-            'nombre' => 'Nati',
+            'nombre' => 'Naty',
             'whatsapp' => env('FENIX_WHATSAPP_MINORISTAS', '5493472527326'),
         ],
         'mayorista' => [

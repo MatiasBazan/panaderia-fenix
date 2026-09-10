@@ -32,7 +32,7 @@ class SettingsSeeder extends Seeder
                     ['nombre' => 'Juan', 'telefono' => '3472 55-2461', 'whatsapp' => '5493472552461'],
                 ],
                 'horarios' => [
-                    ['dias' => 'Lunes a Sábados', 'horario' => '07:00 a 12:30 y 16:00 a 20:00'],
+                    ['dias' => 'Lunes a sábados', 'horario' => '07:00 a 12:30 y 16:00 a 20:00'],
                     ['dias' => 'Domingos', 'horario' => '08:00 a 12:30 y 16:00 a 20:00'],
                 ],
                 // Panadería "FENIX", Leones (coordenadas del pin de Google Maps).

@@ -208,7 +208,7 @@ it('marca la pantalla de gracias como enviada después de un envío', function (
     );
 });
 
-it('arma el enlace wa.me hacia Nati para un pedido minorista', function () {
+it('arma el enlace wa.me hacia Naty para un pedido minorista', function () {
     $product = Product::factory()->create(['nombre' => 'Pan casero']);
 
     $this->post('/cotizacion', datosValidos([
@@ -218,12 +218,12 @@ it('arma el enlace wa.me hacia Nati para un pedido minorista', function () {
     $this->get('/cotizacion/gracias')->assertInertia(
         fn (Assert $page) => $page
             ->where('enviada', true)
-            ->where('contacto', 'Nati')
+            ->where('contacto', 'Naty')
             ->where('whatsappUrl', function (string $url): bool {
                 $texto = rawurldecode($url);
 
                 return str_contains($url, 'https://wa.me/'.config('fenix.contactos_pedidos.minorista.whatsapp'))
-                    && str_contains($texto, 'Hola Nati!')
+                    && str_contains($texto, 'Hola Naty!')
                     && str_contains($texto, '3 × Pan casero (Bien cocido)')
                     && str_contains($texto, 'Nombre: Lucía Ferreyra');
             }),
