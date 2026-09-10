@@ -119,9 +119,7 @@ export default function usePedido() {
     );
 
     const quitar = useCallback((clave: string) => {
-        escribir(
-            leer().filter((i) => claveLinea(i.id, i.variante) !== clave),
-        );
+        escribir(leer().filter((i) => claveLinea(i.id, i.variante) !== clave));
     }, []);
 
     const vaciar = useCallback(() => {

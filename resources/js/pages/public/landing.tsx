@@ -3,6 +3,7 @@ import { Clock, Instagram, MapPin, Phone } from 'lucide-react';
 import {
     Button,
     EmptyState,
+    EnlaceAncla,
     FotoSitio,
     PhotoPlaceholder,
     ProductCard,
@@ -31,8 +32,15 @@ type Panaderia = {
 /** Fotos cargadas desde el admin, por hueco. Falta una = va el placeholder. */
 type Fotos = Partial<Record<'mostrador' | 'miga' | 'amasado', string>>;
 
+/** El catálogo activo agrupado, en el orden en que se ve el mostrador. */
+type Grupo = {
+    nombre: string;
+    slug: string;
+    productos: PublicProduct[];
+};
+
 type Props = {
-    destacados: PublicProduct[];
+    mostrador: Grupo[];
     panaderia: Panaderia;
     fotos: Fotos;
     zonas: string[];
@@ -62,12 +70,7 @@ const construirPasos = (condiciones: Condiciones) => [
     },
 ];
 
-export default function Landing({
-    destacados,
-    panaderia,
-    fotos,
-    zonas,
-}: Props) {
+export default function Landing({ mostrador, panaderia, fotos, zonas }: Props) {
     const mapa = panaderia.mapa;
     const pasos = construirPasos(useCondiciones());
 
@@ -100,15 +103,15 @@ export default function Landing({
                         </p>
 
                         <div className="mt-9 flex flex-wrap items-center gap-4">
-                            <Link href="/productos">
+                            <EnlaceAncla href="/#mostrador">
                                 <Button size="lg">Armar mi pedido</Button>
-                            </Link>
-                            <Link
+                            </EnlaceAncla>
+                            <EnlaceAncla
                                 href="/#sobre"
                                 className="text-sm font-medium text-texto underline decoration-dorado decoration-2 underline-offset-[6px] transition-colors hover:text-bordo"
                             >
                                 Conocer la panadería
-                            </Link>
+                            </EnlaceAncla>
                         </div>
                     </div>
 
@@ -146,34 +149,38 @@ export default function Landing({
                 </div>
             </section>
 
-            {/* Destacados */}
-            <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+            {/* Mostrador */}
+            <section
+                id="mostrador"
+                className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6 sm:py-24"
+            >
                 <div className="flex flex-wrap items-end justify-between gap-6">
                     <div>
                         <p className="font-mono text-[11px] tracking-[0.2em] text-texto-suave uppercase">
                             Del mostrador
                         </p>
                         <h2 className="mt-3 font-display text-seccion text-texto">
-                            Lo que más nos piden
+                            Todo lo que horneamos
                         </h2>
                         <p className="mt-3 max-w-lg leading-relaxed text-texto-medio">
-                            Elegí cantidad y sumalo a tu pedido. Te respondemos
-                            con precios dentro de las 24 horas hábiles.
+                            Elegí cantidad y sumalo a tu pedido, sin salir de
+                            acá. Te respondemos con precios dentro de las 24
+                            horas hábiles.
                         </p>
                     </div>
                     <Link
                         href="/productos"
                         className="text-sm font-medium text-bordo underline decoration-dorado decoration-2 underline-offset-[6px] transition-colors hover:text-bordo-hover"
                     >
-                        Ver el catálogo completo
+                        Buscar en el catálogo
                     </Link>
                 </div>
 
-                {destacados.length === 0 ? (
+                {mostrador.length === 0 ? (
                     <EmptyState
                         className="mt-10"
-                        title="Todavía no hay destacados"
-                        description="En cuanto la panadería marque sus productos estrella, aparecen acá."
+                        title="Todavía no hay productos cargados"
+                        description="En cuanto la panadería cargue el mostrador, aparece acá."
                         action={
                             <Link href="/productos">
                                 <Button variant="secondary">
@@ -183,16 +190,39 @@ export default function Landing({
                         }
                     />
                 ) : (
-                    <div className="mt-10 grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {destacados.map((producto) => (
-                            <div key={producto.id} className="emerge h-full">
-                                <ProductCard
-                                    product={producto}
-                                    className="h-full"
+                    mostrador.map((grupo) => (
+                        <div key={grupo.slug} className="mt-14 first:mt-12">
+                            <div className="flex items-center gap-4">
+                                <h3 className="font-mono text-[11px] tracking-[0.2em] text-texto-suave uppercase">
+                                    {grupo.nombre}
+                                </h3>
+                                <span
+                                    className="h-px flex-1 bg-borde"
+                                    aria-hidden="true"
                                 />
+                                <Link
+                                    href={`/productos?categoria=${grupo.slug}`}
+                                    className="text-xs font-medium text-texto-medio transition-colors hover:text-bordo"
+                                >
+                                    Ver solo {grupo.nombre.toLowerCase()}
+                                </Link>
                             </div>
-                        ))}
-                    </div>
+
+                            <div className="mt-6 grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                {grupo.productos.map((producto) => (
+                                    <div
+                                        key={producto.id}
+                                        className="h-full emerge"
+                                    >
+                                        <ProductCard
+                                            product={producto}
+                                            className="h-full"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))
                 )}
             </section>
 
@@ -232,9 +262,9 @@ export default function Landing({
                             </p>
                             <p>
                                 Trabajamos con almacenes, kioscos, bares y
-                                confiterías de Leones y alrededores. Armá tu
-                                pedido, pedinos los precios y coordinamos
-                                cantidades y entregas por WhatsApp.
+                                confiterías de Leones. Armá tu pedido, pedinos
+                                los precios y coordinamos cantidades y entregas
+                                por WhatsApp.
                             </p>
                         </div>
 
@@ -288,9 +318,9 @@ export default function Landing({
                 </ol>
 
                 <div className="mt-12">
-                    <Link href="/productos">
+                    <EnlaceAncla href="/#mostrador">
                         <Button size="lg">Empezar el pedido</Button>
-                    </Link>
+                    </EnlaceAncla>
                 </div>
             </section>
 

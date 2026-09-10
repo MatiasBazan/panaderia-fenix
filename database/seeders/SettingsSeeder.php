@@ -16,15 +16,11 @@ class SettingsSeeder extends Seeder
             Settings::DIAS_ANTICIPACION_MINIMA => 2,
             Settings::MONTO_MINIMO_PEDIDO => '25000.00',
             Settings::SENIA_REQUERIDA => true,
-            // Localidades aledañas a Leones (este de Córdoba, dptos. Marcos
-            // Juárez y Unión), ordenadas más o menos por cercanía. El formulario
-            // público suma "Otra" al final por si la localidad no está.
+            // Hoy se reparte sólo en Leones. El formulario público suma "Otra"
+            // al final, así que quien es de otra localidad igual puede pedir y
+            // se coordina por WhatsApp.
             Settings::ZONAS_ENTREGA => [
                 'Leones',
-                'Marcos Juárez',
-                'Bell Ville',
-                'San Marcos Sud',
-                'Noetinger',
             ],
             Settings::DATOS_PANADERIA => [
                 'nombre' => 'Panadería Fénix',

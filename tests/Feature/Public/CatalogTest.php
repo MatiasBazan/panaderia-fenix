@@ -181,15 +181,38 @@ it('filtra el catálogo por búsqueda', function () {
     );
 });
 
-it('sólo muestra destacados activos en la landing', function () {
-    $destacado = Product::factory()->destacado()->create();
-    Product::factory()->destacado()->inactivo()->create();
+it('muestra todo el catálogo activo en la landing, agrupado por categoría', function () {
+    $panaderia = Category::factory()->create(['nombre' => 'Panadería', 'orden' => 1]);
+    $facturas = Category::factory()->create(['nombre' => 'Facturas', 'orden' => 2]);
+
+    $pan = Product::factory()->for($panaderia, 'category')->create(['orden' => 1]);
+    $galleta = Product::factory()->for($panaderia, 'category')->create(['orden' => 2]);
+    $medialuna = Product::factory()->for($facturas, 'category')->create();
+    Product::factory()->for($facturas, 'category')->inactivo()->create();
+
+    $this->get('/')->assertInertia(
+        fn (Assert $page) => $page
+            ->component('public/landing')
+            ->has('mostrador', 2)
+            ->where('mostrador.0.nombre', 'Panadería')
+            ->has('mostrador.0.productos', 2)
+            ->where('mostrador.0.productos.0.id', $pan->id)
+            ->where('mostrador.0.productos.1.id', $galleta->id)
+            ->where('mostrador.1.nombre', 'Facturas')
+            ->has('mostrador.1.productos', 1)
+            ->where('mostrador.1.productos.0.id', $medialuna->id),
+    );
+});
+
+it('no deja títulos colgados de categorías sin productos activos en la landing', function () {
+    $vacia = Category::factory()->create(['nombre' => 'Tortas']);
+    Product::factory()->for($vacia, 'category')->inactivo()->create();
     Product::factory()->create();
 
     $this->get('/')->assertInertia(
         fn (Assert $page) => $page
             ->component('public/landing')
-            ->has('destacados', 1)
-            ->where('destacados.0.id', $destacado->id),
+            ->has('mostrador', 1)
+            ->where('mostrador.0.nombre', fn (string $nombre): bool => $nombre !== 'Tortas'),
     );
 });

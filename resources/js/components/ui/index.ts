@@ -2,12 +2,13 @@ export { default as Badge, StatusBadge, UnitBadge } from './badge';
 export { default as Button } from './button';
 export type { ButtonSize, ButtonVariant } from './button';
 export { default as Checkbox } from './checkbox';
-export { default as DatePicker } from './date-picker';
 export {
     default as CondicionesPedido,
     condicionesEnFrase,
     useCondiciones,
 } from './condiciones-pedido';
+export { default as DatePicker } from './date-picker';
+export { default as EnlaceAncla } from './enlace-ancla';
 export { default as Field, controlClass } from './field';
 export { default as FotoSitio } from './foto-sitio';
 export { default as Input, Textarea } from './input';

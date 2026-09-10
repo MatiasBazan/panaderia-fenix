@@ -3,7 +3,7 @@ import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import Logo from '@/components/brand/logo';
-import { PedidoBoton, PedidoPanel } from '@/components/ui';
+import { EnlaceAncla, PedidoBoton, PedidoPanel } from '@/components/ui';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import useFlashToast from '@/hooks/use-flash-toast';
 import { usePanelPedido } from '@/hooks/use-pedido';
@@ -84,12 +84,13 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
                         aria-label="Principal"
                     >
                         {navegacion.map((item) => {
+                            const ancla = item.href.includes('#');
                             const activo =
-                                !item.href.includes('#') &&
-                                isCurrentOrParentUrl(item.href);
+                                !ancla && isCurrentOrParentUrl(item.href);
+                            const Enlace = ancla ? EnlaceAncla : Link;
 
                             return (
-                                <Link
+                                <Enlace
                                     key={item.href}
                                     href={item.href}
                                     aria-current={activo ? 'page' : undefined}
@@ -104,7 +105,7 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
                                     )}
                                 >
                                     {item.label}
-                                </Link>
+                                </Enlace>
                             );
                         })}
                     </nav>
@@ -154,20 +155,28 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
 
                     <nav className="px-6 pt-6" aria-label="Principal">
                         <ul className="grid gap-1">
-                            {navegacion.map((item) => (
-                                <li
-                                    key={item.href}
-                                    className="border-b border-borde last:border-0"
-                                >
-                                    <Link
-                                        href={item.href}
-                                        onClick={() => setMenuAbierto(false)}
-                                        className="block py-4 font-display text-3xl text-texto transition-colors hover:text-bordo"
+                            {navegacion.map((item) => {
+                                const Enlace = item.href.includes('#')
+                                    ? EnlaceAncla
+                                    : Link;
+
+                                return (
+                                    <li
+                                        key={item.href}
+                                        className="border-b border-borde last:border-0"
                                     >
-                                        {item.label}
-                                    </Link>
-                                </li>
-                            ))}
+                                        <Enlace
+                                            href={item.href}
+                                            onClick={() =>
+                                                setMenuAbierto(false)
+                                            }
+                                            className="block py-4 font-display text-3xl text-texto transition-colors hover:text-bordo"
+                                        >
+                                            {item.label}
+                                        </Enlace>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </nav>
                 </div>
@@ -201,18 +210,18 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
                             >
                                 Ver el catálogo
                             </Link>
-                            <Link
+                            <EnlaceAncla
                                 href="/#sobre"
                                 className="text-sm text-texto-medio transition-colors hover:text-bordo"
                             >
                                 Nuestra historia
-                            </Link>
-                            <Link
+                            </EnlaceAncla>
+                            <EnlaceAncla
                                 href="/#ubicacion"
                                 className="text-sm text-texto-medio transition-colors hover:text-bordo"
                             >
                                 Dónde estamos
-                            </Link>
+                            </EnlaceAncla>
                         </nav>
 
                         <nav
