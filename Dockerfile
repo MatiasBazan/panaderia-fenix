@@ -92,3 +92,7 @@ COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY public /var/www/html/public
 # Bundle Vite compilado.
 COPY --from=assets /var/www/html/public/build /var/www/html/public/build
+# Pantalla de mantenimiento. Es el mismo archivo que Laravel usa como vista 503
+# (por eso no lleva Blade adentro): nginx la sirve cuando la app no responde,
+# que es justo cuando no se puede pedir a PHP que renderice nada.
+COPY resources/views/errors/503.blade.php /var/www/html/public/mantenimiento.html
