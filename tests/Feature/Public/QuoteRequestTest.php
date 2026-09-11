@@ -7,6 +7,7 @@ use App\Enums\TipoPedido;
 use App\Mail\QuoteRequestReceived;
 use App\Models\Product;
 use App\Models\QuoteRequest;
+use App\Support\Settings;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -163,6 +164,30 @@ it('rechaza una fecha de evento pasada', function () {
         'fecha_evento' => now()->subDay()->toDateString(),
         'items' => [['product_id' => $product->id, 'cantidad' => 1]],
     ]))->assertSessionHasErrors('fecha_evento');
+});
+
+it('rechaza una fecha sin los días de anticipación que pide la panadería', function () {
+    $product = Product::factory()->create();
+    $dias = app(Settings::class)->diasAnticipacionMinima();
+
+    $this->post('/cotizacion', datosValidos([
+        'fecha_evento' => now()->addDays($dias - 1)->toDateString(),
+        'items' => [['product_id' => $product->id, 'cantidad' => 1]],
+    ]))->assertSessionHasErrors('fecha_evento');
+
+    expect(QuoteRequest::count())->toBe(0);
+});
+
+it('acepta la primera fecha con la anticipación cumplida', function () {
+    $product = Product::factory()->create();
+    $dias = app(Settings::class)->diasAnticipacionMinima();
+
+    $this->post('/cotizacion', datosValidos([
+        'fecha_evento' => now()->addDays($dias)->toDateString(),
+        'items' => [['product_id' => $product->id, 'cantidad' => 1]],
+    ]))->assertRedirect('/cotizacion/gracias');
+
+    expect(QuoteRequest::count())->toBe(1);
 });
 
 it('descarta el envío cuando el honeypot viene completo', function () {

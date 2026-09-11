@@ -11,6 +11,7 @@ import {
     Select,
     Textarea,
     Thumb,
+    useCondiciones,
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
 import usePedido from '@/hooks/use-pedido';
@@ -78,6 +79,10 @@ export default function Cotizacion({
         consultados,
     );
 
+    const { dias_anticipacion: diasAnticipacion } = useCondiciones();
+    const textoAnticipacion =
+        diasAnticipacion === 1 ? 'un día' : `${diasAnticipacion} días`;
+
     const form = useForm<FormData>({
         nombre: '',
         telefono: '',
@@ -89,14 +94,18 @@ export default function Cotizacion({
         items: [],
     });
 
-    // Hoy en ISO local: la fecha del evento no puede ser en el pasado.
-    const hoyISO = useMemo(() => {
-        const hoy = new Date();
-        const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoy.getDate()).padStart(2, '0');
+    // Primer día para el que se puede pedir, en ISO local. Los días de
+    // anticipación salen de las condiciones compartidas: el calendario deja
+    // elegir exactamente lo que el backend después acepta.
+    const primeraFechaISO = useMemo(() => {
+        const primera = new Date();
+        primera.setDate(primera.getDate() + diasAnticipacion);
 
-        return `${hoy.getFullYear()}-${mes}-${dia}`;
-    }, []);
+        const mes = String(primera.getMonth() + 1).padStart(2, '0');
+        const dia = String(primera.getDate()).padStart(2, '0');
+
+        return `${primera.getFullYear()}-${mes}-${dia}`;
+    }, [diasAnticipacion]);
 
     // El listado de ítems se sincroniza desde el almacenamiento local.
     useEffect(() => {
@@ -329,8 +338,8 @@ export default function Cotizacion({
                         )}
                         <DatePicker
                             label="Fecha del evento"
-                            hint="Sólo si el pedido es para una fecha puntual."
-                            min={hoyISO}
+                            hint={`Sólo si el pedido es para una fecha puntual. La tomamos con ${textoAnticipacion} de anticipación.`}
+                            min={primeraFechaISO}
                             value={form.data.fecha_evento}
                             onChange={(valor) =>
                                 form.setData('fecha_evento', valor)
