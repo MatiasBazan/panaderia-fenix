@@ -55,6 +55,17 @@ class BuildQuoteWhatsAppLink
     }
 
     /**
+     * Enlace wa.me al cliente sin texto precargado, para escribirle antes de
+     * tener la cotización lista (lo usa el aviso por mail).
+     */
+    public function chat(string $telefono): ?string
+    {
+        $numero = $this->normalizarTelefono($telefono);
+
+        return $numero === null ? null : 'https://wa.me/'.$numero;
+    }
+
+    /**
      * Lleva un teléfono argentino escrito a mano al formato que espera wa.me
      * (54 + 9 + área + número, sólo dígitos). Es best-effort: si el cliente dejó
      * algo muy raro puede fallar, por eso el front muestra el número al lado.

@@ -131,14 +131,229 @@ code {
     text-decoration: none;
 }
 
-/* Logo */
+/* Logo: el emblema arriba y el nombre en DM Serif debajo, como en el sitio. */
 
 .logo {
-    height: 64px;
-    margin-top: 12px;
-    margin-bottom: 8px;
-    max-height: 64px;
-    width: 64px;
+    display: block;
+    height: 84px;
+    margin: 0 auto 10px;
+    max-height: 84px;
+    width: 112px;
+}
+
+.wordmark {
+    color: #241e18;
+    display: block;
+    font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+}
+
+/* Aviso de solicitud */
+
+.eyebrow {
+    color: #a67c29;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    margin: 0 0 10px;
+    text-transform: uppercase;
+}
+
+.lead {
+    color: #6a5f52;
+    font-size: 15px;
+    margin: 0 0 24px;
+}
+
+.badge {
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+}
+
+.badge-mayorista {
+    background-color: #e3edf1;
+    color: #37697f;
+}
+
+.badge-minorista {
+    background-color: #f7f1e3;
+    border: 1px solid #e5d9c3;
+    color: #6a5f52;
+}
+
+/* Filas rótulo / valor, con filete hairline. */
+.datos {
+    border-top: 1px solid #e5d9c3;
+    margin: 0 0 28px;
+    width: 100%;
+}
+
+.datos-rotulo {
+    border-bottom: 1px solid #e5d9c3;
+    color: #9b8f7e;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    padding: 13px 0 11px;
+    text-transform: uppercase;
+    vertical-align: top;
+    width: 40%;
+}
+
+.datos-valor {
+    border-bottom: 1px solid #e5d9c3;
+    color: #241e18;
+    font-size: 15px;
+    padding: 10px 0;
+    text-align: right;
+}
+
+.datos-valor a {
+    color: #9a3324;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.seccion {
+    color: #241e18;
+    font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    font-size: 19px;
+    margin: 0 0 6px;
+}
+
+.items {
+    margin: 0 0 28px;
+    width: 100%;
+}
+
+.items-th {
+    border-bottom: 1px solid #e5d9c3;
+    color: #9b8f7e;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    padding: 8px 0;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.items-td {
+    border-bottom: 1px solid #e5d9c3;
+    color: #241e18;
+    font-size: 15px;
+    line-height: 20px;
+    padding: 12px 0;
+    vertical-align: top;
+}
+
+.items-num {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    padding-left: 16px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.item-detalle {
+    color: #6a5f52;
+    font-size: 13px;
+}
+
+.item-nota {
+    color: #9b8f7e;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.unidad {
+    color: #9b8f7e;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+}
+
+/* El borrador ya calculado: la cifra que Naty quiere ver primero. */
+.cotizacion {
+    background-color: #241e18;
+    border-radius: 12px;
+    margin: 0 0 28px;
+    width: 100%;
+}
+
+.cotizacion-cell {
+    padding: 20px 22px;
+}
+
+.cotizacion-rotulo {
+    color: #c79a3e;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+}
+
+.cotizacion-total {
+    color: #fffcf5;
+    font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+}
+
+.cotizacion-nota {
+    color: #d9cdb8;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.mensaje {
+    border-left: 3px solid #c79a3e;
+    margin: 0 0 28px;
+    width: 100%;
+}
+
+.mensaje-cell {
+    background-color: #f7f1e3;
+    padding: 14px 16px;
+}
+
+.mensaje-rotulo {
+    color: #9b8f7e;
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+}
+
+.mensaje-texto {
+    color: #241e18;
+    font-size: 15px;
+    font-style: italic;
+    margin: 0;
+}
+
+.acciones {
+    margin: 4px 0 24px;
+    width: 100%;
+}
+
+.acciones-sep {
+    padding-top: 10px;
+}
+
+.meta {
+    border-top: 1px solid #e5d9c3;
+    color: #9b8f7e;
+    font-size: 12px;
+    margin: 0;
+    padding-top: 16px;
+    text-align: center;
 }
 
 /* Cuerpo */
@@ -299,6 +514,16 @@ code {
     border-right: 20px solid #9a3324;
     border-top: 10px solid #9a3324;
     color: #fffcf5;
+}
+
+/* Crema con texto bordo: la acción secundaria, sin competir con el dorado. */
+.button-secundario {
+    background-color: #f7f1e3;
+    border-bottom: 10px solid #f7f1e3;
+    border-left: 20px solid #f7f1e3;
+    border-right: 20px solid #f7f1e3;
+    border-top: 10px solid #f7f1e3;
+    color: #9a3324;
 }
 
 /* Paneles */

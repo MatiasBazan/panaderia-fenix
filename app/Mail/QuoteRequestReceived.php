@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Actions\Quotes\BuildQuoteWhatsAppLink;
 use App\Models\QuoteRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,11 +29,18 @@ class QuoteRequestReceived extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
+        $solicitud = $this->quoteRequest->loadMissing(['items.product', 'quote']);
+
         return new Content(
             markdown: 'mail.quote-request-received',
+            // Texto propio: el markdown lleva HTML y en texto plano se vería crudo.
+            text: 'mail.quote-request-received-text',
             with: [
-                'solicitud' => $this->quoteRequest,
-                'url' => url("/admin/cotizaciones/{$this->quoteRequest->id}"),
+                'solicitud' => $solicitud,
+                // El borrador se genera antes de mandar el aviso; puede faltar si falló.
+                'cotizacion' => $solicitud->quote,
+                'url' => url("/admin/cotizaciones/{$solicitud->id}"),
+                'whatsapp' => app(BuildQuoteWhatsAppLink::class)->chat($solicitud->telefono),
             ],
         );
     }
