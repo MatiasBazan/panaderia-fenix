@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowRight, ClipboardList } from 'lucide-react';
+import { ArrowRight, CalendarDays, ClipboardList, Wheat } from 'lucide-react';
 import { useState } from 'react';
 import {
     StackedField,
@@ -15,21 +15,57 @@ import {
 import { EmptyState } from '@/components/ui/states';
 import AdminLayout from '@/layouts/admin-layout';
 import type { QuoteRequestEstadoValue } from '@/lib/estados';
-import { dayMonth, plainDayLabel, shortDate } from '@/lib/format';
+import {
+    dayMonth,
+    money,
+    plainDayLabel,
+    quantity,
+    shortDate,
+} from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 type Metricas = {
     solicitudes_pendientes: number;
+    solicitudes_demoradas: number;
     cotizaciones_borrador: number;
     cotizaciones_enviadas: number;
     cotizaciones_por_vencer: number;
     productos_activos: number;
+    productos_sin_foto: number;
     categorias_activas: number;
-    comercios_activos: number;
-    comercios_pendientes: number;
+};
+
+type Mes = {
+    solicitudes: number;
+    solicitudes_mes_anterior: number;
+    mayoristas: number;
+    cotizaciones_enviadas: number;
+    monto_enviado: string;
+    ticket_promedio: string | null;
+    respuesta_minutos: number | null;
 };
 
 type Dia = { dia: string; total: number };
+
+type Evento = {
+    id: number;
+    nombre: string;
+    tipo_label: string;
+    fecha_evento: string;
+    dias: number;
+    estado: QuoteRequestEstadoValue;
+    estado_label: string;
+    total: string | null;
+};
+
+type MasPedido = {
+    id: number;
+    nombre: string;
+    unidad_label: string;
+    solicitudes: number;
+    cantidad: string;
+    dado_de_baja: boolean;
+};
 
 type Solicitud = {
     id: number;
@@ -44,9 +80,40 @@ type Solicitud = {
 
 type Props = {
     metricas: Metricas;
+    mes: Mes;
     serie_solicitudes: Dia[];
+    proximos_eventos: Evento[];
+    mas_pedidos: MasPedido[];
     ultimas_solicitudes: Solicitud[];
 };
+
+/** `45 min`, `3 h 20 min`, `2 d 4 h`: lo justo para leer de un vistazo. */
+function duracion(minutos: number): string {
+    if (minutos < 60) {
+        return `${minutos} min`;
+    }
+
+    const horas = Math.floor(minutos / 60);
+
+    if (horas < 24) {
+        const resto = minutos % 60;
+
+        return resto ? `${horas} h ${resto} min` : `${horas} h`;
+    }
+
+    const dias = Math.floor(horas / 24);
+    const resto = horas % 24;
+
+    return resto ? `${dias} d ${resto} h` : `${dias} d`;
+}
+
+function cuando(dias: number): string {
+    if (dias === 0) {
+        return 'Hoy';
+    }
+
+    return dias === 1 ? 'Mañana' : `En ${dias} días`;
+}
 
 /**
  * Tarjeta grande de la fila de arriba: lo que está esperando una respuesta.
@@ -60,7 +127,7 @@ function Pendiente({
 }: {
     label: string;
     valor: number;
-    detalle: string;
+    detalle: React.ReactNode;
     href?: string;
 }) {
     const hayTrabajo = valor > 0;
@@ -80,7 +147,7 @@ function Pendiente({
             </p>
             <p className="mt-3 text-sm text-texto-medio">{detalle}</p>
             {href && (
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-texto-medio transition-colors group-hover:text-bordo">
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-medium text-texto-medio transition-colors group-hover:text-bordo">
                     Ver
                     <ArrowRight
                         className="size-3.5 transition-transform duration-200 ease-suave group-hover:translate-x-0.5"
@@ -111,15 +178,23 @@ function Dato({
     label,
     valor,
     href,
+    alerta = false,
 }: {
     label: string;
     valor: number;
     href?: string;
+    /** Pinta el número en bordó si hay algo para resolver. */
+    alerta?: boolean;
 }) {
     const contenido = (
         <>
             <dt className="text-sm text-texto-medio">{label}</dt>
-            <dd className="mt-1.5 font-mono text-2xl text-texto tabular-nums">
+            <dd
+                className={cn(
+                    'mt-1.5 font-mono text-2xl tabular-nums',
+                    alerta && valor > 0 ? 'text-bordo' : 'text-texto',
+                )}
+            >
                 {valor}
             </dd>
         </>
@@ -134,6 +209,99 @@ function Dato({
         </Link>
     ) : (
         <div className="border-t border-borde pt-4">{contenido}</div>
+    );
+}
+
+/** Tarjeta de sección de la parte media del tablero. */
+function Panel({
+    titulo,
+    bajada,
+    children,
+    className,
+}: {
+    titulo: string;
+    bajada: string;
+    children: React.ReactNode;
+    className?: string;
+}) {
+    return (
+        <section
+            className={cn(
+                'flex flex-col rounded-xl bg-papel p-6 shadow-xs ring-1 ring-borde',
+                className,
+            )}
+        >
+            <h2 className="font-display text-2xl text-texto">{titulo}</h2>
+            <p className="mt-1 text-sm text-texto-medio">{bajada}</p>
+            {children}
+        </section>
+    );
+}
+
+/** Lo que va del mes, en filas etiqueta / número. */
+function EsteMes({ mes }: { mes: Mes }) {
+    const diferencia = mes.solicitudes - mes.solicitudes_mes_anterior;
+
+    const comparacion =
+        diferencia === 0
+            ? `Igual que el mes pasado (${mes.solicitudes_mes_anterior}).`
+            : `${diferencia > 0 ? '+' : '−'}${Math.abs(diferencia)} contra el mes pasado (${mes.solicitudes_mes_anterior}).`;
+
+    const filas: { label: string; valor: string; nota: string }[] = [
+        {
+            label: 'Solicitudes',
+            valor: String(mes.solicitudes),
+            nota:
+                mes.mayoristas > 0
+                    ? `${comparacion} ${mes.mayoristas} mayorista${mes.mayoristas === 1 ? '' : 's'}.`
+                    : comparacion,
+        },
+        {
+            label: 'Monto cotizado',
+            valor: money(mes.monto_enviado),
+            nota: `${mes.cotizaciones_enviadas} cotizaci${mes.cotizaciones_enviadas === 1 ? 'ón enviada' : 'ones enviadas'}.`,
+        },
+        {
+            label: 'Ticket promedio',
+            valor: mes.ticket_promedio ? money(mes.ticket_promedio) : '—',
+            nota: 'Total promedio de cada cotización enviada.',
+        },
+        {
+            label: 'Tiempo de respuesta',
+            valor:
+                mes.respuesta_minutos === null
+                    ? '—'
+                    : duracion(mes.respuesta_minutos),
+            nota: 'Promedio desde que entra la solicitud hasta que sale la cotización.',
+        },
+    ];
+
+    return (
+        <Panel
+            titulo="En lo que va del mes"
+            bajada="Comparado con el mismo tramo del mes pasado."
+        >
+            <dl className="mt-6 grid gap-5">
+                {filas.map((fila) => (
+                    <div
+                        key={fila.label}
+                        className="border-t border-borde pt-4 first:border-t-0 first:pt-0"
+                    >
+                        <div className="flex items-baseline justify-between gap-3">
+                            <dt className="text-sm text-texto-medio">
+                                {fila.label}
+                            </dt>
+                            <dd className="font-mono text-xl text-texto tabular-nums">
+                                {fila.valor}
+                            </dd>
+                        </div>
+                        <p className="mt-1 text-xs text-texto-suave">
+                            {fila.nota}
+                        </p>
+                    </div>
+                ))}
+            </dl>
+        </Panel>
     );
 }
 
@@ -274,23 +442,162 @@ function Actividad({ serie }: { serie: Dia[] }) {
     );
 }
 
+/** Eventos con fecha en las próximas dos semanas, el más cercano arriba. */
+function ProximosEventos({ eventos }: { eventos: Evento[] }) {
+    return (
+        <Panel
+            titulo="Próximos eventos"
+            bajada="Solicitudes con fecha en las próximas dos semanas."
+        >
+            {eventos.length === 0 ? (
+                <p className="mt-6 flex items-center gap-2 border-t border-borde pt-5 text-sm text-texto-medio">
+                    <CalendarDays
+                        className="size-4 shrink-0 text-texto-suave"
+                        aria-hidden="true"
+                    />
+                    No hay eventos agendados en estos catorce días.
+                </p>
+            ) : (
+                <ul className="mt-5 divide-y divide-borde">
+                    {eventos.map((e) => (
+                        <li
+                            key={e.id}
+                            className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                        >
+                            <div className="min-w-0">
+                                <p
+                                    className={cn(
+                                        'font-mono text-[11px] tracking-[0.12em] uppercase',
+                                        e.dias <= 2
+                                            ? 'text-bordo'
+                                            : 'text-texto-suave',
+                                    )}
+                                >
+                                    {cuando(e.dias)} ·{' '}
+                                    {dayMonth(e.fecha_evento)}
+                                </p>
+                                <Link
+                                    href={`/admin/cotizaciones/${e.id}`}
+                                    className="mt-0.5 block truncate font-medium text-texto underline-offset-4 hover:text-bordo hover:underline"
+                                >
+                                    {e.nombre}
+                                </Link>
+                                <p className="text-xs text-texto-medio">
+                                    {e.tipo_label}
+                                    {e.total !== null && (
+                                        <>
+                                            {' · '}
+                                            <span className="font-mono">
+                                                {money(e.total)}
+                                            </span>
+                                        </>
+                                    )}
+                                </p>
+                            </div>
+                            <StatusBadge
+                                domain="quoteRequest"
+                                estado={e.estado}
+                            />
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </Panel>
+    );
+}
+
+/** Ranking de productos por cantidad de solicitudes en que aparecen. */
+function MasPedidos({ productos }: { productos: MasPedido[] }) {
+    const maximo = Math.max(...productos.map((p) => p.solicitudes), 1);
+
+    return (
+        <Panel
+            titulo="Lo más pedido"
+            bajada="Últimos 30 días, por cantidad de solicitudes."
+        >
+            {productos.length === 0 ? (
+                <p className="mt-6 flex items-center gap-2 border-t border-borde pt-5 text-sm text-texto-medio">
+                    <Wheat
+                        className="size-4 shrink-0 text-texto-suave"
+                        aria-hidden="true"
+                    />
+                    Todavía no hay pedidos en este período.
+                </p>
+            ) : (
+                <ol className="mt-5 grid gap-4">
+                    {productos.map((p) => (
+                        <li key={p.id}>
+                            <div className="flex items-baseline justify-between gap-3 text-sm">
+                                <span className="min-w-0 truncate font-medium text-texto">
+                                    {p.nombre}
+                                    {p.dado_de_baja && (
+                                        <span className="ml-2 text-xs font-normal text-texto-suave">
+                                            (dado de baja)
+                                        </span>
+                                    )}
+                                </span>
+                                <span className="shrink-0 font-mono text-texto tabular-nums">
+                                    {p.solicitudes}
+                                </span>
+                            </div>
+                            <div
+                                className="mt-1.5 h-1.5 rounded-full bg-crema"
+                                aria-hidden="true"
+                            >
+                                <div
+                                    className="h-full rounded-full bg-dorado-hover"
+                                    style={{
+                                        width: `${Math.round((p.solicitudes / maximo) * 100)}%`,
+                                    }}
+                                />
+                            </div>
+                            <p className="mt-1 text-xs text-texto-suave">
+                                Total pedido: {quantity(p.cantidad)} ·{' '}
+                                {p.unidad_label}
+                            </p>
+                        </li>
+                    ))}
+                </ol>
+            )}
+        </Panel>
+    );
+}
+
 export default function AdminDashboard({
     metricas: m,
+    mes,
     serie_solicitudes,
+    proximos_eventos,
+    mas_pedidos,
     ultimas_solicitudes,
 }: Props) {
     return (
         <AdminLayout
             eyebrow="Administración"
             title="Dashboard"
-            description="Qué está esperando una respuesta de la panadería, y cómo viene la semana."
+            description="Qué está esperando una respuesta de la panadería, y cómo viene el mes."
         >
             <section aria-label="Pendientes">
                 <div className="grid gap-5 sm:grid-cols-3">
                     <Pendiente
                         label="Solicitudes pendientes"
                         valor={m.solicitudes_pendientes}
-                        detalle="Entraron por el sitio y todavía no se respondieron."
+                        detalle={
+                            m.solicitudes_demoradas > 0 ? (
+                                <>
+                                    <span className="font-medium text-bordo">
+                                        {m.solicitudes_demoradas}{' '}
+                                        {m.solicitudes_demoradas === 1
+                                            ? 'lleva'
+                                            : 'llevan'}{' '}
+                                        más de 2 días
+                                    </span>{' '}
+                                    sin respuesta.
+                                </>
+                            ) : (
+                                'Entraron por el sitio y todavía no se respondieron.'
+                            )
+                        }
                         href="/admin/cotizaciones?estado=pendientes"
                     />
                     <Pendiente
@@ -307,11 +614,23 @@ export default function AdminDashboard({
                 </div>
             </section>
 
-            <section aria-label="Actividad" className="mt-8">
+            <section
+                aria-label="Actividad"
+                className="mt-8 grid gap-5 lg:grid-cols-[1.5fr_1fr]"
+            >
                 <Actividad serie={serie_solicitudes} />
+                <EsteMes mes={mes} />
             </section>
 
-            <section aria-label="Catálogo y comercios" className="mt-12">
+            <section
+                aria-label="Eventos y productos"
+                className="mt-5 grid gap-5 lg:grid-cols-2"
+            >
+                <ProximosEventos eventos={proximos_eventos} />
+                <MasPedidos productos={mas_pedidos} />
+            </section>
+
+            <section aria-label="Catálogo" className="mt-12">
                 <h2 className="font-mono text-[11px] tracking-[0.2em] text-texto-suave uppercase">
                     El resto del sistema
                 </h2>
@@ -327,13 +646,15 @@ export default function AdminDashboard({
                         href="/admin/productos?estado=activo"
                     />
                     <Dato
+                        label="Productos sin foto"
+                        valor={m.productos_sin_foto}
+                        href="/admin/productos"
+                        alerta
+                    />
+                    <Dato
                         label="Categorías activas"
                         valor={m.categorias_activas}
                         href="/admin/categorias"
-                    />
-                    <Dato
-                        label="Comercios activos"
-                        valor={m.comercios_activos}
                     />
                 </dl>
             </section>
