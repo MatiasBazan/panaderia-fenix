@@ -33,6 +33,11 @@ class UserSeeder extends Seeder
             ]);
         }
 
+        // Los comercios de ejemplo son para desarrollo: en prod no se cargan.
+        if (app()->isProduction()) {
+            return;
+        }
+
         Business::updateOrCreate(
             ['cuit' => '30-71234567-4'],
             [

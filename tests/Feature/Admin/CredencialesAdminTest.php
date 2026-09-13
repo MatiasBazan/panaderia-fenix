@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Business;
 use App\Models\User;
 use Database\Seeders\UserSeeder;
 use Illuminate\Support\Facades\DB;
@@ -97,6 +98,15 @@ it('crea el admin si todavía no hay ninguno', function () {
 
     expect($admin->role)->toBe(UserRole::Admin)
         ->and(Hash::check('clave-nueva-larga-2026', $admin->password))->toBeTrue();
+});
+
+it('en producción el seeder no carga los comercios de ejemplo', function () {
+    app()->detectEnvironment(fn () => 'production');
+
+    // Directo y no con `db:seed`, que en producción frena a pedir confirmación.
+    app(UserSeeder::class)->run();
+
+    expect(Business::query()->count())->toBe(0);
 });
 
 it('re-seedear no le pisa la clave al admin ni crea otro', function () {
