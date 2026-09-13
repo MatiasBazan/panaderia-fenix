@@ -41,14 +41,7 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
-        );
+        // Pedido del cliente: la única regla de la clave es tener 8 caracteres o más.
+        Password::defaults(fn (): Password => Password::min(8));
     }
 }

@@ -22,6 +22,32 @@ it('cambia el email y la clave del admin', function () {
         ->and($admin->must_change_password)->toBeFalse();
 });
 
+it('en producción acepta cualquier clave de 8 caracteres', function () {
+    app()->detectEnvironment(fn () => 'production');
+    $admin = User::factory()->admin()->create();
+
+    $this->artisan('fenix:admin')
+        ->expectsQuestion('Email para entrar', $admin->email)
+        ->expectsQuestion('Clave nueva', 'abcdefgh')
+        ->expectsQuestion('Repetí la clave', 'abcdefgh')
+        ->assertSuccessful();
+
+    expect(Hash::check('abcdefgh', $admin->fresh()->password))->toBeTrue();
+});
+
+it('rechaza claves de menos de 8 caracteres', function () {
+    $admin = User::factory()->admin()->create();
+    $hashAnterior = $admin->password;
+
+    $this->artisan('fenix:admin')
+        ->expectsQuestion('Email para entrar', $admin->email)
+        ->expectsQuestion('Clave nueva', 'abcdefg')
+        ->expectsQuestion('Repetí la clave', 'abcdefg')
+        ->assertFailed();
+
+    expect($admin->fresh()->password)->toBe($hashAnterior);
+});
+
 it('no cambia nada si las claves no coinciden', function () {
     $admin = User::factory()->admin()->create(['email' => 'viejo@fenix.test']);
     $hashAnterior = $admin->password;
