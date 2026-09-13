@@ -108,6 +108,7 @@ export default function CotizacionShow({
     whatsapp_cliente,
 }: Props) {
     const [confirmarEnvio, setConfirmarEnvio] = useState(false);
+    const [confirmarBorrado, setConfirmarBorrado] = useState(false);
 
     const cambiarEstado = (estado: string) => {
         router.patch(
@@ -189,6 +190,15 @@ export default function CotizacionShow({
                                 }))}
                                 onChange={(e) => cambiarEstado(e.target.value)}
                             />
+                            <Button
+                                className="mt-3"
+                                variant="quiet"
+                                size="sm"
+                                icon={<Trash2 className="size-4" />}
+                                onClick={() => setConfirmarBorrado(true)}
+                            >
+                                Eliminar solicitud
+                            </Button>
                         </div>
                     </section>
 
@@ -311,6 +321,42 @@ export default function CotizacionShow({
                     }
                 />
             )}
+
+            <Modal
+                open={confirmarBorrado}
+                onClose={() => setConfirmarBorrado(false)}
+                title="Eliminar la solicitud"
+                description={
+                    cotizacion
+                        ? `Se borra la solicitud de ${solicitud.nombre} y la cotización ${cotizacion.numero}. No se puede deshacer.`
+                        : `Se borra la solicitud de ${solicitud.nombre}. No se puede deshacer.`
+                }
+                footer={
+                    <>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setConfirmarBorrado(false)}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            icon={<Trash2 className="size-4" />}
+                            onClick={() => {
+                                router.delete(
+                                    `/admin/cotizaciones/${solicitud.id}`,
+                                    {
+                                        onFinish: () =>
+                                            setConfirmarBorrado(false),
+                                    },
+                                );
+                            }}
+                        >
+                            Eliminar
+                        </Button>
+                    </>
+                }
+            />
         </AdminLayout>
     );
 }

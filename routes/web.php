@@ -87,6 +87,8 @@ Route::middleware(['auth', 'role:admin', 'password.changed'])
             ->name('cotizaciones.index');
         Route::get('cotizaciones/{quoteRequest}', [AdminQuoteRequestController::class, 'show'])
             ->name('cotizaciones.show');
+        Route::delete('cotizaciones/{quoteRequest}', [AdminQuoteRequestController::class, 'destroy'])
+            ->name('cotizaciones.destroy');
         Route::patch('cotizaciones/{quoteRequest}/estado', [AdminQuoteRequestController::class, 'updateEstado'])
             ->name('cotizaciones.estado');
         Route::post('cotizaciones/{quoteRequest}/generar', [QuoteController::class, 'store'])

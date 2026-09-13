@@ -22,6 +22,12 @@ class QuoteRequestPolicy
         return $user->isAdmin();
     }
 
+    /** Borrado definitivo, junto con su cotización: pensado para solicitudes de prueba o spam. */
+    public function delete(User $user, QuoteRequest $quoteRequest): bool
+    {
+        return $user->isAdmin();
+    }
+
     /** Una solicitud tiene una sola cotización: si ya existe, se edita esa. */
     public function generateQuote(User $user, QuoteRequest $quoteRequest): bool
     {

@@ -4,6 +4,7 @@ use App\Enums\QuoteEstado;
 use App\Enums\QuoteRequestEstado;
 use App\Models\Product;
 use App\Models\Quote;
+use App\Models\QuoteItem;
 use App\Models\QuoteRequest;
 use App\Models\QuoteRequestItem;
 use App\Models\User;
@@ -243,4 +244,42 @@ it('cambia el estado de una solicitud a mano pero no a cotizada', function () {
     $this->actingAs($this->admin)
         ->patch("/admin/cotizaciones/{$solicitud->id}/estado", ['estado' => 'cotizada'])
         ->assertSessionHasErrors('estado');
+});
+
+it('elimina la solicitud junto con su cotización y los ítems de ambas', function () {
+    $solicitud = solicitudConItems();
+    $this->actingAs($this->admin)->post("/admin/cotizaciones/{$solicitud->id}/generar");
+    $quote = Quote::query()->firstOrFail();
+    $this->actingAs($this->admin)->post("/admin/cotizaciones/{$quote->id}/enviar");
+
+    $this->actingAs($this->admin)
+        ->delete("/admin/cotizaciones/{$solicitud->id}")
+        ->assertRedirect('/admin/cotizaciones')
+        ->assertSessionHas('exito');
+
+    expect(QuoteRequest::query()->count())->toBe(0)
+        ->and(QuoteRequestItem::query()->count())->toBe(0)
+        ->and(Quote::query()->count())->toBe(0)
+        ->and(QuoteItem::query()->count())->toBe(0)
+        // Los productos no se tocan.
+        ->and(Product::query()->count())->toBe(2);
+});
+
+it('elimina una solicitud que todavía no tiene cotización', function () {
+    $solicitud = solicitudConItems();
+
+    $this->actingAs($this->admin)
+        ->delete("/admin/cotizaciones/{$solicitud->id}")
+        ->assertRedirect('/admin/cotizaciones');
+
+    expect(QuoteRequest::query()->count())->toBe(0);
+});
+
+it('no deja eliminar solicitudes sin sesión iniciada', function () {
+    $solicitud = QuoteRequest::factory()->create();
+
+    $this->delete("/admin/cotizaciones/{$solicitud->id}")
+        ->assertRedirect('/login');
+
+    expect($solicitud->fresh())->not->toBeNull();
 });

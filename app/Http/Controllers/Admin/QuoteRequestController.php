@@ -11,6 +11,7 @@ use App\Models\QuoteRequest;
 use App\Models\QuoteRequestItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -140,6 +141,22 @@ class QuoteRequestController extends Controller
         $quoteRequest->update(['estado' => $request->validated('estado')]);
 
         return back()->with('exito', 'Estado de la solicitud actualizado.');
+    }
+
+    public function destroy(QuoteRequest $quoteRequest): RedirectResponse
+    {
+        Gate::authorize('delete', $quoteRequest);
+
+        // Borrado físico. La FK de `quotes` es restrictiva, así que la cotización
+        // se borra primero; los ítems de ambas caen por cascada.
+        DB::transaction(function () use ($quoteRequest): void {
+            $quoteRequest->quote?->delete();
+            $quoteRequest->delete();
+        });
+
+        return redirect()
+            ->route('admin.cotizaciones.index')
+            ->with('exito', "Solicitud de {$quoteRequest->nombre} eliminada.");
     }
 
     /**
