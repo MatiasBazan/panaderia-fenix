@@ -7,6 +7,8 @@ import {
     Checkbox,
     Input,
     Modal,
+    StackedField,
+    StackedRow,
     Table,
     TBody,
     TD,
@@ -93,6 +95,44 @@ export default function CategoriasIndex({ categorias }: Props) {
         });
     };
 
+    // Tabla y tarjetas muestran lo mismo: estas piezas no se escriben dos veces.
+    const productosDe = (c: Categoria) => (
+        <>
+            {c.productos_activos_count}
+            <span className="text-texto-suave">
+                {' / '}
+                {c.productos_count}
+            </span>
+        </>
+    );
+
+    const accionesDe = (c: Categoria) => (
+        <div className="flex justify-end gap-1">
+            <Button
+                variant="quiet"
+                size="sm"
+                icon={<Pencil className="size-4" />}
+                onClick={() => abrirEdicion(c)}
+            >
+                Editar
+            </Button>
+            <Button
+                variant="quiet"
+                size="sm"
+                icon={<Trash2 className="size-4" />}
+                disabled={c.productos_count > 0}
+                title={
+                    c.productos_count > 0
+                        ? 'No se puede eliminar: tiene productos asociados.'
+                        : undefined
+                }
+                onClick={() => setAEliminar(c)}
+            >
+                <span className="sr-only">Eliminar</span>
+            </Button>
+        </div>
+    );
+
     return (
         <AdminLayout
             eyebrow="Catálogo"
@@ -119,75 +159,84 @@ export default function CategoriasIndex({ categorias }: Props) {
                     }
                 />
             ) : (
-                <Table>
-                    <THead>
-                        <TR>
-                            <TH numeric>Orden</TH>
-                            <TH>Nombre</TH>
-                            <TH>Identificador</TH>
-                            <TH numeric>Productos</TH>
-                            <TH>Estado</TH>
-                            <TH>
-                                <span className="sr-only">Acciones</span>
-                            </TH>
-                        </TR>
-                    </THead>
-                    <TBody>
+                <>
+                    <ul className="grid gap-3 sm:hidden">
                         {categorias.map((c) => (
-                            <TR key={c.id}>
-                                <TD numeric className="text-texto-medio">
-                                    {c.orden}
-                                </TD>
-                                <TD className="font-medium">{c.nombre}</TD>
-                                <TD className="font-mono text-xs text-texto-medio">
-                                    {c.slug}
-                                </TD>
-                                <TD numeric>
-                                    {c.productos_activos_count}
-                                    <span className="text-texto-suave">
-                                        {' / '}
-                                        {c.productos_count}
-                                    </span>
-                                </TD>
-                                <TD>
-                                    {c.activo ? (
-                                        <Badge tone="exito">Activa</Badge>
-                                    ) : (
-                                        <Badge tone="neutro">Oculta</Badge>
-                                    )}
-                                </TD>
-                                <TD>
-                                    <div className="flex justify-end gap-1">
-                                        <Button
-                                            variant="quiet"
-                                            size="sm"
-                                            icon={<Pencil className="size-4" />}
-                                            onClick={() => abrirEdicion(c)}
-                                        >
-                                            Editar
-                                        </Button>
-                                        <Button
-                                            variant="quiet"
-                                            size="sm"
-                                            icon={<Trash2 className="size-4" />}
-                                            disabled={c.productos_count > 0}
-                                            title={
-                                                c.productos_count > 0
-                                                    ? 'No se puede eliminar: tiene productos asociados.'
-                                                    : undefined
-                                            }
-                                            onClick={() => setAEliminar(c)}
-                                        >
-                                            <span className="sr-only">
-                                                Eliminar
-                                            </span>
-                                        </Button>
+                            <li key={c.id}>
+                                <StackedRow>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <p className="min-w-0 font-medium text-texto">
+                                            {c.nombre}
+                                        </p>
+                                        {c.activo ? (
+                                            <Badge tone="exito">Activa</Badge>
+                                        ) : (
+                                            <Badge tone="neutro">Oculta</Badge>
+                                        )}
                                     </div>
-                                </TD>
-                            </TR>
+                                    <div className="mt-3 border-t border-borde pt-2">
+                                        <StackedField
+                                            label="Orden"
+                                            value={c.orden}
+                                            numeric
+                                        />
+                                        <StackedField
+                                            label="Identificador"
+                                            value={
+                                                <span className="font-mono text-xs text-texto-medio">
+                                                    {c.slug}
+                                                </span>
+                                            }
+                                        />
+                                        <StackedField
+                                            label="Productos"
+                                            value={productosDe(c)}
+                                            numeric
+                                        />
+                                    </div>
+                                    <div className="mt-2">{accionesDe(c)}</div>
+                                </StackedRow>
+                            </li>
                         ))}
-                    </TBody>
-                </Table>
+                    </ul>
+
+                    <Table containerClassName="hidden sm:block">
+                        <THead>
+                            <TR>
+                                <TH numeric>Orden</TH>
+                                <TH>Nombre</TH>
+                                <TH>Identificador</TH>
+                                <TH numeric>Productos</TH>
+                                <TH>Estado</TH>
+                                <TH>
+                                    <span className="sr-only">Acciones</span>
+                                </TH>
+                            </TR>
+                        </THead>
+                        <TBody>
+                            {categorias.map((c) => (
+                                <TR key={c.id}>
+                                    <TD numeric className="text-texto-medio">
+                                        {c.orden}
+                                    </TD>
+                                    <TD className="font-medium">{c.nombre}</TD>
+                                    <TD className="font-mono text-xs text-texto-medio">
+                                        {c.slug}
+                                    </TD>
+                                    <TD numeric>{productosDe(c)}</TD>
+                                    <TD>
+                                        {c.activo ? (
+                                            <Badge tone="exito">Activa</Badge>
+                                        ) : (
+                                            <Badge tone="neutro">Oculta</Badge>
+                                        )}
+                                    </TD>
+                                    <TD>{accionesDe(c)}</TD>
+                                </TR>
+                            ))}
+                        </TBody>
+                    </Table>
+                </>
             )}
 
             <Modal

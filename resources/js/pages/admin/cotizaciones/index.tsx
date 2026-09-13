@@ -6,6 +6,8 @@ import {
     Pagination,
     SearchInput,
     Select,
+    StackedField,
+    StackedRow,
     StatusBadge,
     Table,
     TBody,
@@ -83,6 +85,50 @@ export default function CotizacionesIndex({
         }
     };
 
+    // Tabla y tarjetas muestran lo mismo: estas piezas no se escriben dos veces.
+    const cotizacionDe = (s: Solicitud) =>
+        s.cotizacion ? (
+            <span className="inline-flex items-center gap-2">
+                <span className="font-mono text-xs text-texto-medio">
+                    {s.cotizacion.numero}
+                </span>
+                <StatusBadge domain="quote" estado={s.cotizacion.estado} />
+            </span>
+        ) : (
+            <Badge tone="neutro">Sin cotizar</Badge>
+        );
+
+    const accionesDe = (s: Solicitud) => (
+        <div className="flex items-center gap-1">
+            {s.whatsapp_cliente && (
+                <Button
+                    variant="quiet"
+                    size="sm"
+                    onClick={() => responder(s)}
+                    title={
+                        s.cotizacion?.editable
+                            ? `Responder a ${s.nombre} por WhatsApp y dar la cotización por enviada`
+                            : `Responder a ${s.nombre} por WhatsApp`
+                    }
+                    icon={
+                        <MessageCircle className="size-4" aria-hidden="true" />
+                    }
+                >
+                    Responder
+                </Button>
+            )}
+            <Link href={`/admin/cotizaciones/${s.id}`}>
+                <Button
+                    variant="quiet"
+                    size="sm"
+                    aria-label={`Ver la solicitud de ${s.nombre}`}
+                >
+                    Ver
+                </Button>
+            </Link>
+        </div>
+    );
+
     return (
         <AdminLayout
             eyebrow="Bandeja"
@@ -118,7 +164,72 @@ export default function CotizacionesIndex({
                 />
             ) : (
                 <div className="grid gap-4">
-                    <Table>
+                    <ul className="grid gap-3 sm:hidden">
+                        {solicitudes.data.map((s) => (
+                            <li key={s.id}>
+                                <StackedRow>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <Link
+                                                    href={`/admin/cotizaciones/${s.id}`}
+                                                    className="font-medium text-texto underline-offset-4 hover:text-bordo hover:underline"
+                                                >
+                                                    {s.nombre}
+                                                </Link>
+                                                {s.tipo === 'mayorista' && (
+                                                    <Badge tone="info">
+                                                        {s.tipo_label}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-texto-suave">
+                                                {s.localidad ?? s.telefono}
+                                            </p>
+                                        </div>
+                                        <StatusBadge
+                                            domain="quoteRequest"
+                                            estado={s.estado}
+                                        />
+                                    </div>
+                                    <div className="mt-3 border-t border-borde pt-2">
+                                        <StackedField
+                                            label="Evento"
+                                            value={shortDate(s.fecha_evento)}
+                                        />
+                                        <StackedField
+                                            label="Ítems"
+                                            value={s.items_count}
+                                            numeric
+                                        />
+                                        <StackedField
+                                            label="Cotización"
+                                            value={cotizacionDe(s)}
+                                        />
+                                        <StackedField
+                                            label="Total"
+                                            value={
+                                                s.cotizacion
+                                                    ? money(s.cotizacion.total)
+                                                    : '—'
+                                            }
+                                            numeric
+                                        />
+                                        <StackedField
+                                            label="Recibida"
+                                            value={shortDate(s.creada_el)}
+                                            numeric
+                                        />
+                                    </div>
+                                    <div className="mt-2 flex justify-end">
+                                        {accionesDe(s)}
+                                    </div>
+                                </StackedRow>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <Table containerClassName="hidden sm:block">
                         <THead>
                             <TR>
                                 <TH>Cliente</TH>
@@ -162,23 +273,7 @@ export default function CotizacionesIndex({
                                             estado={s.estado}
                                         />
                                     </TD>
-                                    <TD>
-                                        {s.cotizacion ? (
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-mono text-xs text-texto-medio">
-                                                    {s.cotizacion.numero}
-                                                </span>
-                                                <StatusBadge
-                                                    domain="quote"
-                                                    estado={s.cotizacion.estado}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <Badge tone="neutro">
-                                                Sin cotizar
-                                            </Badge>
-                                        )}
-                                    </TD>
+                                    <TD>{cotizacionDe(s)}</TD>
                                     <TD numeric>
                                         {s.cotizacion ? (
                                             <span className="font-mono text-texto">
@@ -193,43 +288,7 @@ export default function CotizacionesIndex({
                                     <TD numeric className="text-texto-medio">
                                         {shortDate(s.creada_el)}
                                     </TD>
-                                    <TD>
-                                        <div className="flex items-center gap-1">
-                                            {s.whatsapp_cliente && (
-                                                <Button
-                                                    variant="quiet"
-                                                    size="sm"
-                                                    onClick={() => responder(s)}
-                                                    title={
-                                                        s.cotizacion?.editable
-                                                            ? `Responder a ${s.nombre} por WhatsApp y dar la cotización por enviada`
-                                                            : `Responder a ${s.nombre} por WhatsApp`
-                                                    }
-                                                    icon={
-                                                        <MessageCircle
-                                                            className="size-4"
-                                                            aria-hidden="true"
-                                                        />
-                                                    }
-                                                >
-                                                    <span className="sr-only sm:not-sr-only">
-                                                        Responder
-                                                    </span>
-                                                </Button>
-                                            )}
-                                            <Link
-                                                href={`/admin/cotizaciones/${s.id}`}
-                                            >
-                                                <Button
-                                                    variant="quiet"
-                                                    size="sm"
-                                                    aria-label={`Ver la solicitud de ${s.nombre}`}
-                                                >
-                                                    Ver
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </TD>
+                                    <TD>{accionesDe(s)}</TD>
                                 </TR>
                             ))}
                         </TBody>

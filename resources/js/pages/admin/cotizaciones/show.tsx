@@ -16,6 +16,8 @@ import {
     Input,
     Modal,
     Select,
+    StackedField,
+    StackedRow,
     StatusBadge,
     Table,
     TBody,
@@ -624,7 +626,36 @@ function CotizacionPanel({
                 </form>
             ) : (
                 <div className="mt-5">
-                    <Table>
+                    <ul className="grid gap-2 sm:hidden">
+                        {cotizacion.items.map((it) => (
+                            <li key={it.id}>
+                                <StackedRow>
+                                    <p className="text-sm text-texto">
+                                        {it.descripcion}
+                                    </p>
+                                    <div className="mt-2 border-t border-borde pt-2">
+                                        <StackedField
+                                            label="Cant."
+                                            value={quantity(it.cantidad)}
+                                            numeric
+                                        />
+                                        <StackedField
+                                            label="Precio"
+                                            value={money(it.precio_unitario)}
+                                            numeric
+                                        />
+                                        <StackedField
+                                            label="Subtotal"
+                                            value={money(it.subtotal)}
+                                            numeric
+                                        />
+                                    </div>
+                                </StackedRow>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <Table containerClassName="hidden sm:block">
                         <THead>
                             <TR>
                                 <TH>Descripción</TH>

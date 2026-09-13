@@ -8,6 +8,8 @@ import {
     Pagination,
     SearchInput,
     Select,
+    StackedField,
+    StackedRow,
     Table,
     TBody,
     TD,
@@ -72,6 +74,31 @@ export default function ProductosIndex({
         });
     };
 
+    // Las mismas acciones en la tabla y en las tarjetas de mobile.
+    const accionesDe = (p: Producto) => (
+        <div className="flex justify-end gap-1">
+            <Link href={`/admin/productos/${p.slug}/edit`}>
+                <Button
+                    variant="quiet"
+                    size="sm"
+                    icon={<Pencil className="size-4" />}
+                >
+                    Editar
+                </Button>
+            </Link>
+            {p.activo && (
+                <Button
+                    variant="quiet"
+                    size="sm"
+                    icon={<Trash2 className="size-4" />}
+                    onClick={() => setAEliminar(p)}
+                >
+                    <span className="sr-only">Dar de baja</span>
+                </Button>
+            )}
+        </div>
+    );
+
     return (
         <AdminLayout
             eyebrow="Catálogo"
@@ -126,7 +153,61 @@ export default function ProductosIndex({
                 />
             ) : (
                 <div className="grid gap-4">
-                    <Table>
+                    <ul className="grid gap-3 sm:hidden">
+                        {productos.data.map((p) => (
+                            <li key={p.id}>
+                                <StackedRow>
+                                    <div className="flex items-start gap-3">
+                                        <Thumb
+                                            src={p.imagen_thumb ?? p.imagen}
+                                            className="size-14"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <Link
+                                                href={`/admin/productos/${p.slug}/edit`}
+                                                className="font-medium text-texto underline-offset-4 hover:text-bordo hover:underline"
+                                            >
+                                                {p.nombre}
+                                            </Link>
+                                            <p className="font-mono text-xs text-texto-suave">
+                                                {p.sku}
+                                                {p.destacado && (
+                                                    <span className="ml-2 text-dorado">
+                                                        ★ destacado
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                        {p.activo ? (
+                                            <Badge tone="exito">Activo</Badge>
+                                        ) : (
+                                            <Badge tone="neutro">Baja</Badge>
+                                        )}
+                                    </div>
+                                    <div className="mt-3 border-t border-borde pt-2">
+                                        <StackedField
+                                            label="Categoría"
+                                            value={p.categoria?.nombre ?? '—'}
+                                        />
+                                        <StackedField
+                                            label="Unidad"
+                                            value={
+                                                <UnitBadge unidad={p.unidad} />
+                                            }
+                                        />
+                                        <StackedField
+                                            label="Precio"
+                                            value={money(p.precio_base)}
+                                            numeric
+                                        />
+                                    </div>
+                                    <div className="mt-2">{accionesDe(p)}</div>
+                                </StackedRow>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <Table containerClassName="hidden sm:block">
                         <THead>
                             <TR>
                                 <TH>Producto</TH>
@@ -180,39 +261,7 @@ export default function ProductosIndex({
                                             <Badge tone="neutro">Baja</Badge>
                                         )}
                                     </TD>
-                                    <TD>
-                                        <div className="flex justify-end gap-1">
-                                            <Link
-                                                href={`/admin/productos/${p.slug}/edit`}
-                                            >
-                                                <Button
-                                                    variant="quiet"
-                                                    size="sm"
-                                                    icon={
-                                                        <Pencil className="size-4" />
-                                                    }
-                                                >
-                                                    Editar
-                                                </Button>
-                                            </Link>
-                                            {p.activo && (
-                                                <Button
-                                                    variant="quiet"
-                                                    size="sm"
-                                                    icon={
-                                                        <Trash2 className="size-4" />
-                                                    }
-                                                    onClick={() =>
-                                                        setAEliminar(p)
-                                                    }
-                                                >
-                                                    <span className="sr-only">
-                                                        Dar de baja
-                                                    </span>
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </TD>
+                                    <TD>{accionesDe(p)}</TD>
                                 </TR>
                             ))}
                         </TBody>

@@ -8,11 +8,21 @@ import { cn } from '@/lib/utils';
  */
 export function Table({
     className,
+    containerClassName,
     children,
     ...props
-}: HTMLAttributes<HTMLTableElement> & { children: ReactNode }) {
+}: HTMLAttributes<HTMLTableElement> & {
+    children: ReactNode;
+    /** Clases del contenedor: `hidden sm:block` cuando hay versión apilada para mobile. */
+    containerClassName?: string;
+}) {
     return (
-        <div className="w-full overflow-x-auto rounded-xl bg-papel shadow-xs ring-1 ring-borde">
+        <div
+            className={cn(
+                'w-full overflow-x-auto rounded-xl bg-papel shadow-xs ring-1 ring-borde',
+                containerClassName,
+            )}
+        >
             <table className={cn('w-full border-collapse text-sm', className)} {...props}>
                 {children}
             </table>

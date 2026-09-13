@@ -106,20 +106,22 @@ export default function VariantesEditor({ value, onChange, error }: Props) {
                         </Button>
                     </div>
 
-                    <div className="grid gap-2">
-                        <div className="flex gap-2 text-xs font-medium text-texto-medio">
+                    <div className="grid gap-3 sm:gap-2">
+                        <div className="hidden gap-2 text-xs font-medium text-texto-medio sm:flex">
                             <span className="flex-1">Opción</span>
                             <span className="w-28">Precio ref.</span>
                             <span className="w-9" aria-hidden="true" />
                         </div>
 
+                        {/* En celular el precio baja a su propia línea: los
+                            tres controles en fila no entran en 360px. */}
                         {grupo.opciones.map((opcion, opcionIndice) => (
                             <div
                                 key={opcionIndice}
-                                className="flex items-center gap-2"
+                                className="grid grid-cols-[1fr_auto] items-center gap-2 border-t border-borde pt-3 sm:flex sm:border-0 sm:pt-0"
                             >
                                 <input
-                                    className={cn(inputClass, 'flex-1')}
+                                    className={cn(inputClass, 'min-w-0 flex-1')}
                                     placeholder="Ej. Membrillo"
                                     aria-label="Opción"
                                     value={opcion.label}
@@ -129,23 +131,36 @@ export default function VariantesEditor({ value, onChange, error }: Props) {
                                         })
                                     }
                                 />
-                                <input
-                                    className={cn(inputClass, 'w-28 font-mono')}
-                                    type="number"
-                                    step="0.01"
-                                    min={0}
-                                    placeholder="—"
-                                    aria-label="Precio de referencia (opcional)"
-                                    value={opcion.precio}
-                                    onChange={(e) =>
-                                        setOpcion(grupoIndice, opcionIndice, {
-                                            precio: e.target.value,
-                                        })
-                                    }
-                                />
+                                <label className="row-start-2 flex items-center gap-2 sm:contents">
+                                    <span className="shrink-0 text-xs font-medium text-texto-medio sm:hidden">
+                                        Precio ref.
+                                    </span>
+                                    <input
+                                        className={cn(
+                                            inputClass,
+                                            'min-w-0 flex-1 font-mono sm:w-28 sm:flex-none',
+                                        )}
+                                        type="number"
+                                        step="0.01"
+                                        min={0}
+                                        placeholder="—"
+                                        aria-label="Precio de referencia (opcional)"
+                                        value={opcion.precio}
+                                        onChange={(e) =>
+                                            setOpcion(
+                                                grupoIndice,
+                                                opcionIndice,
+                                                {
+                                                    precio: e.target.value,
+                                                },
+                                            )
+                                        }
+                                    />
+                                </label>
                                 <Button
                                     type="button"
                                     variant="quiet"
+                                    className="col-start-2 row-start-1"
                                     onClick={() =>
                                         quitarOpcion(grupoIndice, opcionIndice)
                                     }

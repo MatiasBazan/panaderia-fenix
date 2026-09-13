@@ -1,7 +1,17 @@
 import { Link } from '@inertiajs/react';
 import { ArrowRight, ClipboardList } from 'lucide-react';
 import { useState } from 'react';
-import { StatusBadge, Table, TBody, TD, TH, THead, TR } from '@/components/ui';
+import {
+    StackedField,
+    StackedRow,
+    StatusBadge,
+    Table,
+    TBody,
+    TD,
+    TH,
+    THead,
+    TR,
+} from '@/components/ui';
 import { EmptyState } from '@/components/ui/states';
 import AdminLayout from '@/layouts/admin-layout';
 import type { QuoteRequestEstadoValue } from '@/lib/estados';
@@ -349,51 +359,100 @@ export default function AdminDashboard({
                             description="Cuando alguien pida una cotización desde el sitio, va a aparecer acá."
                         />
                     ) : (
-                        <Table>
-                            <THead>
-                                <TR>
-                                    <TH>Cliente</TH>
-                                    <TH>Localidad</TH>
-                                    <TH numeric>Ítems</TH>
-                                    <TH>Estado</TH>
-                                    <TH>Cotización</TH>
-                                    <TH numeric>Recibida</TH>
-                                </TR>
-                            </THead>
-                            <TBody>
+                        <>
+                            <ul className="grid gap-3 sm:hidden">
                                 {ultimas_solicitudes.map((s) => (
-                                    <TR key={s.id}>
-                                        <TD>
-                                            <Link
-                                                href={`/admin/cotizaciones/${s.id}`}
-                                                className="font-medium text-texto underline-offset-4 hover:text-bordo hover:underline"
-                                            >
-                                                {s.nombre}
-                                            </Link>
-                                        </TD>
-                                        <TD className="text-texto-medio">
-                                            {s.localidad ?? '—'}
-                                        </TD>
-                                        <TD numeric>{s.items_count}</TD>
-                                        <TD>
-                                            <StatusBadge
-                                                domain="quoteRequest"
-                                                estado={s.estado}
-                                            />
-                                        </TD>
-                                        <TD className="font-mono text-xs text-texto-medio">
-                                            {s.cotizacion_numero ?? '—'}
-                                        </TD>
-                                        <TD
-                                            numeric
-                                            className="text-texto-medio"
-                                        >
-                                            {shortDate(s.creada_el)}
-                                        </TD>
-                                    </TR>
+                                    <li key={s.id}>
+                                        <StackedRow>
+                                            <div className="flex items-start justify-between gap-3">
+                                                <Link
+                                                    href={`/admin/cotizaciones/${s.id}`}
+                                                    className="min-w-0 font-medium text-texto underline-offset-4 hover:text-bordo hover:underline"
+                                                >
+                                                    {s.nombre}
+                                                </Link>
+                                                <StatusBadge
+                                                    domain="quoteRequest"
+                                                    estado={s.estado}
+                                                />
+                                            </div>
+                                            <div className="mt-3 border-t border-borde pt-2">
+                                                <StackedField
+                                                    label="Localidad"
+                                                    value={s.localidad ?? '—'}
+                                                />
+                                                <StackedField
+                                                    label="Ítems"
+                                                    value={s.items_count}
+                                                    numeric
+                                                />
+                                                <StackedField
+                                                    label="Cotización"
+                                                    value={
+                                                        s.cotizacion_numero ??
+                                                        '—'
+                                                    }
+                                                    numeric
+                                                />
+                                                <StackedField
+                                                    label="Recibida"
+                                                    value={shortDate(
+                                                        s.creada_el,
+                                                    )}
+                                                    numeric
+                                                />
+                                            </div>
+                                        </StackedRow>
+                                    </li>
                                 ))}
-                            </TBody>
-                        </Table>
+                            </ul>
+
+                            <Table containerClassName="hidden sm:block">
+                                <THead>
+                                    <TR>
+                                        <TH>Cliente</TH>
+                                        <TH>Localidad</TH>
+                                        <TH numeric>Ítems</TH>
+                                        <TH>Estado</TH>
+                                        <TH>Cotización</TH>
+                                        <TH numeric>Recibida</TH>
+                                    </TR>
+                                </THead>
+                                <TBody>
+                                    {ultimas_solicitudes.map((s) => (
+                                        <TR key={s.id}>
+                                            <TD>
+                                                <Link
+                                                    href={`/admin/cotizaciones/${s.id}`}
+                                                    className="font-medium text-texto underline-offset-4 hover:text-bordo hover:underline"
+                                                >
+                                                    {s.nombre}
+                                                </Link>
+                                            </TD>
+                                            <TD className="text-texto-medio">
+                                                {s.localidad ?? '—'}
+                                            </TD>
+                                            <TD numeric>{s.items_count}</TD>
+                                            <TD>
+                                                <StatusBadge
+                                                    domain="quoteRequest"
+                                                    estado={s.estado}
+                                                />
+                                            </TD>
+                                            <TD className="font-mono text-xs text-texto-medio">
+                                                {s.cotizacion_numero ?? '—'}
+                                            </TD>
+                                            <TD
+                                                numeric
+                                                className="text-texto-medio"
+                                            >
+                                                {shortDate(s.creada_el)}
+                                            </TD>
+                                        </TR>
+                                    ))}
+                                </TBody>
+                            </Table>
+                        </>
                     )}
                 </div>
             </section>
