@@ -19,17 +19,19 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => config('fenix.admin_email')],
-            [
+        // Sólo si todavía no hay admin: re-seedear no le pisa la clave, ni vuelve
+        // a crear la cuenta de fábrica después de cambiarla con `fenix:admin`.
+        if (! User::query()->where('role', UserRole::Admin)->exists()) {
+            User::create([
+                'email' => config('fenix.admin_email'),
                 'name' => 'Administración Fénix',
                 'password' => Hash::make('password'),
                 'role' => UserRole::Admin,
                 'business_id' => null,
                 'must_change_password' => false,
                 'email_verified_at' => now(),
-            ],
-        );
+            ]);
+        }
 
         Business::updateOrCreate(
             ['cuit' => '30-71234567-4'],
