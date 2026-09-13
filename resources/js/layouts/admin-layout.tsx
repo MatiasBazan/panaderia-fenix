@@ -63,7 +63,7 @@ export default function AdminLayout({
                         <Link
                             href="/admin"
                             className="text-carbon transition-opacity hover:opacity-80"
-                            aria-label="Panadería Fénix, panel"
+                            aria-label="Panadería Fenix, panel"
                         >
                             <Logo size={30} />
                         </Link>

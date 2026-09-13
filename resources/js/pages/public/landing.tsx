@@ -254,7 +254,7 @@ export default function Landing({ mostrador, panaderia, fotos, zonas }: Props) {
 
                         <div className="mt-6 grid gap-5 leading-relaxed text-texto-medio">
                             <p>
-                                Fénix abrió el 8 de marzo de 2021 en Leones con
+                                Fenix abrió el 8 de marzo de 2021 en Leones con
                                 una idea simple: llevar el buen sabor artesanal
                                 a cada rinconcito de tu hogar. Es una panadería
                                 familiar, y así seguimos trabajando todos los
@@ -454,7 +454,7 @@ export default function Landing({ mostrador, panaderia, fotos, zonas }: Props) {
                                             <div>
                                                 <p className="font-display text-lg leading-tight text-texto">
                                                     {panaderia.nombre ??
-                                                        'Panadería Fénix'}
+                                                        'Panadería Fenix'}
                                                 </p>
                                                 <p className="text-sm text-texto-medio">
                                                     {panaderia.direccion ??

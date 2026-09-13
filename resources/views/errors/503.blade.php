@@ -21,7 +21,7 @@
         <meta name="theme-color" content="#F7F1E3">
         <meta name="robots" content="noindex">
         <meta http-equiv="refresh" content="30">
-        <title>Volvemos en unos minutos · Panadería Fénix</title>
+        <title>Volvemos en unos minutos · Panadería Fenix</title>
         <link rel="icon" href="/favicon.ico" sizes="any">
         <style>
             :root {
@@ -117,9 +117,9 @@
     </head>
     <body>
         <main class="tarjeta">
-            <img class="logo" src="/img/logo-192.png" alt="Panadería Fénix" width="72" height="72">
+            <img class="logo" src="/img/logo-192.png" alt="Panadería Fenix" width="72" height="72">
 
-            <p class="rotulo">Panadería Fénix · Leones</p>
+            <p class="rotulo">Panadería Fenix · Leones</p>
 
             <h1>Estamos actualizando el sitio</h1>
 

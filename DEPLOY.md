@@ -1,4 +1,4 @@
-# Deploy — Panadería Fénix (Docker, VPS compartido)
+# Deploy — Panadería Fenix (Docker, VPS compartido)
 
 App Laravel + Inertia/React, dockerizada para convivir con `espaciodiamond` y
 `gestion-mabdev` en el mismo VPS. Comparte el **Caddy** de `espaciodiamond`

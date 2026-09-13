@@ -1,7 +1,7 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { ToastProvider } from '@/components/ui/toast';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Panadería Fénix';
+const appName = import.meta.env.VITE_APP_NAME || 'Panadería Fenix';
 
 createInertiaApp({
     title: (title) => (title ? `${title} · ${appName}` : appName),

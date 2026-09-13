@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Deploy de Panadería Fénix en el VPS (update de código dockerizado).
+# Deploy de Panadería Fenix en el VPS (update de código dockerizado).
 # Uso:  ./deploy.sh
 #
 # Trae el último código de main, rebuildea las imágenes, recrea los

@@ -74,7 +74,7 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
                     <Link
                         href="/"
                         className="text-carbon transition-opacity hover:opacity-80"
-                        aria-label="Panadería Fénix, inicio"
+                        aria-label="Panadería Fenix, inicio"
                     >
                         <Logo size={34} />
                     </Link>
@@ -249,7 +249,7 @@ export default function PublicLayout({ children, sinPedido = false }: Props) {
 
                 <div className="relative z-1 border-t border-borde px-4 py-5 sm:px-6">
                     <p className="mx-auto max-w-6xl font-mono text-xs text-texto-suave">
-                        © {new Date().getFullYear()} Panadería Fénix · Leones,
+                        © {new Date().getFullYear()} Panadería Fenix · Leones,
                         Córdoba
                     </p>
                 </div>

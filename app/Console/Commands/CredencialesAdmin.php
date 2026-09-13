@@ -57,7 +57,7 @@ class CredencialesAdmin extends Command
         $admin ??= new User;
 
         $admin->forceFill([
-            'name' => $admin->name ?? 'Administración Fénix',
+            'name' => $admin->name ?? 'Administración Fenix',
             'email' => $datos['email'],
             'password' => $datos['password'],
             'role' => UserRole::Admin,

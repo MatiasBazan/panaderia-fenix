@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
         if (! User::query()->where('role', UserRole::Admin)->exists()) {
             User::create([
                 'email' => config('fenix.admin_email'),
-                'name' => 'Administración Fénix',
+                'name' => 'Administración Fenix',
                 'password' => Hash::make('password'),
                 'role' => UserRole::Admin,
                 'business_id' => null,

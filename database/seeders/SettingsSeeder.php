@@ -23,7 +23,7 @@ class SettingsSeeder extends Seeder
                 'Leones',
             ],
             Settings::DATOS_PANADERIA => [
-                'nombre' => 'Panadería Fénix',
+                'nombre' => 'Panadería Fenix',
                 'direccion' => 'Benvenuto 1380, Leones, Córdoba',
                 'email' => 'hola@panaderiafenix.com.ar',
                 // Se atiende por WhatsApp: cada contacto abre un chat wa.me.

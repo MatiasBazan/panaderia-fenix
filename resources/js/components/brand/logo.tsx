@@ -31,14 +31,14 @@ export default function Logo({
                 height={size}
                 // Con el wordmark al lado, el texto ya nombra la marca: el lector
                 // de pantalla no tiene que oírlo dos veces.
-                alt={withWordmark ? '' : 'Panadería Fénix'}
+                alt={withWordmark ? '' : 'Panadería Fenix'}
                 aria-hidden={withWordmark || undefined}
                 className="shrink-0 object-contain"
                 style={{ width, height: size }}
             />
             {withWordmark && (
                 <span className="font-display text-xl leading-none tracking-tight">
-                    Panadería Fénix
+                    Panadería Fenix
                 </span>
             )}
         </span>

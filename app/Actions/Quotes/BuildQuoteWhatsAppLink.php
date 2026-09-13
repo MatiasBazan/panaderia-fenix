@@ -22,7 +22,7 @@ class BuildQuoteWhatsAppLink
             return null;
         }
 
-        $lineas = ["Hola {$solicitud->nombre}! Te paso la cotización de Panadería Fénix ({$quote->numero}):", ''];
+        $lineas = ["Hola {$solicitud->nombre}! Te paso la cotización de Panadería Fenix ({$quote->numero}):", ''];
 
         foreach ($quote->items as $item) {
             $cantidad = rtrim(rtrim((string) $item->cantidad, '0'), '.');
