@@ -9,7 +9,7 @@
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="{{ config('app.name', 'Panadería Fenix') }}">
         <meta property="og:title" content="{{ config('app.name', 'Panadería Fenix') }}">
-        <meta property="og:description" content="Horneamos todos los días desde 2021. Armá tu pedido y te pasamos los precios dentro de las 24 horas hábiles.">
+        <meta property="og:description" content="Horneamos todos los días desde 2021. Armá tu pedido y te pasamos la cotización en el mismo día.">
         <meta property="og:image" content="{{ url('/img/logo-768.png') }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta name="twitter:card" content="summary_large_image">

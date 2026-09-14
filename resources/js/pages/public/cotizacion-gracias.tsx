@@ -52,8 +52,8 @@ export default function CotizacionGracias({
                             </p>
                         ) : (
                             <p className="mt-4 text-lg text-texto-medio">
-                                La estamos revisando y te respondemos con los
-                                precios a la brevedad.
+                                La estamos revisando y te respondemos en el
+                                mismo día con la cotización.
                             </p>
                         )}
                     </>
@@ -67,7 +67,7 @@ export default function CotizacionGracias({
                             ¡Gracias por tu pedido!
                         </h1>
                         <p className="mt-4 text-lg text-texto-medio">
-                            En las próximas horas te pasamos los precios.
+                            En el mismo día te pasamos la cotización.
                         </p>
                     </>
                 )}

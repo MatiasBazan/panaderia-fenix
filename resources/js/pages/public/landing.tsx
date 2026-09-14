@@ -67,7 +67,7 @@ const construirPasos = (condiciones: Condiciones) => [
     },
     {
         titulo: 'Coordinamos la entrega',
-        texto: `Te respondemos dentro de las 24 horas hábiles con precios. Los pedidos se toman ${condicionesEnFrase(condiciones)}, y ajustamos cantidades y días por WhatsApp.`,
+        texto: `Te respondemos en el mismo día con la cotización. Los pedidos se toman ${condicionesEnFrase(condiciones)}, y ajustamos cantidades y días por WhatsApp.`,
     },
 ];
 
@@ -165,8 +165,8 @@ export default function Landing({ mostrador, panaderia, fotos, zonas }: Props) {
                         </h2>
                         <p className="mt-3 max-w-lg leading-relaxed text-texto-medio">
                             Elegí cantidad y sumalo a tu pedido, sin salir de
-                            acá. Te respondemos con precios dentro de las 24
-                            horas hábiles.
+                            acá. Te respondemos en el mismo día con la
+                            cotización.
                         </p>
                     </div>
                     <Link

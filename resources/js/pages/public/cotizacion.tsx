@@ -154,8 +154,7 @@ export default function Cotizacion({ productos, consultados, sena }: Props) {
                     Tus datos
                 </h1>
                 <p className="mt-3 max-w-lg leading-relaxed text-texto-medio">
-                    Con esto te respondemos con precios dentro de las 24 horas
-                    hábiles.
+                    Con esto te respondemos en el mismo día con la cotización.
                 </p>
 
                 {/* Resumen de lectura: lo editable quedó en el paso anterior. */}
