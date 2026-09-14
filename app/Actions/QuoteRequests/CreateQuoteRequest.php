@@ -23,7 +23,6 @@ class CreateQuoteRequest
                 'nombre' => $datos->nombre,
                 'telefono' => $datos->telefono,
                 'tipo' => $datos->tipo,
-                'localidad' => $datos->localidad,
                 'mensaje' => $datos->mensaje,
                 'fecha_evento' => $datos->fechaEvento,
                 'estado' => QuoteRequestEstado::Nueva,

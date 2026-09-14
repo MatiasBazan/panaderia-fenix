@@ -25,7 +25,7 @@ class QuoteRequestController extends Controller
      * Paso 2: los datos de contacto. La lista ya se revisó en `/carrito`; acá
      * los productos vuelven a resolverse sólo para no enviar uno dado de baja.
      */
-    public function create(Request $request, Settings $settings, ResolveCartProducts $resolver): Response
+    public function create(Request $request, ResolveCartProducts $resolver): Response
     {
         ['consultados' => $consultados, 'productos' => $productos] = $resolver
             ->handle($request->string('items')->toString());
@@ -33,7 +33,6 @@ class QuoteRequestController extends Controller
         return Inertia::render('public/cotizacion', [
             'productos' => PublicProductResource::collection($productos),
             'consultados' => $consultados,
-            'zonas' => $settings->zonasEntrega(),
             'sena' => (int) config('fenix.sena_pedido'),
         ]);
     }
@@ -127,10 +126,6 @@ class QuoteRequestController extends Controller
 
         $lineas[] = '';
         $lineas[] = "Nombre: {$solicitud->nombre}";
-
-        if ($solicitud->localidad !== null && $solicitud->localidad !== '') {
-            $lineas[] = "Localidad: {$solicitud->localidad}";
-        }
 
         if ($solicitud->fecha_evento !== null) {
             $lineas[] = "Fecha: {$solicitud->fecha_evento->format('d/m/Y')}";

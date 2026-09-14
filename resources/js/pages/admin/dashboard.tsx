@@ -70,7 +70,7 @@ type MasPedido = {
 type Solicitud = {
     id: number;
     nombre: string;
-    localidad: string | null;
+    telefono: string;
     items_count: number;
     estado: QuoteRequestEstadoValue;
     estado_label: string;
@@ -699,8 +699,8 @@ export default function AdminDashboard({
                                             </div>
                                             <div className="mt-3 border-t border-borde pt-2">
                                                 <StackedField
-                                                    label="Localidad"
-                                                    value={s.localidad ?? '—'}
+                                                    label="Teléfono"
+                                                    value={s.telefono}
                                                 />
                                                 <StackedField
                                                     label="Ítems"
@@ -732,7 +732,7 @@ export default function AdminDashboard({
                                 <THead>
                                     <TR>
                                         <TH>Cliente</TH>
-                                        <TH>Localidad</TH>
+                                        <TH>Teléfono</TH>
                                         <TH numeric>Ítems</TH>
                                         <TH>Estado</TH>
                                         <TH>Cotización</TH>
@@ -751,7 +751,7 @@ export default function AdminDashboard({
                                                 </Link>
                                             </TD>
                                             <TD className="text-texto-medio">
-                                                {s.localidad ?? '—'}
+                                                {s.telefono}
                                             </TD>
                                             <TD numeric>{s.items_count}</TD>
                                             <TD>

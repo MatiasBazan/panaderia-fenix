@@ -164,9 +164,12 @@ export default function CotizacionShow({
                                     {solicitud.telefono}
                                 </span>
                             </Dato>
-                            <Dato label="Localidad">
-                                {solicitud.localidad ?? '—'}
-                            </Dato>
+                            {/* Ya no se pide; sólo la traen solicitudes viejas. */}
+                            {solicitud.localidad && (
+                                <Dato label="Localidad">
+                                    {solicitud.localidad}
+                                </Dato>
+                            )}
                             <Dato label="Fecha del evento">
                                 {shortDate(solicitud.fecha_evento)}
                             </Dato>

@@ -106,7 +106,7 @@ class DashboardController extends Controller
                 ->map(fn (QuoteRequest $solicitud): array => [
                     'id' => $solicitud->id,
                     'nombre' => $solicitud->nombre,
-                    'localidad' => $solicitud->localidad,
+                    'telefono' => $solicitud->telefono,
                     'items_count' => $solicitud->items_count,
                     'estado' => $solicitud->estado->value,
                     'estado_label' => $solicitud->estado->label(),

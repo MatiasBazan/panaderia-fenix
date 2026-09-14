@@ -28,7 +28,6 @@ class StoreQuoteRequestRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:120'],
             'telefono' => ['required', 'string', 'max:40'],
             'tipo' => ['required', Rule::enum(TipoPedido::class)],
-            'localidad' => ['nullable', 'string', 'max:120'],
             'mensaje' => ['nullable', 'string', 'max:2000'],
             'fecha_evento' => [
                 'nullable',
@@ -57,7 +56,6 @@ class StoreQuoteRequestRequest extends FormRequest
             'nombre' => 'nombre',
             'telefono' => 'teléfono',
             'tipo' => 'tipo de pedido',
-            'localidad' => 'localidad',
             'mensaje' => 'mensaje',
             'fecha_evento' => 'fecha del evento',
             'items' => 'lista de productos',

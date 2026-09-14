@@ -8,7 +8,6 @@ import {
     EmptyState,
     Input,
     Pasos,
-    Select,
     Textarea,
     Thumb,
     useCondiciones,
@@ -25,7 +24,6 @@ type Props = {
     productos: PublicProduct[];
     /** Ids por los que el servidor efectivamente preguntó. */
     consultados: number[];
-    zonas: string[];
     /** Seña que se pide para reservar el pedido, en pesos. 0 oculta el aviso. */
     sena: number;
 };
@@ -36,7 +34,6 @@ type FormData = {
     nombre: string;
     telefono: string;
     tipo: TipoPedido;
-    localidad: string;
     fecha_evento: string;
     mensaje: string;
     sitio_web: string;
@@ -66,12 +63,7 @@ const TIPOS: { value: TipoPedido; label: string; hint: string }[] = [
  * acá aparece como resumen de lectura — mezclar lista editable y formulario en
  * una misma pantalla era lo que hacía imposible saber qué se estaba enviando.
  */
-export default function Cotizacion({
-    productos,
-    consultados,
-    zonas,
-    sena,
-}: Props) {
+export default function Cotizacion({ productos, consultados, sena }: Props) {
     const { vaciar } = usePedido();
     const { disponibles } = usePedidoRevalidado(
         '/cotizacion',
@@ -87,7 +79,6 @@ export default function Cotizacion({
         nombre: '',
         telefono: '',
         tipo: 'minorista',
-        localidad: '',
         fecha_evento: '',
         mensaje: '',
         sitio_web: '',
@@ -309,33 +300,6 @@ export default function Cotizacion({
                             autoComplete="tel"
                             placeholder="351-555-0000"
                         />
-                        {zonas.length > 0 ? (
-                            <Select
-                                label="Localidad"
-                                placeholder="Elegí tu localidad"
-                                options={[
-                                    ...zonas.map((zona) => ({
-                                        value: zona,
-                                        label: zona,
-                                    })),
-                                    { value: 'Otra', label: 'Otra' },
-                                ]}
-                                value={form.data.localidad}
-                                onChange={(e) =>
-                                    form.setData('localidad', e.target.value)
-                                }
-                                error={form.errors.localidad}
-                            />
-                        ) : (
-                            <Input
-                                label="Localidad"
-                                value={form.data.localidad}
-                                onChange={(e) =>
-                                    form.setData('localidad', e.target.value)
-                                }
-                                error={form.errors.localidad}
-                            />
-                        )}
                         <DatePicker
                             label="Fecha del evento"
                             hint={`Sólo si el pedido es para una fecha puntual. La tomamos con ${textoAnticipacion} de anticipación.`}

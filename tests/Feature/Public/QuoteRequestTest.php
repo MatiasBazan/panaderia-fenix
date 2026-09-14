@@ -21,7 +21,6 @@ function datosValidos(array $overrides = []): array
         'nombre' => 'Lucía Ferreyra',
         'telefono' => '351-555-0000',
         'tipo' => 'minorista',
-        'localidad' => 'Córdoba',
         'mensaje' => 'Es para el cumpleaños de mi hija.',
         'fecha_evento' => now()->addWeek()->toDateString(),
     ], $overrides);

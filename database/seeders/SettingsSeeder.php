@@ -16,9 +16,8 @@ class SettingsSeeder extends Seeder
             Settings::DIAS_ANTICIPACION_MINIMA => 2,
             Settings::MONTO_MINIMO_PEDIDO => '25000.00',
             Settings::SENIA_REQUERIDA => true,
-            // Hoy se reparte sólo en Leones. El formulario público suma "Otra"
-            // al final, así que quien es de otra localidad igual puede pedir y
-            // se coordina por WhatsApp.
+            // Hoy se reparte sólo en Leones. Se muestra en la landing; el
+            // formulario de pedido ya no pregunta la localidad.
             Settings::ZONAS_ENTREGA => [
                 'Leones',
             ],
