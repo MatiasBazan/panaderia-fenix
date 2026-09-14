@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import type { PublicProduct } from '@/components/ui';
 import PublicLayout from '@/layouts/public-layout';
+import { appName } from '@/lib/app-name';
 import type { Condiciones } from '@/types/shared';
 
 type Horario = { dias: string; horario: string };
@@ -76,7 +77,7 @@ export default function Landing({ mostrador, panaderia, fotos, zonas }: Props) {
 
     return (
         <PublicLayout>
-            <Head title="Panadería familiar en Leones" />
+            <Head title={appName} />
 
             {/* Hero: el titular manda, la foto lo acompaña desde el margen. */}
             <section className="grano relative overflow-hidden border-b border-borde halo-horno">
