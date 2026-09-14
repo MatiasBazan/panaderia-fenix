@@ -22,8 +22,8 @@ const inputClass = cn(controlClass(), 'h-10');
 
 /**
  * Edita los grupos de variantes de un producto: «Sabor» con membrillo / dulce de
- * leche / batata, «Tamaño» con grande / chico. El precio por opción es de
- * referencia interna y opcional — los sabores de la pastaflora lo dejan vacío.
+ * leche / batata, «Tamaño» con grande / chico. Un solo grupo puede llevar precio
+ * (el tamaño), y ese precio reemplaza al general; los sabores lo dejan vacío.
  */
 export default function VariantesEditor({ value, onChange, error }: Props) {
     const setGrupo = (indice: number, cambios: Partial<GrupoEdit>) =>
@@ -70,8 +70,9 @@ export default function VariantesEditor({ value, onChange, error }: Props) {
                 </span>
                 <p className="text-xs text-texto-medio">
                     Opciones que el cliente elige sobre la misma foto (sabor,
-                    tamaño). El precio por opción es de referencia interna y
-                    opcional; no se muestra en el sitio.
+                    tamaño). Si un grupo cambia el precio, cargalo en ese grupo
+                    solo (ej. Tamaño): reemplaza al precio general en la
+                    cotización. No se muestra en el sitio.
                 </p>
             </div>
 
@@ -109,7 +110,7 @@ export default function VariantesEditor({ value, onChange, error }: Props) {
                     <div className="grid gap-3 sm:gap-2">
                         <div className="hidden gap-2 text-xs font-medium text-texto-medio sm:flex">
                             <span className="flex-1">Opción</span>
-                            <span className="w-28">Precio ref.</span>
+                            <span className="w-28">Precio</span>
                             <span className="w-9" aria-hidden="true" />
                         </div>
 
@@ -133,7 +134,7 @@ export default function VariantesEditor({ value, onChange, error }: Props) {
                                 />
                                 <label className="row-start-2 flex items-center gap-2 sm:contents">
                                     <span className="shrink-0 text-xs font-medium text-texto-medio sm:hidden">
-                                        Precio ref.
+                                        Precio
                                     </span>
                                     <input
                                         className={cn(
@@ -144,7 +145,7 @@ export default function VariantesEditor({ value, onChange, error }: Props) {
                                         step="0.01"
                                         min={0}
                                         placeholder="—"
-                                        aria-label="Precio de referencia (opcional)"
+                                        aria-label="Precio (opcional)"
                                         value={opcion.precio}
                                         onChange={(e) =>
                                             setOpcion(

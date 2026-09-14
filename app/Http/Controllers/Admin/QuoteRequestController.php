@@ -116,7 +116,8 @@ class QuoteRequestController extends Controller
                     'nombre' => $item->product->nombre,
                     'variante' => $item->variante,
                     'unidad_label' => $item->product->unidad->label(),
-                    'precio_base' => (string) $item->product->precio_base,
+                    // El de la variante pedida si una la fija; si no, el general.
+                    'precio' => $item->product->precioPara($item->variante),
                     'dado_de_baja' => $item->product->trashed(),
                     'cantidad' => (string) $item->cantidad,
                     'nota' => $item->nota,

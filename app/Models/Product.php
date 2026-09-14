@@ -22,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $descripcion
  * @property list<array{nombre: string, opciones: list<array{label: string, precio?: string}>}>|null $variantes
  * @property ProductUnidad $unidad
- * @property string $precio_base
+ * @property string|null $precio_base
  * @property string|null $imagen
  * @property bool $activo
  * @property bool $destacado
@@ -65,6 +65,67 @@ class Product extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Índice del grupo de variantes que fija el precio (el primero con alguna
+     * opción con precio), o null si ninguno lo hace. La validación del admin
+     * garantiza que haya a lo sumo uno.
+     */
+    public function grupoConPrecio(): ?int
+    {
+        foreach ($this->variantes ?? [] as $indice => $grupo) {
+            foreach ($grupo['opciones'] as $opcion) {
+                if (isset($opcion['precio'])) {
+                    return $indice;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Precio de lista de la variante elegida («Chocolate · Grande»). La opción
+     * del grupo que fija precio reemplaza al precio general; si esa opción no
+     * tiene precio, se cae al general.
+     */
+    public function precioPara(?string $variante): ?string
+    {
+        $indice = $this->grupoConPrecio();
+
+        if ($indice === null) {
+            return $this->precio_base;
+        }
+
+        $opciones = ($this->variantes ?? [])[$indice]['opciones'];
+        $partes = $variante === null ? [] : explode(' · ', $variante);
+
+        // La variante se compone en el orden de los grupos, así que primero se
+        // busca en su posición; si no está (se reordenaron), por etiqueta.
+        $elegida = collect($opciones)->firstWhere('label', $partes[$indice] ?? null)
+            ?? collect($opciones)->first(fn (array $opcion): bool => in_array($opcion['label'], $partes, true))
+            // Sin elección reconocible (un pedido de antes de las variantes): la
+            // primera opción, que es la que el sitio deja elegida de entrada.
+            ?? $opciones[0];
+
+        return $elegida['precio'] ?? $this->precio_base;
+    }
+
+    /** El precio más bajo entre las opciones del grupo que fija precio, para el listado. */
+    public function precioDesde(): ?string
+    {
+        $indice = $this->grupoConPrecio();
+
+        if ($indice === null) {
+            return null;
+        }
+
+        return collect(($this->variantes ?? [])[$indice]['opciones'])
+            ->map(fn (array $opcion): ?string => $opcion['precio'] ?? $this->precio_base)
+            ->filter(fn (?string $precio): bool => $precio !== null)
+            ->sortBy(fn (string $precio): float => (float) $precio)
+            ->first();
     }
 
     /** @return BelongsTo<Category, $this> */

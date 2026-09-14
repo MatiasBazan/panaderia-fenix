@@ -28,11 +28,13 @@ class AdminProductResource extends JsonResource
             'nombre' => $this->nombre,
             'slug' => $this->slug,
             'descripcion' => $this->descripcion,
-            // Crudo, con el precio de referencia interno: solo lo ve el admin.
+            // Crudo, con el precio de cada opción: solo lo ve el admin.
             'variantes' => $this->variantes ?? [],
             'unidad' => $this->unidad->value,
             'unidad_label' => $this->unidad->label(),
-            'precio_base' => (string) $this->precio_base,
+            'precio_base' => $this->precio_base === null ? null : (string) $this->precio_base,
+            // Si una variante fija el precio, el más bajo de sus opciones.
+            'precio_desde' => $this->precioDesde(),
             'imagen' => $this->imagen === null ? null : asset('storage/'.$this->imagen),
             'imagen_thumb' => $this->imagen === null
                 ? null

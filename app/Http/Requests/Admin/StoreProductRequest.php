@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\ProductUnidad;
 use App\Http\Requests\Concerns\AvisaFotoDemasiadoPesada;
+use App\Http\Requests\Concerns\ValidaPreciosDeVariantes;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\LimiteSubida;
@@ -15,7 +16,7 @@ use Illuminate\Validation\Validator;
 
 class StoreProductRequest extends FormRequest
 {
-    use AvisaFotoDemasiadoPesada;
+    use AvisaFotoDemasiadoPesada, ValidaPreciosDeVariantes;
 
     public function authorize(): bool
     {
@@ -40,7 +41,8 @@ class StoreProductRequest extends FormRequest
             'variantes.*.opciones.*.precio' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'unidad' => ['required', Rule::enum(ProductUnidad::class)],
             // La columna es decimal(10,2): más de dos decimales se rechaza en vez de redondearse solo.
-            'precio_base' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
+            // Cuándo es obligatorio lo decide `validarPreciosDeVariantes`.
+            'precio_base' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.LimiteSubida::kb(self::pesoPedidoKb())],
             'activo' => ['required', 'boolean'],
             'destacado' => ['required', 'boolean'],
@@ -68,6 +70,7 @@ class StoreProductRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(fn (Validator $v) => $this->avisarSiLaFotoNoEntro($v));
+        $validator->after(fn (Validator $v) => $this->validarPreciosDeVariantes($v));
     }
 
     /**

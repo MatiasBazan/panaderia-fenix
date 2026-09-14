@@ -37,7 +37,8 @@ type SolicitudItem = {
     nombre: string;
     variante: string | null;
     unidad_label: string;
-    precio_base: string;
+    /** De lista: el de la variante pedida si una fija precio, si no el general. */
+    precio: string | null;
     dado_de_baja: boolean;
     cantidad: string;
     nota: string | null;
@@ -236,7 +237,9 @@ export default function CotizacionShow({
                                         )}
                                         <p className="text-xs text-texto-suave">
                                             {item.unidad_label} ·{' '}
-                                            {money(item.precio_base)} base
+                                            {item.precio === null
+                                                ? 'sin precio'
+                                                : `${money(item.precio)} de lista`}
                                         </p>
                                     </div>
                                     <span className="shrink-0 font-mono text-texto">

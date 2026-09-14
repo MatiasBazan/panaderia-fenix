@@ -205,8 +205,8 @@ class CatalogSeeder extends Seeder
                             [
                                 'nombre' => 'Tamaño',
                                 'opciones' => [
-                                    ['label' => 'Grande', 'precio' => '1500.00'],
-                                    ['label' => 'Chico', 'precio' => '900.00'],
+                                    ['label' => 'Grande', 'precio' => '15800.00'],
+                                    ['label' => 'Chico', 'precio' => '9800.00'],
                                 ],
                             ],
                         ],

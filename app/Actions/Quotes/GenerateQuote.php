@@ -46,7 +46,7 @@ class GenerateQuote
 
             foreach ($quoteRequest->items as $item) {
                 $product = $item->product;
-                $precioUnitario = $this->prices->unitPrice($product);
+                $precioUnitario = $this->prices->unitPrice($product, variante: $item->variante);
                 $lineaSubtotal = $this->prices->lineSubtotal($precioUnitario, (string) $item->cantidad);
 
                 $descripcion = $product->nombre;

@@ -32,13 +32,24 @@ type Producto = {
     nombre: string;
     slug: string;
     unidad: UnidadValue;
-    precio_base: string;
+    precio_base: string | null;
+    /** Si una variante fija el precio, el más bajo de sus opciones. */
+    precio_desde: string | null;
     imagen: string | null;
     imagen_thumb: string | null;
     activo: boolean;
     destacado: boolean;
     categoria: { id: number; nombre: string; slug: string } | null;
 };
+
+/** Con variante que fija precio se lee «desde»: el precio depende del tamaño. */
+function precioDe(p: Producto): string {
+    if (p.precio_desde !== null) {
+        return `desde ${money(p.precio_desde)}`;
+    }
+
+    return p.precio_base === null ? '—' : money(p.precio_base);
+}
 
 type OpcionCategoria = { id: number; nombre: string; slug: string };
 
@@ -197,7 +208,7 @@ export default function ProductosIndex({
                                         />
                                         <StackedField
                                             label="Precio"
-                                            value={money(p.precio_base)}
+                                            value={precioDe(p)}
                                             numeric
                                         />
                                     </div>
@@ -253,7 +264,7 @@ export default function ProductosIndex({
                                     <TD>
                                         <UnitBadge unidad={p.unidad} />
                                     </TD>
-                                    <TD numeric>{money(p.precio_base)}</TD>
+                                    <TD numeric>{precioDe(p)}</TD>
                                     <TD>
                                         {p.activo ? (
                                             <Badge tone="exito">Activo</Badge>

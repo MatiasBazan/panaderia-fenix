@@ -13,12 +13,13 @@ class PriceCalculator
 {
     /**
      * Precio unitario con el descuento del comercio aplicado, redondeado a 2 decimales.
+     * Con variante, manda el precio de la opción que la fija (el tamaño, por ejemplo).
      * Devuelve string decimal para no arrastrar errores de punto flotante.
      */
-    public function unitPrice(Product $product, ?Business $business = null): string
+    public function unitPrice(Product $product, ?Business $business = null, ?string $variante = null): string
     {
         return $this->applyDiscount(
-            (string) $product->precio_base,
+            $product->precioPara($variante) ?? '0.00',
             $business === null ? '0.00' : (string) $business->descuento_porcentaje,
         );
     }

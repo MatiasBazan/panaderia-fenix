@@ -20,7 +20,7 @@ export type ProductoEdit = {
           }[]
         | null;
     unidad: UnidadValue;
-    precio_base: string;
+    precio_base: string | null;
     imagen: string | null;
     activo: boolean;
     destacado: boolean;
@@ -39,6 +39,27 @@ function variantesParaEditar(producto?: ProductoEdit): GrupoEdit[] {
                     : String(opcion.precio),
         })),
     }));
+}
+
+/**
+ * El grupo que fija el precio (el primero con alguna opción con precio) y si
+ * todas sus opciones lo tienen. Mismo criterio que `ValidaPreciosDeVariantes`.
+ */
+function grupoConPrecio(
+    variantes: GrupoEdit[],
+): { nombre: string; completo: boolean } | null {
+    const grupo = variantes.find((g) =>
+        g.opciones.some((o) => o.precio.trim() !== ''),
+    );
+
+    if (!grupo) {
+        return null;
+    }
+
+    return {
+        nombre: grupo.nombre.trim() || 'la variante',
+        completo: grupo.opciones.every((o) => o.precio.trim() !== ''),
+    };
 }
 
 export type OpcionCategoria = { id: number; nombre: string; slug: string };
@@ -102,6 +123,8 @@ export default function ProductoForm({
         imagen: null,
         eliminar_imagen: false,
     });
+
+    const fijaPrecio = grupoConPrecio(form.data.variantes);
 
     const guardar = (e: React.FormEvent) => {
         e.preventDefault();
@@ -185,7 +208,14 @@ export default function ProductoForm({
             <div className="grid gap-5 sm:grid-cols-2">
                 <Input
                     label="Precio"
-                    required
+                    required={!fijaPrecio?.completo}
+                    hint={
+                        fijaPrecio === null
+                            ? undefined
+                            : fijaPrecio.completo
+                              ? `Opcional: el precio sale de «${fijaPrecio.nombre}».`
+                              : `Se usa para las opciones de «${fijaPrecio.nombre}» sin precio.`
+                    }
                     mono
                     type="number"
                     step="0.01"

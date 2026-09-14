@@ -54,6 +54,41 @@ it('genera el borrador de cotización con los totales calculados', function () {
         ->and($solicitud->fresh()->estado)->toBe(QuoteRequestEstado::EnProceso);
 });
 
+it('cotiza cada línea con el precio de la variante que fija el precio', function () {
+    $alfajores = Product::factory()->create([
+        'precio_base' => null,
+        'variantes' => [
+            ['nombre' => 'Relleno', 'opciones' => [['label' => 'Chocolate'], ['label' => 'Maicena']]],
+            ['nombre' => 'Tamaño', 'opciones' => [
+                ['label' => 'Grande', 'precio' => '15800.00'],
+                ['label' => 'Chico', 'precio' => '9800.00'],
+            ]],
+        ],
+    ]);
+
+    $solicitud = QuoteRequest::factory()->create(['estado' => QuoteRequestEstado::Nueva]);
+
+    QuoteRequestItem::factory()->for($solicitud)->create([
+        'product_id' => $alfajores->id,
+        'variante' => 'Chocolate · Grande',
+        'cantidad' => '2',
+    ]);
+
+    QuoteRequestItem::factory()->for($solicitud)->create([
+        'product_id' => $alfajores->id,
+        'variante' => 'Maicena · Chico',
+        'cantidad' => '1',
+    ]);
+
+    $this->actingAs($this->admin)->post("/admin/cotizaciones/{$solicitud->id}/generar");
+
+    $quote = Quote::query()->with('items')->firstOrFail();
+
+    expect($quote->items->pluck('precio_unitario')->map(fn ($p) => (string) $p)->all())
+        ->toBe(['15800.00', '9800.00'])
+        ->and((string) $quote->subtotal)->toBe('41400.00');
+});
+
 it('no genera una segunda cotización para la misma solicitud', function () {
     $solicitud = solicitudConItems();
 

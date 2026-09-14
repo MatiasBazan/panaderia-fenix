@@ -122,6 +122,65 @@ it('guarda las variantes que vienen como JSON del formulario', function () {
         ->and($variantes[1]['opciones'][0])->toBe(['label' => 'Grande', 'precio' => '1500']);
 });
 
+/** Datos mínimos de un producto nuevo, para probar las reglas de precio. */
+function productoConVariantes(array $variantes, ?string $precioBase): array
+{
+    return [
+        'category_id' => Category::factory()->create()->id,
+        'sku' => 'ALF-'.fake()->unique()->numberBetween(100, 999),
+        'nombre' => 'Alfajores '.fake()->unique()->word(),
+        'unidad' => 'docena',
+        'precio_base' => $precioBase ?? '',
+        'variantes' => json_encode($variantes),
+        'activo' => true,
+        'destacado' => false,
+        'orden' => 0,
+    ];
+}
+
+it('no pide precio general si todas las opciones de un grupo tienen precio', function () {
+    $this->actingAs($this->admin)
+        ->post('/admin/productos', productoConVariantes([
+            ['nombre' => 'Relleno', 'opciones' => [['label' => 'Chocolate', 'precio' => '']]],
+            ['nombre' => 'Tamaño', 'opciones' => [
+                ['label' => 'Grande', 'precio' => '15800'],
+                ['label' => 'Chico', 'precio' => '9800'],
+            ]],
+        ], null))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/admin/productos');
+
+    expect(Product::query()->where('sku', 'like', 'ALF-%')->sole()->precio_base)->toBeNull();
+});
+
+it('pide precio general si alguna opción del grupo con precio no lo tiene', function () {
+    $this->actingAs($this->admin)
+        ->post('/admin/productos', productoConVariantes([
+            ['nombre' => 'Tamaño', 'opciones' => [
+                ['label' => 'Grande', 'precio' => '15800'],
+                ['label' => 'Chico', 'precio' => ''],
+            ]],
+        ], null))
+        ->assertSessionHasErrors('precio_base');
+});
+
+it('pide precio general si ninguna variante tiene precio', function () {
+    $this->actingAs($this->admin)
+        ->post('/admin/productos', productoConVariantes([
+            ['nombre' => 'Sabor', 'opciones' => [['label' => 'Membrillo', 'precio' => '']]],
+        ], null))
+        ->assertSessionHasErrors('precio_base');
+});
+
+it('rechaza precios en más de un grupo de variantes', function () {
+    $this->actingAs($this->admin)
+        ->post('/admin/productos', productoConVariantes([
+            ['nombre' => 'Relleno', 'opciones' => [['label' => 'Chocolate', 'precio' => '100']]],
+            ['nombre' => 'Tamaño', 'opciones' => [['label' => 'Grande', 'precio' => '15800']]],
+        ], '12800'))
+        ->assertSessionHasErrors('variantes');
+});
+
 it('rechaza un precio con más de dos decimales', function () {
     $categoria = Category::factory()->create();
 
