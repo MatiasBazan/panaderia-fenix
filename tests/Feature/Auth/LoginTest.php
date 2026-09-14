@@ -16,6 +16,14 @@ it('manda al admin a /admin después de ingresar', function () {
     $this->assertAuthenticatedAs($admin);
 });
 
+it('manda al panel a quien ya tiene sesión y entra a /login', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->get('/login')
+        ->assertRedirect('/admin');
+});
+
 it('manda a cambiar la clave temporal antes que a su destino', function () {
     $user = User::factory()->admin()->debeCambiarPassword()->create();
 

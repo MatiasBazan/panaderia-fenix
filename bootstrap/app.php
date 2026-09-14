@@ -30,6 +30,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'password.changed' => EnsurePasswordChanged::class,
         ]);
+
+        // Quien ya tiene sesión y entra a /login (el enlace «Administración» del
+        // footer) va a su panel, el mismo destino que después de ingresar. Sin
+        // esto Laravel lo mandaba a la portada.
+        $middleware->redirectUsersTo(
+            fn (Request $request): string => $request->user()?->role->homeRoute() ?? '/',
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
