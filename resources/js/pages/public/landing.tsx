@@ -67,7 +67,7 @@ const construirPasos = (condiciones: Condiciones) => [
     },
     {
         titulo: 'Coordinamos la entrega',
-        texto: `Te respondemos en el mismo día con la cotización. Los pedidos se toman ${condicionesEnFrase(condiciones)}, y ajustamos cantidades y días por WhatsApp.`,
+        texto: `Recibí tu cotización el mismo día. Tomamos pedidos ${condicionesEnFrase(condiciones)}. Coordiná cantidades y fechas por WhatsApp.`,
     },
 ];
 
